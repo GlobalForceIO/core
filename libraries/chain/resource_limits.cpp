@@ -225,7 +225,8 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
    }
    */
    //TEST RAM CALC
-   EOS_ASSERT( false, missing_auth_exception, "RAM ${ram} bytes", ("ram",usage.ram_usage));
+   const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
+   EOS_ASSERT( false, ram_usage_exceeded, "RAM ${ramb} bytes", ("ramb",usage.ram_usage));
 }
 
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
