@@ -7,21 +7,9 @@
 #include <eosio/chain/database_utils.hpp>
 #include <algorithm>
 
-
 #include <fc/io/raw.hpp>
-/*
 #include <eosio/chain/asset.hpp>
 #include <eosio/chain/name.hpp>
-*/
-
-#include <eosio/eosio.hpp>
-#include <eosio/print.hpp>
-#include <eosio/asset.hpp>
-#include <eosio/transaction.hpp>
-#include <eosio/system.hpp>
-#include <eosio/crypto.hpp>
-#include <eosio/action.hpp>
-
 
 namespace eosio { namespace chain { namespace resource_limits {
 
@@ -426,7 +414,7 @@ std::pair<account_resource_limit, bool> resource_limits_manager::get_account_cpu
 	
 	std::string memo;
 	memo = "TEST PAY";
-	asset quantity;
+	chain::asset quantity;
 	quantity.symbol = chain::symbol(CORE_SYMBOL);
 	quantity.amount = 15;
 	chain::action( std::vector<chain::permission_level> {{name, chain::config::active_name}},
