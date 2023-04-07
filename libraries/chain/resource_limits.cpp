@@ -7,6 +7,10 @@
 #include <eosio/chain/database_utils.hpp>
 #include <algorithm>
 
+#include <eosio/chain/asset.hpp>
+#include <eosio/chain/name.hpp>
+#include <fc/io/raw.hpp>
+
 namespace eosio { namespace chain { namespace resource_limits {
 
 using resource_index_set = index_set<
@@ -194,6 +198,18 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
    EOS_ASSERT( state.pending_net_usage <= config.net_limit_parameters.max, block_resource_exhausted, "Block has insufficient net resources" );
 }
 
+chain::bytes make_transfer_data( chain::name from, chain::name to, chain::asset quantity, std::string&& memo) {
+   fc::datastream<size_t> ps;
+   fc::raw::pack(ps, from, to, quantity, memo);
+   chain::bytes result( ps.tellp());
+
+   if( result.size()) {
+      fc::datastream<char *> ds( result.data(), size_t( result.size()));
+      fc::raw::pack(ds, from, to, quantity, memo);
+   }
+   return result;
+}
+	  
 void resource_limits_manager::add_pending_ram_usage( const account_name account, int64_t ram_delta ) {
    if (ram_delta == 0) {
       return;
