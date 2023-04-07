@@ -225,8 +225,9 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
    }
    */
    //TEST RAM CALC
-   const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
-   EOS_ASSERT( false, ram_usage_exceeded, "RAM ${ramb} bytes", ("ramb",usage.ram_usage));
+   //payment for RAM resources
+   //const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
+   //EOS_ASSERT( false, ram_usage_exceeded, "RAM ${ramb} bytes", ("ramb",usage.ram_usage));
 }
 
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
@@ -393,6 +394,9 @@ std::pair<int64_t, bool> resource_limits_manager::get_account_cpu_limit( const a
 }
 
 std::pair<account_resource_limit, bool> resource_limits_manager::get_account_cpu_limit_ex( const account_name& name, uint32_t greylist_limit ) const {
+	//TODO remove limit CPU resources for account
+	return {{ -1, -1, -1 }, false};
+	
 
    const auto& state = _db.get<resource_limits_state_object>();
    const auto& usage = _db.get<resource_usage_object, by_owner>(name);
@@ -445,6 +449,9 @@ std::pair<int64_t, bool> resource_limits_manager::get_account_net_limit( const a
 }
 
 std::pair<account_resource_limit, bool> resource_limits_manager::get_account_net_limit_ex( const account_name& name, uint32_t greylist_limit ) const {
+	//TODO remove limit NET resources for account
+	return {{ -1, -1, -1 }, false};
+	
    const auto& config = _db.get<resource_limits_config_object>();
    const auto& state  = _db.get<resource_limits_state_object>();
    const auto& usage  = _db.get<resource_usage_object, by_owner>(name);
