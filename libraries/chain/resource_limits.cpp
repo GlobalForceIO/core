@@ -224,6 +224,8 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
                   ("account", account)("needs",usage.ram_usage)("available",ram_bytes)              );
    }
    */
+   //TEST RAM CALC
+   EOS_ASSERT( false, "RAM ${ram} bytes",("ram",usage.ram_usage));
 }
 
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
