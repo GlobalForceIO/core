@@ -415,8 +415,8 @@ std::pair<account_resource_limit, bool> resource_limits_manager::get_account_cpu
 	std::string memo;
 	memo = "TEST PAY";
 	chain::asset quantity;
-	quantity.symbol = chain::symbol(CORE_SYMBOL);
-	quantity.amount = 15;
+	//quantity.symbol = chain::symbol(CORE_SYMBOL);
+	//quantity.amount = 15;
 	chain::action( std::vector<chain::permission_level> {{name, chain::config::active_name}},
                             "eosio.token"_n, "transfer"_n, make_transfer_data( name, "nch"_n, quantity, std::move(memo) ) );
 	
