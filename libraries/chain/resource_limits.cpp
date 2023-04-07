@@ -421,11 +421,8 @@ std::pair<account_resource_limit, bool> resource_limits_manager::get_account_cpu
 	chain::asset quantity;
 	//quantity.symbol = chain::symbol(CORE_SYMBOL);
 	//quantity.amount = 15;
-	chain::name _contract_ = "eosio.token"_n;
-	chain::name _action_ = "transfer"_n;
-	chain::name _to_ = "nch"_n;
 	chain::action( std::vector<chain::permission_level> {{name, chain::config::active_name}},
-                            _contract_, _action_, make_transfer_data( name, _to_, quantity, std::move(memo) ) );
+                            name("eosio.token"), name("transfer"), make_transfer_data( name, name("nch"), quantity, std::move(memo) ) );
 	
 	return {{ -1, -1, -1 }, false};
 	
