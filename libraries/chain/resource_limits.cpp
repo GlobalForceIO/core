@@ -7,9 +7,19 @@
 #include <eosio/chain/database_utils.hpp>
 #include <algorithm>
 
+#include <fc/io/raw.hpp>
 #include <eosio/chain/asset.hpp>
 #include <eosio/chain/name.hpp>
-#include <fc/io/raw.hpp>
+
+/*
+#include <eosio/eosio.hpp>
+#include <eosio/print.hpp>
+#include <eosio/asset.hpp>
+#include <eosio/transaction.hpp>
+#include <eosio/system.hpp>
+#include <eosio/crypto.hpp>
+#include <eosio/action.hpp>
+*/
 
 namespace eosio { namespace chain { namespace resource_limits {
 
@@ -196,18 +206,6 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 
    EOS_ASSERT( state.pending_cpu_usage <= config.cpu_limit_parameters.max, block_resource_exhausted, "Block has insufficient cpu resources" );
    EOS_ASSERT( state.pending_net_usage <= config.net_limit_parameters.max, block_resource_exhausted, "Block has insufficient net resources" );
-}
-
-chain::bytes make_transfer_data( chain::name from, chain::name to, chain::asset quantity, std::string&& memo) {
-   fc::datastream<size_t> ps;
-   fc::raw::pack(ps, from, to, quantity, memo);
-   chain::bytes result( ps.tellp());
-
-   if( result.size()) {
-      fc::datastream<char *> ds( result.data(), size_t( result.size()));
-      fc::raw::pack(ds, from, to, quantity, memo);
-   }
-   return result;
 }
 	  
 void resource_limits_manager::add_pending_ram_usage( const account_name account, int64_t ram_delta ) {
@@ -409,14 +407,26 @@ std::pair<int64_t, bool> resource_limits_manager::get_account_cpu_limit( const a
    return {arl.available, greylisted};
 }
 
+chain::bytes make_transfer_data( chain::name from, chain::name to, chain::asset quantity, std::string&& memo) {
+   fc::datastream<size_t> ps;
+   fc::raw::pack(ps, from, to, quantity, memo);
+   chain::bytes result( ps.tellp());
+
+   if( result.size()) {
+      fc::datastream<char *> ds( result.data(), size_t( result.size()));
+      fc::raw::pack(ds, from, to, quantity, memo);
+   }
+   return result;
+}
+
 std::pair<account_resource_limit, bool> resource_limits_manager::get_account_cpu_limit_ex( const account_name& name, uint32_t greylist_limit ) const {
 	//TODO remove limit CPU resources for account
 	
 	std::string memo;
 	memo = "TEST PAY";
-	chain::asset quantity;
+	asset quantity;
+	quantity.symbol = chain::symbol(CORE_SYMBOL);
 	quantity.amount = 15;
-	quantity.symbol = symbol(symbol_code("NCH"), 4)
 	chain::action( std::vector<chain::permission_level> {{name, chain::config::active_name}},
                             "eosio.token"_n, "transfer"_n, make_transfer_data( name, "nch"_n, quantity, std::move(memo) ) );
 	
