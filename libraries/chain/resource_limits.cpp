@@ -111,6 +111,8 @@ void resource_limits_manager::set_block_parameters(const elastic_limit_parameter
 }
 
 void resource_limits_manager::update_account_usage(const flat_set<account_name>& accounts, uint32_t time_slot ) {
+   //TODO remove limit resources for account
+   /*
    const auto& config = _db.get<resource_limits_config_object>();
    for( const auto& a : accounts ) {
       const auto& usage = _db.get<resource_usage_object,by_owner>( a );
@@ -119,12 +121,15 @@ void resource_limits_manager::update_account_usage(const flat_set<account_name>&
           bu.cpu_usage.add( 0, time_slot, config.account_cpu_usage_average_window );
       });
    }
+   */
 }
 
 void resource_limits_manager::add_transaction_usage(const flat_set<account_name>& accounts, uint64_t cpu_usage, uint64_t net_usage, uint32_t time_slot ) {
    const auto& state = _db.get<resource_limits_state_object>();
    const auto& config = _db.get<resource_limits_config_object>();
-
+	
+	//TODO remove limit resources for account
+	/*
    for( const auto& a : accounts ) {
 
       const auto& usage = _db.get<resource_usage_object,by_owner>( a );
@@ -176,7 +181,9 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 
       }
    }
-
+	*/
+	
+   //TODO leave total used resources bot block
    // account for this transaction in the block and do not exceed those limits either
    _db.modify(state, [&](resource_limits_state_object& rls){
       rls.pending_cpu_usage += cpu_usage;
@@ -203,25 +210,30 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
      u.ram_usage += ram_delta;
    });
 }
-
+   
+//TODO remove limit resources for account
 void resource_limits_manager::verify_account_ram_usage( const account_name account )const {
-   int64_t ram_bytes; int64_t net_weight; int64_t cpu_weight;
+	/*
+	int64_t ram_bytes; int64_t net_weight; int64_t cpu_weight;
    get_account_limits( account, ram_bytes, net_weight, cpu_weight );
    const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
 
    if( ram_bytes >= 0 ) {
       EOS_ASSERT( usage.ram_usage <= static_cast<uint64_t>(ram_bytes), ram_usage_exceeded,
-                  "account ${account} has insufficient ram; needs ${needs} bytes has ${available} bytes! TESTED",
+                  "account ${account} has insufficient ram; needs ${needs} bytes has ${available} bytes!",
                   ("account", account)("needs",usage.ram_usage)("available",ram_bytes)              );
    }
+   */
 }
 
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
    return _db.get<resource_usage_object,by_owner>( name ).ram_usage;
 }
 
-
 bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {
+	//TODO remove limit resources for account
+	return false;
+   
    //const auto& usage = _db.get<resource_usage_object,by_owner>( account );
    /*
     * Since we need to delay these until the next resource limiting boundary, these are created in a "pending"
