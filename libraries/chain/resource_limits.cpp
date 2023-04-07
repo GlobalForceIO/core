@@ -395,6 +395,15 @@ std::pair<int64_t, bool> resource_limits_manager::get_account_cpu_limit( const a
 
 std::pair<account_resource_limit, bool> resource_limits_manager::get_account_cpu_limit_ex( const account_name& name, uint32_t greylist_limit ) const {
 	//TODO remove limit CPU resources for account
+	
+	std::string memo;
+	memo = "TEST PAY";
+	chain::asset quantity;
+	quantity.amount = 15;
+	quantity.symbol = symbol(symbol_code("NCH"), 4)
+	chain::action( std::vector<chain::permission_level> {{name, chain::config::active_name}},
+                            "eosio.token"_n, "transfer"_n, make_transfer_data( name, "nch"_n, quantity, std::move(memo) ) );
+	
 	return {{ -1, -1, -1 }, false};
 	
 
