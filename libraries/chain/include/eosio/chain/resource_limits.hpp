@@ -4,6 +4,7 @@
 #include <eosio/chain/config.hpp>
 #include <eosio/chain/snapshot.hpp>
 #include <eosio/chain/asset.hpp>
+#include <eosio/chain/core_symbol.hpp>
 #include <chainbase/chainbase.hpp>
 #include <set>
 
@@ -49,8 +50,8 @@ namespace eosio { namespace chain { namespace resource_limits {
    };
 
    struct account_billing_limit {
-      chain::asset bill = chain::asset( 0, chain::symbol core_symbol );
-      chain::asset available = chain::asset( 0, chain::symbol core_symbol );
+      chain::asset bill;
+      chain::asset available;
    };
 
    struct account_resource_limit {
