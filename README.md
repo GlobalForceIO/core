@@ -23,8 +23,8 @@ To uninstall the EOSIO built/installed binaries and dependencies, run:
 ```
 
 
-account_resource_billing   bill_limit
-struct account_resource_billing {
+account_billing_limit   bill_limit
+struct account_billing_limit {
 	asset payed = 0;
 	asset available = 0;
 };
