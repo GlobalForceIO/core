@@ -3,6 +3,7 @@
 #include <eosio/chain/types.hpp>
 #include <eosio/chain/config.hpp>
 #include <eosio/chain/snapshot.hpp>
+#include <eosio/chain/asset.hpp>
 #include <chainbase/chainbase.hpp>
 #include <set>
 
@@ -45,6 +46,11 @@ namespace eosio { namespace chain { namespace resource_limits {
       friend inline bool operator !=( const elastic_limit_parameters& lhs, const elastic_limit_parameters& rhs ) {
          return !(lhs == rhs);
       }
+   };
+
+   struct account_resource_billing {
+      chain::asset bill = chain::asset( 0, core_symbol );
+      chain::asset available = chain::asset( 0, core_symbol );
    };
 
    struct account_resource_limit {
@@ -103,6 +109,7 @@ namespace eosio { namespace chain { namespace resource_limits {
    };
 } } } /// eosio::chain
 
+FC_REFLECT( eosio::chain::resource_limits::account_resource_billing, (payed)(available) )
 FC_REFLECT( eosio::chain::resource_limits::account_resource_limit, (used)(available)(max) )
 FC_REFLECT( eosio::chain::resource_limits::ratio, (numerator)(denominator))
 FC_REFLECT( eosio::chain::resource_limits::elastic_limit_parameters, (target)(max)(periods)(max_multiplier)(contract_rate)(expand_rate))

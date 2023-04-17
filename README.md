@@ -22,4 +22,9 @@ To uninstall the EOSIO built/installed binaries and dependencies, run:
 ./scripts/eosio_uninstall.sh
 ```
 
-bill_resources
+
+account_resource_billing   bill_limit
+struct account_resource_billing {
+	asset payed = 0;
+	asset available = 0;
+};

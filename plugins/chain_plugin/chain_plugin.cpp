@@ -2436,7 +2436,7 @@ read_only::get_account_results read_only::get_account( const get_account_params&
    result.last_code_update = accnt_metadata_obj.last_code_update;
    result.created          = accnt_obj.creation_date;
    
-   //result.bill_resources
+   //result.bill_limit = rm.get_account_bill_limit( result.account_name).first;
    
    uint32_t greylist_limit = db.is_resource_greylisted(result.account_name) ? 1 : config::maximum_elastic_resource_multiplier;
    result.net_limit = rm.get_account_net_limit_ex( result.account_name, greylist_limit).first;

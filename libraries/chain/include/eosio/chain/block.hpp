@@ -26,6 +26,7 @@ namespace eosio { namespace chain {
       }
 
       fc::enum_type<uint8_t,status_enum>   status;
+      uint32_t                             testbill = 0; ///< total billed CPU usage (microseconds)
       uint32_t                             cpu_usage_us = 0; ///< total billed CPU usage (microseconds)
       fc::unsigned_int                     net_usage_words; ///<  total billed NET usage, so we can reconstruct resource state when skipping context free data... hard failures...
    };
@@ -41,6 +42,7 @@ namespace eosio { namespace chain {
       digest_type digest()const {
          digest_type::encoder enc;
          fc::raw::pack( enc, status );
+         fc::raw::pack( enc, testbill );
          fc::raw::pack( enc, cpu_usage_us );
          fc::raw::pack( enc, net_usage_words );
          if( trx.contains<transaction_id_type>() )

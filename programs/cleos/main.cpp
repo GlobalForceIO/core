@@ -2208,11 +2208,6 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
          return ss.str();
       };
 
-
-
-      std::cout << "billing: " << std::endl
-                << indent << "resources: " << std::setw(15) << to_pretty_net(res.bill_resources) << std::endl << std::endl;
-
       std::cout << "memory: " << std::endl
                 << indent << "quota: " << std::setw(15) << to_pretty_net(res.ram_quota) << "  used: " << std::setw(15) << to_pretty_net(res.ram_usage) << std::endl << std::endl;
 
@@ -2278,7 +2273,15 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
          return ss.str();
       };
 
-
+      std::cout << "billing limits:" << std::endl;
+	  if( res.bill_limit.payed.is_object() ) {
+        asset bill_payed =  asset::from_string( res.bill_limit.get_object()["payed"].as_string() );
+        asset bill_available =  asset::from_string( res.bill_limit.get_object()["available"].as_string() );
+            
+        std::cout << indent << "payed:" << std::setw(20) << bill_payed << std::endl;
+        std::cout << indent << "available:" << std::setw(20) << bill_available << std::endl;
+	  }
+					  
       std::cout << std::fixed << setprecision(3);
       std::cout << indent << std::left << std::setw(11) << "used:"      << std::right << std::setw(18) << to_pretty_net( res.net_limit.used ) << "\n";
       std::cout << indent << std::left << std::setw(11) << "available:" << std::right << std::setw(18) << to_pretty_net( res.net_limit.available ) << "\n";
