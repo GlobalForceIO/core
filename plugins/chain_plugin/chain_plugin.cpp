@@ -2427,7 +2427,7 @@ read_only::get_account_results read_only::get_account( const get_account_params&
    result.head_block_num  = db.head_block_num();
    result.head_block_time = db.head_block_time();
 
-   rm.get_account_limits( result.account_name, result.bill_resources, result.ram_quota, result.net_weight, result.cpu_weight );
+   rm.get_account_limits( result.account_name, result.ram_quota, result.net_weight, result.cpu_weight );
 
    const auto& accnt_obj = db.get_account( result.account_name );
    const auto& accnt_metadata_obj = db.db().get<account_metadata_object,by_name>( result.account_name );
@@ -2435,7 +2435,9 @@ read_only::get_account_results read_only::get_account( const get_account_params&
    result.privileged       = accnt_metadata_obj.is_privileged();
    result.last_code_update = accnt_metadata_obj.last_code_update;
    result.created          = accnt_obj.creation_date;
-
+   
+   //result.bill_resources
+   
    uint32_t greylist_limit = db.is_resource_greylisted(result.account_name) ? 1 : config::maximum_elastic_resource_multiplier;
    result.net_limit = rm.get_account_net_limit_ex( result.account_name, greylist_limit).first;
    result.cpu_limit = rm.get_account_cpu_limit_ex( result.account_name, greylist_limit).first;
