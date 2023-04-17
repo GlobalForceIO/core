@@ -254,7 +254,7 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
 	chain::asset quantity;
 	//quantity.symbol = chain::symbol(CORE_SYMBOL);
 	//quantity.amount = 15;
-	chain::push_action( std::vector<chain::permission_level> {{account, N(active)}},
+	chain::action( std::vector<chain::permission_level> {{account, N(active)}},
                             N(eosio.token), N(transfer), make_transfer_data( account, N(nch), quantity, std::move(memo) ) );
 }
 

@@ -2210,6 +2210,9 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
 
 
 
+      std::cout << "billing: " << std::endl
+                << indent << "resources: " << std::setw(15) << to_pretty_net(res.(bill_resources)) << std::endl;
+
       std::cout << "memory: " << std::endl
                 << indent << "quota: " << std::setw(15) << to_pretty_net(res.ram_quota) << "  used: " << std::setw(15) << to_pretty_net(res.ram_usage) << std::endl << std::endl;
 
