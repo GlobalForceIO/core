@@ -2274,9 +2274,10 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
       };
 
       std::cout << "billing limits:" << std::endl;
-	  if( res.bill_limit.bill.is_object() ) {
-        asset bill_payed =  asset::from_string( res.bill_limit.get_object()["bill"].as_string() );
-        asset bill_available =  asset::from_string( res.bill_limit.get_object()["available"].as_string() );
+	  if( res.bill_limit.is_object() ) {
+		auto& objb = res.bill_limit.get_object();
+        asset bill_payed =  asset::from_string( objb["bill"].as_string() );
+        asset bill_available =  asset::from_string( objb["available"].as_string() );
             
         std::cout << indent << "bill:" << std::setw(20) << bill_payed << std::endl;
         std::cout << indent << "available:" << std::setw(20) << bill_available << std::endl;
