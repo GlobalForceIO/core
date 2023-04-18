@@ -111,7 +111,7 @@ namespace eosio { namespace chain { namespace resource_limits {
    };
 } } } /// eosio::chain
 
-FC_REFLECT( eosio::chain::resource_limits::account_billing_limit, (payed)(available) )
+FC_REFLECT( eosio::chain::resource_limits::account_billing_limit, (bill)(available) )
 FC_REFLECT( eosio::chain::resource_limits::account_resource_limit, (used)(available)(max) )
 FC_REFLECT( eosio::chain::resource_limits::ratio, (numerator)(denominator))
 FC_REFLECT( eosio::chain::resource_limits::elastic_limit_parameters, (target)(max)(periods)(max_multiplier)(contract_rate)(expand_rate))
