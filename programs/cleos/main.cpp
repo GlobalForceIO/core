@@ -2276,7 +2276,7 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
       std::cout << "billing limits:" << std::endl;
 	  asset bill_payed =  res.bill_limit.bill;
 	  asset bill_available =  res.bill_limit.available;
-            
+      
 	  std::cout << indent << "bill:" << std::setw(20) << bill_payed << std::endl;
 	  std::cout << indent << "available:" << std::setw(20) << bill_available << std::endl;
 					  
