@@ -21,3 +21,13 @@ To uninstall the EOSIO built/installed binaries and dependencies, run:
 ```sh
 ./scripts/eosio_uninstall.sh
 ```
+
+### TODO
+core
+	new action
+		onbilltrxs
+			[{trx_id,account,action,ram,cpu}]
+system contract
+	new action
+		onbilltrxs
+			pay for each trx
