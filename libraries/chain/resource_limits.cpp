@@ -416,13 +416,6 @@ uint64_t resource_limits_manager::get_block_net_limit() const {
    return config.net_limit_parameters.max - state.pending_net_usage;
 }
 
-std::pair<account_billing_limit, bool> resource_limits_manager::get_account_bill_limit_ex( const account_name& name, uint32_t greylist_limit ) const {
-	//TODO remove limit NET resources for account
-	asset bill;
-	asset available;
-	return {{ bill, available }, false};
-}
-
 std::pair<int64_t, bool> resource_limits_manager::get_account_cpu_limit( const account_name& name, uint32_t greylist_limit ) const {
    auto [arl, greylisted] = get_account_cpu_limit_ex(name, greylist_limit);
    return {arl.available, greylisted};

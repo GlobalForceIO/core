@@ -2272,14 +2272,7 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
          ss << unit;
          return ss.str();
       };
-
-      std::cout << "billing limits:" << std::endl;
-	  asset bill_payed =  res.bill_limit.bill;
-	  asset bill_available =  res.bill_limit.available;
-      
-	  std::cout << indent << "bill:" << std::setw(20) << bill_payed << std::endl;
-	  std::cout << indent << "available:" << std::setw(20) << bill_available << std::endl;
-					  
+  
       std::cout << std::fixed << setprecision(3);
       std::cout << indent << std::left << std::setw(11) << "used:"      << std::right << std::setw(18) << to_pretty_net( res.net_limit.used ) << "\n";
       std::cout << indent << std::left << std::setw(11) << "available:" << std::right << std::setw(18) << to_pretty_net( res.net_limit.available ) << "\n";
