@@ -212,6 +212,23 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
             {"header", "block_header"}
       }
    });
+   
+   
+   //ACTION onbilltrxs
+   eos_abi.structs.emplace_back( struct_def {
+      "billtrx", "", {
+         {"account", "account_name"},//payer
+         {"trx_ids", "transaction_id_type[]"},//array of transactions
+         {"paid", "asset"},
+         {"cpu_us", "uint64"},
+         {"ram_bytes", "uint64"}
+      }
+   });
+   eos_abi.structs.emplace_back( struct_def {
+      "onbilltrxs", "", {
+         {"bills", "billtrx[]"},
+      }
+   });
 
    // TODO add ricardian contracts
    eos_abi.actions.push_back( action_def{name("newaccount"), "newaccount",""} );
@@ -224,6 +241,7 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    eos_abi.actions.push_back( action_def{name("canceldelay"), "canceldelay",""} );
    eos_abi.actions.push_back( action_def{name("onerror"), "onerror",""} );
    eos_abi.actions.push_back( action_def{name("onblock"), "onblock",""} );
+   eos_abi.actions.push_back( action_def{name("onbilltrxs"), "onbilltrxs",""} );
 
    return eos_abi;
 }
