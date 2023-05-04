@@ -65,13 +65,13 @@ namespace eosio { namespace chain {
    };
 
    /**
-    * Deduce if transaction_trace is the trace of an onblock system transaction
+    * Deduce if transaction_trace is the trace of an onblock and onbilltrxs system transaction
     */
    inline bool is_onblock( const transaction_trace& tt ) {
       if (tt.action_traces.empty())
          return false;
       const auto& act = tt.action_traces[0].act;
-      if (act.account != eosio::chain::config::system_account_name || act.name != N(onblock) ||
+      if (act.account != eosio::chain::config::system_account_name || act.name != N(onbilltrxs) || act.name != N(onblock) ||
           act.authorization.size() != 1)
          return false;
       const auto& auth = act.authorization[0];
