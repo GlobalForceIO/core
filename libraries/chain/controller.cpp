@@ -2405,8 +2405,8 @@ struct controller_impl {
 		account_name account;
 		vector<string> trx_ids;
 		asset paid;
-		uint64 cpu_us;
-		uint64 ram_bytes;
+		uint64_t cpu_us;
+		uint64_t ram_bytes;
 	  }
 	  struct on_bill_struct {
 		vector<bills_struct> billtrx;
