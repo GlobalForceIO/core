@@ -2395,7 +2395,7 @@ struct controller_impl {
       on_block_act.name = N(onblock);
       on_block_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
       on_block_act.data = fc::raw::pack(self.head_block_header());
-	  /*
+	  
       action on_bill_act;
       on_bill_act.account = config::system_account_name;
       on_bill_act.name = N(onbilltrxs);
@@ -2413,10 +2413,10 @@ struct controller_impl {
 	  };
 	  on_bill_struct bill_data;
       on_bill_act.data = bill_data;
-	  */
+	  
       signed_transaction trx;
       trx.actions.emplace_back(std::move(on_block_act));
-      //trx.actions.emplace_back(std::move(on_bill_act));
+      trx.actions.emplace_back(std::move(on_bill_act));
       if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
          trx.expiration = time_point_sec();
          trx.ref_block_num = 0;
