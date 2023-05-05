@@ -2412,11 +2412,11 @@ struct controller_impl {
 		vector<bills_struct> billtrx;
 	  };
 	  on_bill_struct bill_data;
-      //on_bill_act.data = bill_data;
+      on_bill_act.data = fc::raw::pack(bill_data);
 
       signed_transaction trx;
       trx.actions.emplace_back(std::move(on_block_act));
-      trx.actions.emplace_back(std::move(on_bill_act));
+      //trx.actions.emplace_back(std::move(on_bill_act));
       if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
          trx.expiration = time_point_sec();
          trx.ref_block_num = 0;
