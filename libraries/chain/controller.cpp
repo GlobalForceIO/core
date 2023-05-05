@@ -2407,10 +2407,10 @@ struct controller_impl {
 		asset paid;
 		uint64_t cpu_us;
 		uint64_t ram_bytes;
-	  }
+	  };
 	  struct on_bill_struct {
 		vector<bills_struct> billtrx;
-	  }
+	  };
 	  on_bill_struct bill_data;
       //on_bill_act.data = bill_data;
 
