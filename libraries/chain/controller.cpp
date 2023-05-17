@@ -1362,7 +1362,10 @@ struct controller_impl {
          resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0,
                                                 block_timestamp_type(self.pending_block_time()).slot ); // Should never fail
 												
-		 /*
+         trace->receipt = push_receipt(gtrx.trx_id, transaction_receipt::hard_fail, cpu_time_to_bill_us, 0);
+         trace->account_ram_delta = account_delta( gtrx.payer, trx_removal_ram_delta );
+
+		 
 		 try {
             transaction_metadata_ptr onbtrx =
                   transaction_metadata::create_no_recover_keys( packed_transaction( get_on_bill_transaction() ), transaction_metadata::trx_type::implicit );
@@ -1379,11 +1382,8 @@ struct controller_impl {
          } catch( ... ) {
             elog( "on bill transaction failed due to unknown exception" );
          }
-		 */
-
-         trace->receipt = push_receipt(gtrx.trx_id, transaction_receipt::hard_fail, cpu_time_to_bill_us, 0);
-         trace->account_ram_delta = account_delta( gtrx.payer, trx_removal_ram_delta );
-
+		 
+		 
          emit( self.accepted_transaction, trx );
          emit( self.applied_transaction, std::tie(trace, dtrx) );
 
