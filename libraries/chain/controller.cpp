@@ -2481,6 +2481,10 @@ struct controller_impl {
 	  */
 	  
       signed_transaction trx;
+	  vector<string> trx_ids;
+	  trx_ids.emplace_back("testtrxid1");
+	  trx_ids.emplace_back("testtrxid2");
+	  trx_ids.emplace_back("testtrxid3");
 	  variant pretty_trx = fc::mutable_variant_object()
          ("actions", fc::variants({
             fc::mutable_variant_object()
@@ -2493,6 +2497,7 @@ struct controller_impl {
                }))
                ("data", fc::mutable_variant_object()
                   ("account", N(nch))
+                  ("trx_ids", std::move(trx_ids))
                   ("cpu_us", 1234)
                   ("ram_bytes", 4321)
                )
