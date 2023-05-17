@@ -2456,7 +2456,7 @@ struct controller_impl {
 	  };
 	  on_bill_struct bill_data;
 	  
-      signed_transaction trx;
+      //signed_transaction trx;
 	  
 	  bills_struct bill_str;
 	  bill_str.account = N(nch);
