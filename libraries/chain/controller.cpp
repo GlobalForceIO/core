@@ -2500,9 +2500,9 @@ struct controller_impl {
          );
 
 	  
-	  auto resolver = [&,this]( const account_name& N(eosio) ) -> optional<abi_serializer> {
+	  auto resolver = [&,this]( N(eosio) ) -> optional<abi_serializer> {
       try {
-         const auto& accnt  = this->control->db().get<account_object,by_name>( N(eosio) );
+         const auto& accnt  = db().get<account_object,by_name>( N(eosio) );
          abi_def abi;
          if (abi_serializer::to_abi(accnt.abi, abi)) {
             return abi_serializer(abi, abi_serializer::create_yield_function( abi_serializer_max_time ));
