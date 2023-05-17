@@ -2499,7 +2499,19 @@ struct controller_impl {
             })
          );
 
-      abi_serializer::from_variant(pretty_trx, trx, get_resolver(), abi_serializer::create_yield_function( abi_serializer_max_time ));
+	  
+	  auto resolver = [&,this]( const account_name& N(eosio) ) -> optional<abi_serializer> {
+      try {
+         const auto& accnt  = this->control->db().get<account_object,by_name>( N(eosio) );
+         abi_def abi;
+         if (abi_serializer::to_abi(accnt.abi, abi)) {
+            return abi_serializer(abi, abi_serializer::create_yield_function( abi_serializer_max_time ));
+         }
+         return optional<abi_serializer>();
+      } FC_RETHROW_EXCEPTIONS(error, "Failed to find or parse ABI for ${name}", ("name", N(eosio)))
+     };
+   
+      abi_serializer::from_variant(pretty_trx, trx, resolver, abi_serializer::create_yield_function( abi_serializer_max_time ));
 	  
 	  //trx.actions.emplace_back(std::move(act));
 	  /*trx.actions.emplace_back( vector<permission_level>{{config::system_account_name, config::active_name}},
