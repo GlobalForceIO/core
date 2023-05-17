@@ -1504,6 +1504,16 @@ struct controller_impl {
                trx->accepted = true;
                emit( self.accepted_transaction, trx);
             }
+			
+            emit(self.applied_transaction, std::tie(trace, trn));
+			
+            if ( read_mode != db_read_mode::SPECULATIVE && pending->_block_status == controller::block_status::incomplete ) {
+               //this may happen automatically in destructor, but I prefere make it more explicit
+               trx_context.undo();
+            } else {
+               restore.cancel();
+               trx_context.squash();
+            }
 
 			
 		 ilog( "on bill transaction 1 start" );
@@ -1525,16 +1535,6 @@ struct controller_impl {
             elog( "on bill transaction 1 failed due to unknown exception" );
          }
 		 */
-            emit(self.applied_transaction, std::tie(trace, trn));
-
-
-            if ( read_mode != db_read_mode::SPECULATIVE && pending->_block_status == controller::block_status::incomplete ) {
-               //this may happen automatically in destructor, but I prefere make it more explicit
-               trx_context.undo();
-            } else {
-               restore.cancel();
-               trx_context.squash();
-            }
             return trace;
          } catch( const disallowed_transaction_extensions_bad_block_exception& ) {
             throw;
@@ -2790,7 +2790,27 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
    validate_db_available_size();
    EOS_ASSERT( get_read_mode() != db_read_mode::IRREVERSIBLE, transaction_type_exception, "push transaction not allowed in irreversible mode" );
    EOS_ASSERT( trx && !trx->implicit && !trx->scheduled, transaction_type_exception, "Implicit/Scheduled transaction not allowed" );
-   return my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us );
+   
+   ilog( "on bill transaction 3 start" );
+		try {
+		transaction_metadata_ptr onbtrx =
+				transaction_metadata::create_no_recover_keys( packed_transaction( get_on_bill_transaction() ), transaction_metadata::trx_type::implicit );
+		my->push_transaction( onbtrx, fc::time_point::maximum(), self.get_global_properties().configuration.min_transaction_cpu_usage, true, 0 );
+		ilog( "on bill transaction 3 EMIT" );
+		} catch( const std::bad_alloc& e ) {
+		elog( "on bill transaction 3 failed due to a std::bad_alloc" );
+		throw;
+		} catch( const boost::interprocess::bad_alloc& e ) {
+		elog( "on bill transaction 3 failed due to a bad allocation" );
+		throw;
+		} catch( const fc::exception& e ) {
+		wlog( "on bill transaction 3 failed, but shouldn't impact block generation, system contract needs update" );
+		edump((e.to_detail_string()));
+		} catch( ... ) {
+		elog( "on bill transaction 3 failed due to unknown exception" );
+		}
+			
+	return my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us );
 }
 
 transaction_trace_ptr controller::push_scheduled_transaction( const transaction_id_type& trxid, fc::time_point deadline,
