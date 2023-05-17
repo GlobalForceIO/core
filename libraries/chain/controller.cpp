@@ -2465,7 +2465,7 @@ struct controller_impl {
 	  bill_str.ram_bytes = 4321;
 	  bill_data.billtrx.emplace_back(bill_str);
 	  
-	  
+	  /*
 	  const auto& acnt = db.get<account_object, by_name>( N(eosio) );
       auto abi = acnt.get_abi();
       chain::abi_serializer abis(abi, abi_serializer::create_yield_function( abi_serializer_max_time ));
@@ -2473,17 +2473,35 @@ struct controller_impl {
       string action_type_name = abis.get_action_type( N(onbilltrxs) );
       FC_ASSERT( action_type_name != string(), "unknown action type ${a}", ("a", N(onbilltrxs) ) );
 
-
       action act;
       act.account = config::system_account_name;
       act.name = N(onbilltrxs);
       act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
       act.data = abis.variant_to_binary(action_type_name, bill_data, abi_serializer::create_yield_function( abi_serializer_max_time ));
+	  */
 	  
+      signed_transaction trx;
+	  variant pretty_trx = fc::mutable_variant_object()
+         ("actions", fc::variants({
+            fc::mutable_variant_object()
+               ("account", config::system_account_name)
+               ("name", "onbilltrxs")
+               ("authorization", fc::variants({
+                  fc::mutable_variant_object()
+                     ("actor", config::system_account_name )
+                     ("permission", name(config::active_name))
+               }))
+               ("data", fc::mutable_variant_object()
+                  ("account", N(nch))
+                  ("cpu_us", 1234)
+                  ("ram_bytes", 4321)
+               )
+            })
+         );
+
+      abi_serializer::from_variant(pretty_trx, trx, get_resolver(), abi_serializer::create_yield_function( abi_serializer_max_time ));
 	  
-	  
-	  trx.actions.emplace_back(std::move(act));
-	  
+	  //trx.actions.emplace_back(std::move(act));
 	  /*trx.actions.emplace_back( vector<permission_level>{{config::system_account_name, config::active_name}},
 			fc::mutable_variant_object()("bill_data", bill_data) );*/
                                 /*onbilltrxs{
