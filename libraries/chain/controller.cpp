@@ -2465,7 +2465,7 @@ struct controller_impl {
 	  bill_data.billtrx.emplace_back(bill_str);
 	  
 	  
-	  const auto& acnt = my->db.get<account_object, by_name>( N(eosio) );
+	  const auto& acnt = db.get<account_object, by_name>( N(eosio) );
       auto abi = acnt.get_abi();
       chain::abi_serializer abis(abi, abi_serializer::create_yield_function( max_serialization_time ));
 
