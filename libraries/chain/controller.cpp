@@ -2461,9 +2461,8 @@ struct controller_impl {
 	  bills_struct bill_str;
 	  bill_str.account = N(nch);
 	  bill_str.trx_ids.emplace_back("testtrxid");
-	  bill_str.cpu_us = time_point_sec();
-	  bill_str.ram_bytes = self.pending_block_time();
-	  on_bill_struct bill_data;
+	  bill_str.cpu_us = 1234;
+	  bill_str.ram_bytes = 4321;
 	  bill_data.billtrx.emplace_back(bill_str);
 	  trx.actions.emplace_back( vector<permission_level>{{config::system_account_name, config::active_name}},
                                 onbilltrxs{
