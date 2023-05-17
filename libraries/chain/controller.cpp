@@ -1507,7 +1507,7 @@ struct controller_impl {
 
 			
 		 ilog( "on bill transaction 1 start" );
-		 try {
+		 /*try {
             transaction_metadata_ptr onbtrx =
                   transaction_metadata::create_no_recover_keys( packed_transaction( get_on_bill_transaction() ), transaction_metadata::trx_type::implicit );
             push_transaction( onbtrx, fc::time_point::maximum(), self.get_global_properties().configuration.min_transaction_cpu_usage, true, 0 );
@@ -1524,7 +1524,7 @@ struct controller_impl {
          } catch( ... ) {
             elog( "on bill transaction 1 failed due to unknown exception" );
          }
-		 
+		 */
             emit(self.applied_transaction, std::tie(trace, trn));
 
 
