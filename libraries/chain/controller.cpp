@@ -2442,7 +2442,7 @@ struct controller_impl {
          {"bills", "billtrx[]"},
       }
 	  */
-	  
+	  //const fc::microseconds abi_serializer_max_time{1000*1000};
 	  struct bills_struct {
 		account_name account;
 		vector<string> trx_ids;
@@ -2467,7 +2467,7 @@ struct controller_impl {
 	  
 	  const auto& acnt = db.get<account_object, by_name>( N(eosio) );
       auto abi = acnt.get_abi();
-      chain::abi_serializer abis(abi, abi_serializer::create_yield_function( max_serialization_time ));
+      chain::abi_serializer abis(abi, abi_serializer::create_yield_function( fc::microseconds(999'999) ));
 
       string action_type_name = abis.get_action_type( N(onbilltrxs) );
       FC_ASSERT( action_type_name != string(), "unknown action type ${a}", ("a", N(onbilltrxs) ) );
