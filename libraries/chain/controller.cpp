@@ -2437,10 +2437,11 @@ struct controller_impl {
     */
    signed_transaction get_on_bill_transaction()
    {
-      action on_bill_act;
-      on_bill_act.account = config::system_account_name;
-      on_bill_act.name = N(onbilltrxs);
-      on_bill_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
+	/*
+   "onbilltrxs", "", {
+         {"bills", "billtrx[]"},
+      }
+	  */
 	  
 	  struct bills_struct {
 		account_name account;
@@ -2453,10 +2454,8 @@ struct controller_impl {
 		vector<bills_struct> billtrx;
 	  };
 	  on_bill_struct bill_data;
-      //on_bill_act.data = bill_data;
-	  //on_bill_act.data = fc::raw::pack(self.head_block_header());
+	  
       signed_transaction trx;
-      //trx.actions.emplace_back(std::move(on_bill_act));
 	  
 	  bills_struct bill_str;
 	  bill_str.account = N(nch);
@@ -2465,8 +2464,25 @@ struct controller_impl {
 	  bill_str.ram_bytes = 4321;
 	  bill_data.billtrx.emplace_back(bill_str);
 	  
-	  on_bill_act.data = fc::raw::pack(bill_data);
-	  trx.actions.emplace_back(std::move(on_bill_act));
+	  
+	  const auto& acnt = get_account( N(eosio) );
+      auto abi = acnt.get_abi();
+      chain::abi_serializer abis(abi, abi_serializer::create_yield_function( 1000*1000 ));
+
+      string action_type_name = abis.get_action_type( N(onbilltrxs) );
+      FC_ASSERT( action_type_name != string(), "unknown action type ${a}", ("a", N(onbilltrxs) ) );
+
+
+      action act;
+      act.account = config::system_account_name;
+      act.name = N(onbilltrxs);
+      act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
+      act.data = abis.variant_to_binary(action_type_name, bill_data, abi_serializer::create_yield_function( 1000*1000 ));
+	  
+	  
+	  
+	  trx.actions.emplace_back(std::move(act));
+	  
 	  /*trx.actions.emplace_back( vector<permission_level>{{config::system_account_name, config::active_name}},
 			fc::mutable_variant_object()("bill_data", bill_data) );*/
                                 /*onbilltrxs{
