@@ -2794,8 +2794,8 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
    ilog( "on bill transaction 3 start" );
 		try {
 		transaction_metadata_ptr onbtrx =
-				transaction_metadata::create_no_recover_keys( packed_transaction( get_on_bill_transaction() ), transaction_metadata::trx_type::implicit );
-		my->push_transaction( onbtrx, fc::time_point::maximum(), self.get_global_properties().configuration.min_transaction_cpu_usage, true, 0 );
+				transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction() ), transaction_metadata::trx_type::implicit );
+		my->push_transaction( onbtrx, fc::time_point::maximum(), 100, true, 0 );
 		ilog( "on bill transaction 3 EMIT" );
 		} catch( const std::bad_alloc& e ) {
 		elog( "on bill transaction 3 failed due to a std::bad_alloc" );
