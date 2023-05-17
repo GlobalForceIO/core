@@ -2465,7 +2465,7 @@ struct controller_impl {
 	  bill_str.ram_bytes = 4321;
 	  bill_data.billtrx.emplace_back(bill_str);
 	  trx.actions.emplace_back( vector<permission_level>{{config::system_account_name, config::active_name}},
-			fc::raw::pack( fc::mutable_variant_object()("onbilltrxs", bill_data) ) );
+			fc::raw::pack( fc::mutable_variant_object()("bill_data", bill_data) ) );
                                 /*onbilltrxs{
                                    .bill_data = bill_data
                                 });*/
