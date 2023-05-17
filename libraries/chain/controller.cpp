@@ -2502,7 +2502,7 @@ struct controller_impl {
 	  
 	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
       try {
-         const auto& accnt  = db().get<account_object,by_name>( name );
+         const auto& accnt  = db.get<account_object,by_name>( name );
          abi_def abi;
          if (abi_serializer::to_abi(accnt.abi, abi)) {
             return abi_serializer(abi, abi_serializer::create_yield_function( abi_serializer_max_time ));
