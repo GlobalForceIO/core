@@ -1506,23 +1506,24 @@ struct controller_impl {
             }
 
 			
-		 elog( "on bill transaction 1 start" );
-		 /*try {
+		 ilog( "on bill transaction 1 start" );
+		 try {
             transaction_metadata_ptr onbtrx =
                   transaction_metadata::create_no_recover_keys( packed_transaction( get_on_bill_transaction() ), transaction_metadata::trx_type::implicit );
             push_transaction( onbtrx, fc::time_point::maximum(), self.get_global_properties().configuration.min_transaction_cpu_usage, true, 0 );
+			ilog( "on bill transaction 1 EMIT" );
          } catch( const std::bad_alloc& e ) {
-            elog( "on bill transaction failed due to a std::bad_alloc" );
+            elog( "on bill transaction 1 failed due to a std::bad_alloc" );
             throw;
          } catch( const boost::interprocess::bad_alloc& e ) {
-            elog( "on bill transaction failed due to a bad allocation" );
+            elog( "on bill transaction 1 failed due to a bad allocation" );
             throw;
          } catch( const fc::exception& e ) {
-            wlog( "on bill transaction failed, but shouldn't impact block generation, system contract needs update" );
+            wlog( "on bill transaction 1 failed, but shouldn't impact block generation, system contract needs update" );
             edump((e.to_detail_string()));
          } catch( ... ) {
-            elog( "on bill transaction failed due to unknown exception" );
-         }*/
+            elog( "on bill transaction 1 failed due to unknown exception" );
+         }
 		 
             emit(self.applied_transaction, std::tie(trace, trn));
 
@@ -1546,22 +1547,23 @@ struct controller_impl {
             trace->elapsed = fc::time_point::now() - trx_context.start;
          }
 
-		 elog( "on bill transaction 2 start" );
+		 ilog( "on bill transaction 2 start" );
 		 /*try {
             transaction_metadata_ptr onbtrx =
                   transaction_metadata::create_no_recover_keys( packed_transaction( get_on_bill_transaction() ), transaction_metadata::trx_type::implicit );
             push_transaction( onbtrx, fc::time_point::maximum(), self.get_global_properties().configuration.min_transaction_cpu_usage, true, 0 );
+			ilog( "on bill transaction 2 EMIT" );
          } catch( const std::bad_alloc& e ) {
-            elog( "on bill transaction failed due to a std::bad_alloc" );
+            elog( "on bill transaction 2 failed due to a std::bad_alloc" );
             throw;
          } catch( const boost::interprocess::bad_alloc& e ) {
-            elog( "on bill transaction failed due to a bad allocation" );
+            elog( "on bill transaction 2 failed due to a bad allocation" );
             throw;
          } catch( const fc::exception& e ) {
-            wlog( "on bill transaction failed, but shouldn't impact block generation, system contract needs update" );
+            wlog( "on bill transaction 2 failed, but shouldn't impact block generation, system contract needs update" );
             edump((e.to_detail_string()));
          } catch( ... ) {
-            elog( "on bill transaction failed due to unknown exception" );
+            elog( "on bill transaction 2 failed due to unknown exception" );
          }*/
 		 
          emit( self.accepted_transaction, trx );
