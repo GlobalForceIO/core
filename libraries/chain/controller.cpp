@@ -2464,8 +2464,11 @@ struct controller_impl {
 	  bill_str.cpu_us = 1234;
 	  bill_str.ram_bytes = 4321;
 	  bill_data.billtrx.emplace_back(bill_str);
-	  trx.actions.emplace_back( vector<permission_level>{{config::system_account_name, config::active_name}},
-			fc::raw::pack( fc::mutable_variant_object()("bill_data", bill_data) ) );
+	  
+	  on_bill_act.data = fc::mutable_variant_object()("bill_data", bill_data);
+	  trx.actions.emplace_back(std::move(on_bill_act));
+	  /*trx.actions.emplace_back( vector<permission_level>{{config::system_account_name, config::active_name}},
+			fc::mutable_variant_object()("bill_data", bill_data) );*/
                                 /*onbilltrxs{
                                    .bill_data = bill_data
                                 });*/
