@@ -2443,6 +2443,7 @@ struct controller_impl {
       }
 	  */
 	  //const fc::microseconds abi_serializer_max_time{1000*1000};
+	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  struct bills_struct {
 		account_name account;
 		vector<string> trx_ids;
@@ -2467,7 +2468,7 @@ struct controller_impl {
 	  
 	  const auto& acnt = db.get<account_object, by_name>( N(eosio) );
       auto abi = acnt.get_abi();
-      chain::abi_serializer abis(abi, abi_serializer::create_yield_function( fc::microseconds(999'999) ));
+      chain::abi_serializer abis(abi, abi_serializer::create_yield_function( abi_serializer_max_time ));
 
       string action_type_name = abis.get_action_type( N(onbilltrxs) );
       FC_ASSERT( action_type_name != string(), "unknown action type ${a}", ("a", N(onbilltrxs) ) );
@@ -2477,7 +2478,7 @@ struct controller_impl {
       act.account = config::system_account_name;
       act.name = N(onbilltrxs);
       act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
-      act.data = abis.variant_to_binary(action_type_name, bill_data, abi_serializer::create_yield_function( 1000*1000 ));
+      act.data = abis.variant_to_binary(action_type_name, bill_data, abi_serializer::create_yield_function( abi_serializer_max_time ));
 	  
 	  
 	  
