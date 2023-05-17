@@ -1361,6 +1361,25 @@ struct controller_impl {
 
          resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0,
                                                 block_timestamp_type(self.pending_block_time()).slot ); // Should never fail
+												
+		 /*
+		 try {
+            transaction_metadata_ptr onbtrx =
+                  transaction_metadata::create_no_recover_keys( packed_transaction( get_on_bill_transaction() ), transaction_metadata::trx_type::implicit );
+            push_transaction( onbtrx, fc::time_point::maximum(), self.get_global_properties().configuration.min_transaction_cpu_usage, true, 0 );
+         } catch( const std::bad_alloc& e ) {
+            elog( "on bill transaction failed due to a std::bad_alloc" );
+            throw;
+         } catch( const boost::interprocess::bad_alloc& e ) {
+            elog( "on bill transaction failed due to a bad allocation" );
+            throw;
+         } catch( const fc::exception& e ) {
+            wlog( "on bill transaction failed, but shouldn't impact block generation, system contract needs update" );
+            edump((e.to_detail_string()));
+         } catch( ... ) {
+            elog( "on bill transaction failed due to unknown exception" );
+         }
+		 */
 
          trace->receipt = push_receipt(gtrx.trx_id, transaction_receipt::hard_fail, cpu_time_to_bill_us, 0);
          trace->account_ram_delta = account_delta( gtrx.payer, trx_removal_ram_delta );
@@ -2396,6 +2415,25 @@ struct controller_impl {
       on_block_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
       on_block_act.data = fc::raw::pack(self.head_block_header());
 	  
+      signed_transaction trx;
+      trx.actions.emplace_back(std::move(on_block_act));
+      if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
+         trx.expiration = time_point_sec();
+         trx.ref_block_num = 0;
+         trx.ref_block_prefix = 0;
+      } else {
+         trx.expiration = self.pending_block_time() + fc::microseconds(999'999); // Round up to nearest second to avoid appearing expired
+         trx.set_reference_block( self.head_block_id() );
+      }
+      return trx;
+   }
+   
+   /**
+    *  At the start of each block we notify the system contract with a transaction that passes in
+    *  the block header of the prior block (which is currently our head block)
+    */
+   signed_transaction get_on_bill_transaction()
+   {
       action on_bill_act;
       on_bill_act.account = config::system_account_name;
       on_bill_act.name = N(onbilltrxs);
@@ -2413,9 +2451,8 @@ struct controller_impl {
 	  };
 	  on_bill_struct bill_data;
       //on_bill_act.data = bill_data;
-	  
+	  //on_bill_act.data = fc::raw::pack(self.head_block_header());
       signed_transaction trx;
-      trx.actions.emplace_back(std::move(on_block_act));
       trx.actions.emplace_back(std::move(on_bill_act));
       if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
          trx.expiration = time_point_sec();
