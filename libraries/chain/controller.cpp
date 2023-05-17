@@ -1204,7 +1204,7 @@ struct controller_impl {
 
    transaction_trace_ptr push_scheduled_transaction( const generated_transaction_object& gto, fc::time_point deadline, uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time = false )
    { try {
-	elog( "on bill transaction TEST LOG" );
+	 EOS_ASSERT( false, block_validate_exception, "TEST onblill EOS_ASSERT");
       const bool validating = !self.is_producing_block();
       EOS_ASSERT( !validating || explicit_billed_cpu_time, transaction_exception, "validating requires explicit billing" );
 
