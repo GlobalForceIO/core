@@ -2465,9 +2465,9 @@ struct controller_impl {
 	  bill_data.billtrx.emplace_back(bill_str);
 	  
 	  
-	  const auto& acnt = get_account( N(eosio) );
+	  const auto& acnt = my->db.get<account_object, by_name>( N(eosio) );
       auto abi = acnt.get_abi();
-      chain::abi_serializer abis(abi, abi_serializer::create_yield_function( 1000*1000 ));
+      chain::abi_serializer abis(abi, abi_serializer::create_yield_function( max_serialization_time ));
 
       string action_type_name = abis.get_action_type( N(onbilltrxs) );
       FC_ASSERT( action_type_name != string(), "unknown action type ${a}", ("a", N(onbilltrxs) ) );
