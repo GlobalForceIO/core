@@ -2500,15 +2500,15 @@ struct controller_impl {
          );
 
 	  
-	  auto resolver = [&,this]( N(eosio) ) -> optional<abi_serializer> {
+	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
       try {
-         const auto& accnt  = db().get<account_object,by_name>( N(eosio) );
+         const auto& accnt  = db().get<account_object,by_name>( name );
          abi_def abi;
          if (abi_serializer::to_abi(accnt.abi, abi)) {
             return abi_serializer(abi, abi_serializer::create_yield_function( abi_serializer_max_time ));
          }
          return optional<abi_serializer>();
-      } FC_RETHROW_EXCEPTIONS(error, "Failed to find or parse ABI for ${name}", ("name", N(eosio)))
+      } FC_RETHROW_EXCEPTIONS(error, "Failed to find or parse ABI for ${name}", ("name", name))
      };
    
       abi_serializer::from_variant(pretty_trx, trx, resolver, abi_serializer::create_yield_function( abi_serializer_max_time ));
