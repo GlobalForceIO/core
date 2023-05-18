@@ -2444,6 +2444,7 @@ struct controller_impl {
 	  */
 	  //const fc::microseconds abi_serializer_max_time{1000*1000};
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
+	  /*
 	  struct bills_struct {
 		account_name account;
 		vector<string> trx_ids;
@@ -2466,7 +2467,7 @@ struct controller_impl {
 	  bill_str.cpu_us = 1234;
 	  bill_str.ram_bytes = 4321;
 	  bill_data.billtrx.emplace_back(bill_str);
-	  
+	  */
 	  /*
 	  const auto& acnt = db.get<account_object, by_name>( N(eosio) );
       auto abi = acnt.get_abi();
@@ -2498,8 +2499,17 @@ struct controller_impl {
                      ("permission", name(config::active_name))
                }))
                ("data", fc::mutable_variant_object()
-                  ("billtrxs[]", std::move(bill_data))
+                  ("billtrxs", fc::variants({
+                     fc::mutable_variant_object()
+                        ("account", config::system_account_name )
+                        ("trx_ids", std::move(trx_ids))
+						("cpu_us", 1234)
+						("ram_bytes", 4321)
+                  })
                )
+        )
+		
+		
             })
          );
 
