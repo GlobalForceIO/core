@@ -214,18 +214,13 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    });
    
    
-   //ACTION onbilltrxs
+   //ACTION onbilltrx
    eos_abi.structs.emplace_back( struct_def {
-      "billtrx", "", {
+      "onbilltrx", "", {
          {"account", "account_name"},//payer
-         {"trx_ids", "string[]"},//array of transactions
+         {"trx_id", "string"},//transaction id
          {"cpu_us", "uint64"},
          {"ram_bytes", "uint64"}
-      }
-   });
-   eos_abi.structs.emplace_back( struct_def {
-      "onbilltrxs", "", {
-         {"billtrxs", "billtrx[]"},
       }
    });
 
@@ -240,7 +235,7 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    eos_abi.actions.push_back( action_def{name("canceldelay"), "canceldelay",""} );
    eos_abi.actions.push_back( action_def{name("onerror"), "onerror",""} );
    eos_abi.actions.push_back( action_def{name("onblock"), "onblock",""} );
-   eos_abi.actions.push_back( action_def{name("onbilltrxs"), "onbilltrxs",""} );
+   eos_abi.actions.push_back( action_def{name("onbilltrx"), "onbilltrx",""} );
 
    return eos_abi;
 }

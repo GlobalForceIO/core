@@ -2438,7 +2438,7 @@ struct controller_impl {
    signed_transaction get_on_bill_transaction()
    {
 	/*
-   "onbilltrxs", "", {
+   "onbilltrx", "", {
          {"bills", "billtrx[]"},
       }
 	  */
@@ -2473,39 +2473,32 @@ struct controller_impl {
       auto abi = acnt.get_abi();
       chain::abi_serializer abis(abi, abi_serializer::create_yield_function( abi_serializer_max_time ));
 
-      string action_type_name = abis.get_action_type( N(onbilltrxs) );
-      FC_ASSERT( action_type_name != string(), "unknown action type ${a}", ("a", N(onbilltrxs) ) );
+      string action_type_name = abis.get_action_type( N(onbilltrx) );
+      FC_ASSERT( action_type_name != string(), "unknown action type ${a}", ("a", N(onbilltrx) ) );
 
       action act;
       act.account = config::system_account_name;
-      act.name = N(onbilltrxs);
+      act.name = N(onbilltrx);
       act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
       act.data = abis.variant_to_binary(action_type_name, bill_data, abi_serializer::create_yield_function( abi_serializer_max_time ));
 	  */
 	  
       signed_transaction trx;
-	  vector<string> trx_ids;
-	  trx_ids.emplace_back("testtrxid1");
-	  trx_ids.emplace_back("testtrxid2");
-	  trx_ids.emplace_back("testtrxid3");
 	  variant pretty_trx = fc::mutable_variant_object()
          ("actions", fc::variants({
             fc::mutable_variant_object()
                ("account", config::system_account_name)
-               ("name", "onbilltrxs")
+               ("name", "onbilltrx")
                ("authorization", fc::variants({
                   fc::mutable_variant_object()
                      ("actor", config::system_account_name )
                      ("permission", name(config::active_name))
                }))
                ("data", fc::mutable_variant_object()
-                  ("billtrxs", fc::variants({
-                     fc::mutable_variant_object()
-                        ("account", config::system_account_name )
-                        ("trx_ids", std::move(trx_ids))
-						("cpu_us", 1234)
-						("ram_bytes", 4321)
-                  }))
+                  ("account", N(nch) )
+                  ("trx_id", "testtrxone")
+				  ("cpu_us", 1234)
+				  ("ram_bytes", 4321)
 				)
 		 }));
 

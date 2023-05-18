@@ -25,9 +25,9 @@ To uninstall the EOSIO built/installed binaries and dependencies, run:
 ### TODO
 core
 	new action
-		onbilltrxs
-			[{trx_id,account,ram,cpu}]
+		onbilltrx
+			[{account,trx_id,ram,cpu}]
 system contract
 	new action
-		onbilltrxs
+		onbilltrx
 			pay for each trx
