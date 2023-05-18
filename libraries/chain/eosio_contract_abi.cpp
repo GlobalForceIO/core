@@ -218,14 +218,14 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    eos_abi.structs.emplace_back( struct_def {
       "billtrx", "", {
          {"account", "account_name"},//payer
-         {"trx_ids", "transaction_id_type[]"},//array of transactions
+         {"trx_ids", "string[]"},//array of transactions
          {"cpu_us", "uint64"},
          {"ram_bytes", "uint64"}
       }
    });
    eos_abi.structs.emplace_back( struct_def {
       "onbilltrxs", "", {
-         {"bills", "billtrx[]"},
+         {"billtrxs", "billtrx[]"},
       }
    });
 

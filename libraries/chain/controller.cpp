@@ -2505,13 +2505,9 @@ struct controller_impl {
                         ("trx_ids", std::move(trx_ids))
 						("cpu_us", 1234)
 						("ram_bytes", 4321)
-                  })
-               )
-        )
-		
-		
-            })
-         );
+                  }))
+				)
+		 }));
 
 	  
 	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
