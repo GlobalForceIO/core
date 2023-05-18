@@ -2460,7 +2460,9 @@ struct controller_impl {
 	  
 	  bills_struct bill_str;
 	  bill_str.account = N(nch);
-	  bill_str.trx_ids.emplace_back("testtrxid");
+	  bill_str.trx_ids.emplace_back("testtrxid1");
+	  bill_str.trx_ids.emplace_back("testtrxid2");
+	  bill_str.trx_ids.emplace_back("testtrxid3");
 	  bill_str.cpu_us = 1234;
 	  bill_str.ram_bytes = 4321;
 	  bill_data.billtrx.emplace_back(bill_str);
@@ -2496,10 +2498,7 @@ struct controller_impl {
                      ("permission", name(config::active_name))
                }))
                ("data", fc::mutable_variant_object()
-                  ("account", N(nch))
-                  ("trx_ids", std::move(trx_ids))
-                  ("cpu_us", 1234)
-                  ("ram_bytes", 4321)
+                  ("billtrxs[]", std::move(bill_data))
                )
             })
          );
@@ -2517,14 +2516,6 @@ struct controller_impl {
      };
    
       abi_serializer::from_variant(pretty_trx, trx, resolver, abi_serializer::create_yield_function( abi_serializer_max_time ));
-	  
-	  //trx.actions.emplace_back(std::move(act));
-	  /*trx.actions.emplace_back( vector<permission_level>{{config::system_account_name, config::active_name}},
-			fc::mutable_variant_object()("bill_data", bill_data) );*/
-                                /*onbilltrxs{
-                                   .bill_data = bill_data
-                                });*/
-	  
 	  
       if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
          trx.expiration = time_point_sec();

@@ -219,7 +219,6 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
       "billtrx", "", {
          {"account", "account_name"},//payer
          {"trx_ids", "transaction_id_type[]"},//array of transactions
-         {"paid", "asset"},
          {"cpu_us", "uint64"},
          {"ram_bytes", "uint64"}
       }
