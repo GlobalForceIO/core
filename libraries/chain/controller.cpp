@@ -1221,7 +1221,7 @@ struct controller_impl {
       int64_t trx_removal_ram_delta = remove_scheduled_transaction(gto);
 
       fc::datastream<const char*> ds( gtrx.packed_trx.data(), gtrx.packed_trx.size() );
-
+ 
       EOS_ASSERT( gtrx.delay_until <= self.pending_block_time(), transaction_exception, "this transaction isn't ready",
                  ("gtrx.delay_until",gtrx.delay_until)("pbt",self.pending_block_time())          );
 
@@ -2435,7 +2435,7 @@ struct controller_impl {
     *  At the start of each block we notify the system contract with a transaction that passes in
     *  the block header of the prior block (which is currently our head block)
     */
-   signed_transaction get_on_bill_transaction( transaction_id_type trx_id, uint32_t billed_cpu, uint64_t trx_size )
+   signed_transaction get_on_bill_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
    {
 	/*
    "onbilltrx", "", {
@@ -2495,7 +2495,7 @@ struct controller_impl {
                      ("permission", name(config::active_name))
                }))
                ("data", fc::mutable_variant_object()
-                  ("account", N(nch) )
+                  ("account", payer )
                   ("trx_id", trx_id)
 				  ("cpu_us", billed_cpu)
 				  ("ram_bytes", 4321)
@@ -2822,7 +2822,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		try {
 		uint64_t trx_size = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 		transaction_metadata_ptr onbtrx =
-				transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), billed_cpu_time_us, trx_size ) ), transaction_metadata::trx_type::implicit );
+				transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->trx_id, trx->payer, billed_cpu_time_us, trx_size ) ), transaction_metadata::trx_type::implicit );
 		my->push_transaction( onbtrx, fc::time_point::maximum(), 100, true, 0 );
 		ilog( "on bill transaction 3 EMIT" );
 		} catch( const std::bad_alloc& e ) {

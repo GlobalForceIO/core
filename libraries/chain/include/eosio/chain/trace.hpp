@@ -73,12 +73,20 @@ namespace eosio { namespace chain {
          return false;
 	  }
       const auto& act = tt.action_traces[0].act;
-      if (act.account != eosio::chain::config::system_account_name || (act.name != N(onbilltrx) && act.name != N(onblock)) || act.authorization.size() != 1){
+      if (act.account != eosio::chain::config::system_account_name){
+		 elog( "ONBILLTRX:: trace.hpp is_onblock false act.account != eosio" );
+         return false;
+	  }
+      if (act.name != N(onbilltrx) && act.name != N(onblock))){
 		 elog( "ONBILLTRX:: trace.hpp is_onblock false act.name != N(onbilltrx)" );
          return false;
 	  }
+      if (act.authorization.size() != 1){
+		 elog( "ONBILLTRX:: trace.hpp is_onblock false act.authorization.size() != 1" );
+         return false;
+	  }
       const auto& auth = act.authorization[0];
-		 wlog( "ONBILLTRX:: trace.hpp is_onblock true auth.actor == eosio" );
+		 wlog( "ONBILLTRX:: trace.hpp is_onblock TRUE" );
       return auth.actor == eosio::chain::config::system_account_name &&
              auth.permission == eosio::chain::config::active_name;
    }
