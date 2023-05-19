@@ -77,7 +77,7 @@ namespace eosio { namespace chain {
 		 elog( "ONBILLTRX:: trace.hpp is_onblock false act.account != eosio" );
          return false;
 	  }
-      if (act.name != N(onbilltrx) && act.name != N(onblock))){
+      if (act.name != N(onbilltrx) && act.name != N(onblock)){
 		 elog( "ONBILLTRX:: trace.hpp is_onblock false act.name != N(onbilltrx)" );
          return false;
 	  }
