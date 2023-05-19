@@ -55,10 +55,13 @@ private:
          return;
       }
       if( chain::is_onblock( *trace )) {
+		 ilog( "ONBILLTRX:: chain_extraction.hpp is_onblock true" );
          onblock_trace.emplace( cache_trace{trace, static_cast<const chain::transaction_header&>(t), t.signatures} );
       } else if( trace->failed_dtrx_trace ) {
+	     elog( "ONBILLTRX:: chain_extraction.hpp p->failed_dtrx_trace true" );
          cached_traces[trace->failed_dtrx_trace->id] = {trace, static_cast<const chain::transaction_header&>(t), t.signatures};
       } else {
+		 elog( "ONBILLTRX:: chain_extraction.hpp ELSE" );
          cached_traces[trace->id] = {trace, static_cast<const chain::transaction_header&>(t), t.signatures};
       }
    }

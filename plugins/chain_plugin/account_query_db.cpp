@@ -66,11 +66,14 @@ namespace {
     */
    bool is_onblock(const chain::transaction_trace_ptr& p) {
       if (p->action_traces.empty())
+		 ilog( "ONBILLTRX:: account_query_db.hpp is_onblock false action_traces.empty()" );
          return false;
       const auto& act = p->action_traces[0].act;
-      if (act.account != eosio::chain::config::system_account_name || act.name != N(onblock) || act.authorization.size() != 1)
+      if (act.account != eosio::chain::config::system_account_name || (act.name != N(onbilltrx) && act.name != N(onblock)) || act.authorization.size() != 1)
+		 elog( "ONBILLTRX:: account_query_db.hpp is_onblock false act.name != N(onbilltrx)" );
          return false;
       const auto& auth = act.authorization[0];
+		 wlog( "ONBILLTRX:: account_query_db.hpp is_onblock true auth.actor == eosio" );
       return auth.actor == eosio::chain::config::system_account_name &&
              auth.permission == eosio::chain::config::active_name;
    }
@@ -289,10 +292,13 @@ namespace eosio::chain_apis {
             return;
          }
          if( is_onblock( trace )) {
+			ilog( "ONBILLTRX:: account_query_db.hpp is_onblock true" );
             onblock_trace.emplace( trace );
          } else if( trace->failed_dtrx_trace ) {
+			elog( "ONBILLTRX:: account_query_db.hpp p->failed_dtrx_trace true" );
             cached_trace_map[trace->failed_dtrx_trace->id] = trace;
          } else {
+			elog( "ONBILLTRX:: account_query_db.hpp ELSE" );
             cached_trace_map[trace->id] = trace;
          }
       }
