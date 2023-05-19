@@ -65,9 +65,10 @@ namespace {
     * @return
     */
    bool is_onblock(const chain::transaction_trace_ptr& p) {
-      if (p->action_traces.empty()){
+      if (p->action_traces.empty())
          return false;
       const auto& act = p->action_traces[0].act;
+      elog( "ONBILLTRX:: account_query_db.hpp is_onblock ${name} ${account}", ("name",act.name)("account",act.account) );
       if (act.account != eosio::chain::config::system_account_name || (act.name != N(onbilltrx) && act.name != N(onblock)) || act.authorization.size() != 1)
          return false;
       const auto& auth = act.authorization[0];
