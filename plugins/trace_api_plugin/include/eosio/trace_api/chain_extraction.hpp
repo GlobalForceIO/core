@@ -90,10 +90,10 @@ private:
          std::vector<transaction_trace_v1>& traces = bt.transactions_v1;
 		 
 		 ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace" );
-         traces.reserve( block_state->block->transactions.size() + 1 );
+         traces.reserve( block_state->block->transactions.size() + block_state->block->transactions.size() );
          if( onblock_trace ){
             traces.emplace_back( to_transaction_trace_v1( *onblock_trace ));
-			ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace 1" );
+			ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace 1 COUNT ${count}", ("count", block_state->block->transactions.size()) );
 		 }
          for( const auto& r : block_state->block->transactions ) {
             transaction_id_type id;
