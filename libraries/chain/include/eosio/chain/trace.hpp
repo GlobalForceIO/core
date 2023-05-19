@@ -68,25 +68,13 @@ namespace eosio { namespace chain {
     * Deduce if transaction_trace is the trace of an onblock and onbilltrx system transaction
     */
    inline bool is_onblock( const transaction_trace& tt ) {
-      if (tt.action_traces.empty()){
-		 ilog( "ONBILLTRX:: trace.hpp is_onblock false action_traces.empty()" );
+      if (tt.action_traces.empty())
          return false;
-	  }
+      elog( "ONBILLTRX:: trace.hpp is_onblock ${name} ${account}", ("name",act.name)("account",act.account) );
       const auto& act = tt.action_traces[0].act;
-      if (act.account != eosio::chain::config::system_account_name){
-		 elog( "ONBILLTRX:: trace.hpp is_onblock false act.account != eosio ::${account} != ", ("account",act.account) );
+      if (act.account != eosio::chain::config::system_account_name || (act.name != N(onbilltrx) && act.name != N(onblock)) || act.authorization.size() != 1)
          return false;
-	  }
-      if (act.name != N(onbilltrx) && act.name != N(onblock)){
-		 elog( "ONBILLTRX:: trace.hpp is_onblock false act.name != N(onbilltrx) ::${name}", ("name",act.name) );
-         return false;
-	  }
-      if (act.authorization.size() != 1){
-		 elog( "ONBILLTRX:: trace.hpp is_onblock false act.authorization.size() != 1" );
-         return false;
-	  }
       const auto& auth = act.authorization[0];
-		 wlog( "ONBILLTRX:: trace.hpp is_onblock TRUE" );
       return auth.actor == eosio::chain::config::system_account_name &&
              auth.permission == eosio::chain::config::active_name;
    }

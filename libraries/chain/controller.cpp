@@ -2798,27 +2798,27 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
    user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us );
    
    ilog( "on bill transaction 3 start" );
-		try {
-		uint64_t trx_size = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
-		const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
-		name payer = trn.actions[0].authorization[0].actor;
-		transaction_metadata_ptr onbtrx =
-				transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), payer, billed_cpu_time_us, trx_size ) ), transaction_metadata::trx_type::implicit );
-		my->push_transaction( onbtrx, fc::time_point::maximum(), 100, true, 0 );
-		ilog( "on bill transaction 3 EMIT" );
-		} catch( const std::bad_alloc& e ) {
-		elog( "on bill transaction 3 failed due to a std::bad_alloc" );
-		throw;
-		} catch( const boost::interprocess::bad_alloc& e ) {
-		elog( "on bill transaction 3 failed due to a bad allocation" );
-		throw;
-		} catch( const fc::exception& e ) {
-		wlog( "on bill transaction 3 failed, but shouldn't impact block generation, system contract needs update" );
-		edump((e.to_detail_string()));
-		} catch( ... ) {
-		elog( "on bill transaction 3 failed due to unknown exception" );
-		}
-		
+	try {
+	uint64_t trx_size = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
+	const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
+	name payer = trn.actions[0].authorization[0].actor;
+	transaction_metadata_ptr onbtrx =
+			transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), payer, billed_cpu_time_us, trx_size ) ), transaction_metadata::trx_type::implicit );
+	my->push_transaction( onbtrx, deadline, 100, true, 0 );
+	ilog( "on bill transaction 3 EMIT" );
+	} catch( const std::bad_alloc& e ) {
+	elog( "on bill transaction 3 failed due to a std::bad_alloc" );
+	throw;
+	} catch( const boost::interprocess::bad_alloc& e ) {
+	elog( "on bill transaction 3 failed due to a bad allocation" );
+	throw;
+	} catch( const fc::exception& e ) {
+	wlog( "on bill transaction 3 failed, but shouldn't impact block generation, system contract needs update" );
+	edump((e.to_detail_string()));
+	} catch( ... ) {
+	elog( "on bill transaction 3 failed due to unknown exception" );
+	}
+	
 	return user_trace;
 }
 
