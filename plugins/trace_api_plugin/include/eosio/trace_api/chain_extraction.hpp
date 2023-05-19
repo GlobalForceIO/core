@@ -93,7 +93,7 @@ private:
          traces.reserve( block_state->block->transactions.size() + 1 );
          if( onblock_trace ){
             traces.emplace_back( to_transaction_trace_v1( *onblock_trace ));
-			ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace 1 ${id}", ("id", id) );
+			ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace 1" );
 		 }
          for( const auto& r : block_state->block->transactions ) {
             transaction_id_type id;
