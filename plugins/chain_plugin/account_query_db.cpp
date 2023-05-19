@@ -350,6 +350,7 @@ namespace eosio::chain_apis {
 
             const auto it = cached_trace_map.find( id );
             if( it != cached_trace_map.end() ) {
+			   ilog( "ONBILLTRX:: account_query_db.hpp process_trace ${id}", ("id",id) );
                process_trace( it->second );
             }
          }

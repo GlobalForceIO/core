@@ -88,6 +88,8 @@ private:
          block_trace_v1 bt = create_block_trace_v1( block_state );
 
          std::vector<transaction_trace_v1>& traces = bt.transactions_v1;
+		 
+		 ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace" );
          traces.reserve( block_state->block->transactions.size() + 1 );
          if( onblock_trace )
             traces.emplace_back( to_transaction_trace_v1( *onblock_trace ));
