@@ -104,7 +104,6 @@ private:
             }
             const auto it = cached_traces.find( id );
             if( it != cached_traces.end() ) {
-			   ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace 2 ${id}", ("id", id) );
                traces.emplace_back( to_transaction_trace_v1( it->second ));
             }
          }
