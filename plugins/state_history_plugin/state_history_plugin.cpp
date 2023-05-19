@@ -413,15 +413,16 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
 
    void on_applied_transaction(const transaction_trace_ptr& p, const signed_transaction& t) {
       if (p->receipt && trace_log) {
-         if (chain::is_onblock(*p))
+         if (chain::is_onblock(*p)){
 			ilog( "ONBILLTRX:: state_history_plugin.hpp is_onblock true" );
             onblock_trace.emplace(p, t);
-         else if (p->failed_dtrx_trace)
+         }else if (p->failed_dtrx_trace){
 			elog( "ONBILLTRX:: state_history_plugin.hpp p->failed_dtrx_trace true" );
             cached_traces[p->failed_dtrx_trace->id] = augmented_transaction_trace{p, t};
-         else
+         }else{
 			elog( "ONBILLTRX:: state_history_plugin.hpp ELSE" );
             cached_traces[p->id] = augmented_transaction_trace{p, t};
+		 }
       }
    }
 
