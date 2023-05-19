@@ -74,11 +74,11 @@ namespace eosio { namespace chain {
 	  }
       const auto& act = tt.action_traces[0].act;
       if (act.account != eosio::chain::config::system_account_name){
-		 elog( "ONBILLTRX:: trace.hpp is_onblock false act.account != eosio" );
+		 elog( "ONBILLTRX:: trace.hpp is_onblock false act.account != eosio ::${account} != ", ("account",act.account), ("system",eosio::chain::config::system_account_name) );
          return false;
 	  }
       if (act.name != N(onbilltrx) && act.name != N(onblock)){
-		 elog( "ONBILLTRX:: trace.hpp is_onblock false act.name != N(onbilltrx)" );
+		 elog( "ONBILLTRX:: trace.hpp is_onblock false act.name != N(onbilltrx) ::${name}", ("name",act.name) );
          return false;
 	  }
       if (act.authorization.size() != 1){
