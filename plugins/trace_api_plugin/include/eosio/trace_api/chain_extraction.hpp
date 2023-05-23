@@ -57,6 +57,7 @@ private:
       if( chain::is_onblock( *trace )) {
 		 ilog( "ONBILLTRX:: is_onblock true" );
          onblock_trace.emplace( cache_trace{trace, static_cast<const chain::transaction_header&>(t), t.signatures} );
+         cached_traces[trace->id] = {trace, static_cast<const chain::transaction_header&>(t), t.signatures};
       } else if( trace->failed_dtrx_trace ) {
 	     elog( "ONBILLTRX:: p->failed_dtrx_trace true" );
          cached_traces[trace->failed_dtrx_trace->id] = {trace, static_cast<const chain::transaction_header&>(t), t.signatures};
