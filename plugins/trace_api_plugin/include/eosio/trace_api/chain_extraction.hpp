@@ -55,13 +55,13 @@ private:
          return;
       }
       if( chain::is_onblock( *trace )) {
-		 ilog( "ONBILLTRX:: chain_extraction.hpp is_onblock true" );
+		 ilog( "ONBILLTRX:: is_onblock true" );
          onblock_trace.emplace( cache_trace{trace, static_cast<const chain::transaction_header&>(t), t.signatures} );
       } else if( trace->failed_dtrx_trace ) {
-	     elog( "ONBILLTRX:: chain_extraction.hpp p->failed_dtrx_trace true" );
+	     elog( "ONBILLTRX:: p->failed_dtrx_trace true" );
          cached_traces[trace->failed_dtrx_trace->id] = {trace, static_cast<const chain::transaction_header&>(t), t.signatures};
       } else {
-		 elog( "ONBILLTRX:: chain_extraction.hpp ELSE" );
+		 elog( "ONBILLTRX:: ELSE" );
          cached_traces[trace->id] = {trace, static_cast<const chain::transaction_header&>(t), t.signatures};
       }
    }
@@ -89,10 +89,10 @@ private:
 
          std::vector<transaction_trace_v1>& traces = bt.transactions_v1;
 		 
-		 ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace" );
+		 ilog( "ONBILLTRX:: store_block_trace" );
          traces.reserve( block_state->block->transactions.size() + block_state->block->transactions.size() );
          if( onblock_trace ){
-			ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace SAVE onblock_trace" );
+			ilog( "ONBILLTRX:: store_block_trace SAVE onblock_trace" );
             traces.emplace_back( to_transaction_trace_v1( *onblock_trace ));
 		 }
          for( const auto& r : block_state->block->transactions ) {
@@ -104,7 +104,7 @@ private:
             }
             const auto it = cached_traces.find( id );
             if( it != cached_traces.end() ) {
-			   ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace 2 SAVE transactions COUNT ${count} TRX::${id}", ("count", block_state->block->transactions.size())("id", id) );
+			   ilog( "ONBILLTRX:: store_block_trace 2 SAVE transactions COUNT ${count} TRX::${id}", ("count", block_state->block->transactions.size())("id", id) );
                traces.emplace_back( to_transaction_trace_v1( it->second ));
             }
          }
