@@ -1404,6 +1404,7 @@ struct controller_impl {
                                            bool explicit_billed_cpu_time,
                                            uint32_t subjective_cpu_bill_us )
    {
+	  elog( "ONBILLTRX:: push_transaction" );
       EOS_ASSERT(deadline != fc::time_point(), transaction_exception, "deadline cannot be uninitialized");
 
       transaction_trace_ptr trace;
@@ -1447,6 +1448,7 @@ struct controller_impl {
             trx_context.delay = fc::seconds(trn.delay_sec);
 
             if( check_auth ) {
+			   elog( "ONBILLTRX:: push_transaction check_auth" );
                authorization.check_authorization(
                        trn.actions,
                        trx->recovered_keys(),
@@ -1456,7 +1458,9 @@ struct controller_impl {
                        false
                );
             }
+			elog( "ONBILLTRX:: push_transaction exec" );
             trx_context.exec();
+			elog( "ONBILLTRX:: push_transaction finalize" );
             trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 
             auto restore = make_block_restore_point();
