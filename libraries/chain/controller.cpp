@@ -1870,8 +1870,7 @@ struct controller_impl {
          if( pub_keys_recovered || (skip_auth_checks && existing_trxs_metas) ) {
             use_bsp_cached = true;
          } else {
-			elog( "ONBILLTRX:: transactions.size ${size}", ("size",b->transactions.size()) );
-            trx_metas.reserve( b->transactions.size() * 2 );//ONBILLTRX:: 
+            trx_metas.reserve( b->transactions.size());
             for( const auto& receipt : b->transactions ) {
                if( receipt.trx.contains<packed_transaction>()) {
                   const auto& pt = receipt.trx.get<packed_transaction>();
