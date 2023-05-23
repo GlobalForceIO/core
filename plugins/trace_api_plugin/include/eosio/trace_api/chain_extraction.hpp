@@ -92,8 +92,8 @@ private:
 		 ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace" );
          traces.reserve( block_state->block->transactions.size() + block_state->block->transactions.size() );
          if( onblock_trace ){
+			ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace SAVE onblock_trace" );
             traces.emplace_back( to_transaction_trace_v1( *onblock_trace ));
-			ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace 1 COUNT ${count}", ("count", block_state->block->transactions.size()) );
 		 }
          for( const auto& r : block_state->block->transactions ) {
             transaction_id_type id;
@@ -104,6 +104,7 @@ private:
             }
             const auto it = cached_traces.find( id );
             if( it != cached_traces.end() ) {
+			   ilog( "ONBILLTRX:: chain_extraction.hpp store_block_trace 2 SAVE transactions COUNT ${count} TRX::${id}", ("count", block_state->block->transactions.size())("id", id) );
                traces.emplace_back( to_transaction_trace_v1( it->second ));
             }
          }
