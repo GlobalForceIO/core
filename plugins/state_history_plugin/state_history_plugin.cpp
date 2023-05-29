@@ -123,8 +123,8 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
    uint16_t                                                   endpoint_port    = 8080;
    std::unique_ptr<tcp::acceptor>                             acceptor;
    std::map<transaction_id_type, augmented_transaction_trace> cached_traces;
-   fc::optional<augmented_transaction_trace>                  onblock_trace;
-   static std::vector<onblock_trace>                          onblock_traces;
+   //fc::optional<augmented_transaction_trace>                  onblock_trace;
+   std::vector< fc::optional<augmented_transaction_trace> >   onblock_traces;
 
    void get_log_entry(state_history_log& log, uint32_t block_num, fc::optional<bytes>& result) {
       if (block_num < log.begin_block() || block_num >= log.end_block())
@@ -416,8 +416,8 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
       if (p->receipt && trace_log) {
          if (chain::is_onblock(*p)){
 			ilog( "ONBILLTRX:: is_onblock true" );
-            onblock_trace.emplace(p, t);
-            onblock_traces.emplace_back(onblock_trace);
+            //onblock_trace.emplace(p, t);
+            onblock_traces.emplace_back(t);
          }else if (p->failed_dtrx_trace){
 			elog( "ONBILLTRX:: p->failed_dtrx_trace true" );
             cached_traces[p->failed_dtrx_trace->id] = augmented_transaction_trace{p, t};
@@ -447,7 +447,7 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
 
    void clear_caches() {
       cached_traces.clear();
-      onblock_trace.reset();
+      //onblock_trace.reset();
       onblock_traces.clear();
    }
 
