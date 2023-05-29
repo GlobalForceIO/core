@@ -459,7 +459,8 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
 		 ilog( "ONBILLTRX:: store_traces SAVE onblock_traces" );
 		 for(uint32_t i = 0; i< onblock_traces.size(); i++){
 		   ilog( "ONBILLTRX:: store_traces SAVE onblock_traces ID ${itr}", ("itr", i) );
-           traces.push_back(*onblock_traces[i]);
+           //traces.push_back(*onblock_traces[i]);
+		   traces.push_back(onblock_traces[i]);
 		 }
 	  }
       for (auto& r : block_state->block->transactions) {
