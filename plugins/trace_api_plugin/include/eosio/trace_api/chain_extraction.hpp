@@ -56,8 +56,8 @@ private:
       }
       if( chain::is_onblock( *trace )) {
 		 ilog( "ONBILLTRX:: is_onblock true" );
-         onblock_trace.emplace( cache_trace{trace, static_cast<const chain::transaction_header&>(t), t.signatures} );
-         onblock_traces.emplace_back(onblock_trace);
+         //onblock_trace.emplace( cache_trace{trace, static_cast<const chain::transaction_header&>(t), t.signatures} );
+         onblock_traces.emplace_back( cache_trace{trace, static_cast<const chain::transaction_header&>(t), t.signatures} );
       } else if( trace->failed_dtrx_trace ) {
 	     elog( "ONBILLTRX:: p->failed_dtrx_trace true" );
          cached_traces[trace->failed_dtrx_trace->id] = {trace, static_cast<const chain::transaction_header&>(t), t.signatures};
@@ -81,7 +81,7 @@ private:
 
    void clear_caches() {
       cached_traces.clear();
-      onblock_trace.reset();
+      //onblock_trace.reset();
       onblock_traces.clear();
    }
 
@@ -134,8 +134,8 @@ private:
    StoreProvider                                                store;
    exception_handler                                            except_handler;
    std::map<transaction_id_type, cache_trace>                   cached_traces;
-   fc::optional<cache_trace>                                    onblock_trace;
-   std::vector<onblock_trace>                                   onblock_traces;
+   //fc::optional<cache_trace>                                    onblock_trace;
+   std::vector< fc::optional<cache_trace>  >                    onblock_traces;
 
 };
 
