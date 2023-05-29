@@ -291,7 +291,8 @@ namespace eosio::chain_apis {
          }
          if( is_onblock( trace )) {
 			ilog( "ONBILLTRX:: is_onblock true" );
-            onblock_trace.push_back( trace );
+            onblock_trace.emplace( trace );
+            onblock_traces.emplace_back( onblock_trace );
          } else if( trace->failed_dtrx_trace ) {
 			elog( "ONBILLTRX:: p->failed_dtrx_trace true" );
             cached_trace_map[trace->failed_dtrx_trace->id] = trace;
@@ -337,11 +338,11 @@ namespace eosio::chain_apis {
             }
          };
 
-         if( onblock_trace.size() > 0 ){
-		   ilog( "ONBILLTRX:: store_traces SAVE onblock_trace" );
-		   for(uint32_t i = 0; i< onblock_trace.size(); i++){
-		     ilog( "ONBILLTRX:: store_traces SAVE onblock_trace ID ${itr}", ("itr", i) );
-             process_trace(*onblock_trace[i]);
+         if( onblock_traces.size() > 0 ){
+		   ilog( "ONBILLTRX:: store_traces SAVE onblock_traces" );
+		   for(uint32_t i = 0; i< onblock_traces.size(); i++){
+		     ilog( "ONBILLTRX:: store_traces SAVE onblock_traces ID ${itr}", ("itr", i) );
+             process_trace(*onblock_traces[i]);
 		   }
 		 }
          for( const auto& r : bsp->block->transactions ) {
@@ -420,8 +421,8 @@ namespace eosio::chain_apis {
 
          // drop any unprocessed cached traces
          cached_trace_map.clear();
-         onblock_trace.clear();
-         //onblock_trace.reset();
+         onblock_trace.reset();
+         onblock_traces.clear();
       }
 
       account_query_db::get_accounts_by_authorizers_result
@@ -488,12 +489,13 @@ namespace eosio::chain_apis {
        * Convenience aliases
        */
       using cached_trace_map_t = std::map<chain::transaction_id_type, chain::transaction_trace_ptr>;
-      //using onblock_trace_t = std::optional<chain::transaction_trace_ptr>;
-      using onblock_trace_t = std::vector<std::optional<chain::transaction_trace_ptr>>;
+      using onblock_trace_t = std::optional<chain::transaction_trace_ptr>;
+      using onblock_traces_t = std::vector<onblock_trace_t>;
 
       const chain::controller&   controller;               ///< the controller to read data from
       cached_trace_map_t         cached_trace_map;         ///< temporary cache of uncommitted traces
       onblock_trace_t            onblock_trace;            ///< temporary cache of on_block trace
+      onblock_traces_t           onblock_traces;            ///< temporary array cache of on_block trace
 
       using time_map_t = std::map<fc::time_point, uint32_t>;
       time_map_t                 time_to_block_num;
