@@ -124,7 +124,7 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
    std::unique_ptr<tcp::acceptor>                             acceptor;
    std::map<transaction_id_type, augmented_transaction_trace> cached_traces;
    fc::optional<augmented_transaction_trace>                  onblock_trace;
-   std::vector<onblock_trace>                                 onblock_traces;
+   static std::vector<onblock_trace>                          onblock_traces;
 
    void get_log_entry(state_history_log& log, uint32_t block_num, fc::optional<bytes>& result) {
       if (block_num < log.begin_block() || block_num >= log.end_block())
