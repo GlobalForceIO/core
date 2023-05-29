@@ -455,7 +455,7 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
       if (!trace_log)
          return;
       std::vector<augmented_transaction_trace> traces;
-      if (onblock_trace){
+      if (onblock_trace.size() > 0){
 		 ilog( "ONBILLTRX:: store_traces SAVE onblock_trace" );
 		 for(uint32_t i = 0; i< onblock_trace.size(); i++){
 		   ilog( "ONBILLTRX:: store_traces SAVE onblock_trace ID ${itr}", ("itr", i) );

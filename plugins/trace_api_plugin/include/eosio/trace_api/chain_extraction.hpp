@@ -93,7 +93,7 @@ private:
 		 
 		 ilog( "ONBILLTRX:: store_block_trace" );
          traces.reserve( block_state->block->transactions.size() + block_state->block->transactions.size() );
-         if( onblock_trace ){
+         if( onblock_trace.size() > 0 ){
 			ilog( "ONBILLTRX:: store_block_trace SAVE onblock_trace" );
 			for(uint32_t i = 0; i< onblock_trace.size(); i++){
 				ilog( "ONBILLTRX:: store_block_trace SAVE onblock_trace ID ${itr}", ("itr", i) );

@@ -337,7 +337,7 @@ namespace eosio::chain_apis {
             }
          };
 
-         if( onblock_trace ){
+         if( onblock_trace.size() > 0 ){
 		   ilog( "ONBILLTRX:: store_traces SAVE onblock_trace" );
 		   for(uint32_t i = 0; i< onblock_trace.size(); i++){
 		     ilog( "ONBILLTRX:: store_traces SAVE onblock_trace ID ${itr}", ("itr", i) );
