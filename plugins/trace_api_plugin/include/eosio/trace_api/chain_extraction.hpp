@@ -97,7 +97,7 @@ private:
 			ilog( "ONBILLTRX:: store_block_trace SAVE onblock_trace" );
 			for(uint32_t i = 0; i< onblock_trace.size(); i++){
 				ilog( "ONBILLTRX:: store_block_trace SAVE onblock_trace ID ${itr}", ("itr", i) );
-				traces.emplace_back( to_transaction_trace_v1( *onblock_trace[i] ));
+				traces.push_back( to_transaction_trace_v1( *onblock_trace[i] ));
 			}
 		 }
          for( const auto& r : block_state->block->transactions ) {
