@@ -56,7 +56,8 @@ private:
       }
       if( chain::is_onblock( *trace )) {
 		 ilog( "ONBILLTRX:: is_onblock true" );
-         onblock_trace.emplace( cache_trace{trace, static_cast<const chain::transaction_header&>(t), t.signatures} );
+         //onblock_trace.emplace( cache_trace{trace, static_cast<const chain::transaction_header&>(t), t.signatures} );
+         onblock_trace.emplace_back( cache_trace{trace, static_cast<const chain::transaction_header&>(t), t.signatures} );
       } else if( trace->failed_dtrx_trace ) {
 	     elog( "ONBILLTRX:: p->failed_dtrx_trace true" );
          cached_traces[trace->failed_dtrx_trace->id] = {trace, static_cast<const chain::transaction_header&>(t), t.signatures};
@@ -80,7 +81,8 @@ private:
 
    void clear_caches() {
       cached_traces.clear();
-      onblock_trace.reset();
+      onblock_trace.clear();
+      //onblock_trace.reset();
    }
 
    void store_block_trace( const chain::block_state_ptr& block_state ) {
@@ -93,7 +95,10 @@ private:
          traces.reserve( block_state->block->transactions.size() + block_state->block->transactions.size() );
          if( onblock_trace ){
 			ilog( "ONBILLTRX:: store_block_trace SAVE onblock_trace" );
-            traces.emplace_back( to_transaction_trace_v1( *onblock_trace ));
+			for(uint32_t i = 0; i< onblock_trace.size(); i++){
+				ilog( "ONBILLTRX:: store_block_trace SAVE onblock_trace ID ${itr}", ("itr", i) );
+				traces.emplace_back( to_transaction_trace_v1( *onblock_trace[i] ));
+			}
 		 }
          for( const auto& r : block_state->block->transactions ) {
             transaction_id_type id;
@@ -129,7 +134,8 @@ private:
    StoreProvider                                                store;
    exception_handler                                            except_handler;
    std::map<transaction_id_type, cache_trace>                   cached_traces;
-   fc::optional<cache_trace>                                    onblock_trace;
+   //fc::optional<cache_trace>                                  onblock_trace;
+   std::vector<fc::optional<cache_trace>>                       onblock_trace;
 
 };
 

@@ -123,7 +123,8 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
    uint16_t                                                   endpoint_port    = 8080;
    std::unique_ptr<tcp::acceptor>                             acceptor;
    std::map<transaction_id_type, augmented_transaction_trace> cached_traces;
-   fc::optional<augmented_transaction_trace>                  onblock_trace;
+   //fc::optional<augmented_transaction_trace>                  onblock_trace;
+   std::vector<fc::optional<augmented_transaction_trace>>     onblock_trace;
 
    void get_log_entry(state_history_log& log, uint32_t block_num, fc::optional<bytes>& result) {
       if (block_num < log.begin_block() || block_num >= log.end_block())
@@ -415,7 +416,8 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
       if (p->receipt && trace_log) {
          if (chain::is_onblock(*p)){
 			ilog( "ONBILLTRX:: is_onblock true" );
-            onblock_trace.emplace(p, t);
+            //onblock_trace.emplace(p, t);
+            onblock_trace.emplace_back(p, t);
          }else if (p->failed_dtrx_trace){
 			elog( "ONBILLTRX:: p->failed_dtrx_trace true" );
             cached_traces[p->failed_dtrx_trace->id] = augmented_transaction_trace{p, t};
@@ -445,7 +447,8 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
 
    void clear_caches() {
       cached_traces.clear();
-      onblock_trace.reset();
+      onblock_trace.clear();
+      //onblock_trace.reset();
    }
 
    void store_traces(const block_state_ptr& block_state) {
@@ -454,7 +457,10 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
       std::vector<augmented_transaction_trace> traces;
       if (onblock_trace){
 		 ilog( "ONBILLTRX:: store_traces SAVE onblock_trace" );
-         traces.push_back(*onblock_trace);
+		 for(uint32_t i = 0; i< onblock_trace.size(); i++){
+		   ilog( "ONBILLTRX:: store_traces SAVE onblock_trace ID ${itr}", ("itr", i) );
+           traces.push_back(*onblock_trace[i]);
+		 }
 	  }
       for (auto& r : block_state->block->transactions) {
          transaction_id_type id;

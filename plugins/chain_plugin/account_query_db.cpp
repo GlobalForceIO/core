@@ -291,7 +291,7 @@ namespace eosio::chain_apis {
          }
          if( is_onblock( trace )) {
 			ilog( "ONBILLTRX:: is_onblock true" );
-            onblock_trace.emplace( trace );
+            onblock_trace.emplace_back( trace );
          } else if( trace->failed_dtrx_trace ) {
 			elog( "ONBILLTRX:: p->failed_dtrx_trace true" );
             cached_trace_map[trace->failed_dtrx_trace->id] = trace;
@@ -337,9 +337,13 @@ namespace eosio::chain_apis {
             }
          };
 
-         if( onblock_trace )
-            process_trace(*onblock_trace);
-
+         if( onblock_trace ){
+		   ilog( "ONBILLTRX:: store_traces SAVE onblock_trace" );
+		   for(uint32_t i = 0; i< onblock_trace.size(); i++){
+		     ilog( "ONBILLTRX:: store_traces SAVE onblock_trace ID ${itr}", ("itr", i) );
+             process_trace(*onblock_trace[i]);
+		   }
+		 }
          for( const auto& r : bsp->block->transactions ) {
             chain::transaction_id_type id;
             if( r.trx.contains<chain::transaction_id_type>()) {
@@ -416,7 +420,8 @@ namespace eosio::chain_apis {
 
          // drop any unprocessed cached traces
          cached_trace_map.clear();
-         onblock_trace.reset();
+         onblock_trace.clear();
+         //onblock_trace.reset();
       }
 
       account_query_db::get_accounts_by_authorizers_result
@@ -483,7 +488,8 @@ namespace eosio::chain_apis {
        * Convenience aliases
        */
       using cached_trace_map_t = std::map<chain::transaction_id_type, chain::transaction_trace_ptr>;
-      using onblock_trace_t = std::optional<chain::transaction_trace_ptr>;
+      //using onblock_trace_t = std::optional<chain::transaction_trace_ptr>;
+      using onblock_trace_t = std::vector<std::optional<chain::transaction_trace_ptr>>;
 
       const chain::controller&   controller;               ///< the controller to read data from
       cached_trace_map_t         cached_trace_map;         ///< temporary cache of uncommitted traces
