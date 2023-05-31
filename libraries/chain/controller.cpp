@@ -2758,14 +2758,12 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	  const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	  name payer = trn.actions[0].authorization[0].actor;
 	  
-	  symbol asset_symbol;
-	  asset_symbol = symbol("NCH", 4);
 	  const auto& db  = my->db();
       const auto* tbl = db.template find<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
       share_type balance = 0;
       // the balance is implied to be 0 if either the table or row does not exist
       if (tbl) {
-         const auto *obj = db.template find<key_value_object, by_scope_primary>(boost::make_tuple(tbl->id, asset_symbol.to_symbol_code().value));
+         const auto *obj = db.template find<key_value_object, by_scope_primary>(boost::make_tuple(tbl->id, CORE_SYMBOL.to_symbol_code().value));
          if (obj) {
             //balance is the first field in the serialization
             fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
