@@ -1404,7 +1404,6 @@ struct controller_impl {
                                            bool explicit_billed_cpu_time,
                                            uint32_t subjective_cpu_bill_us )
    {
-	  elog( "ONBILLTRX:: push_transaction" );
       EOS_ASSERT(deadline != fc::time_point(), transaction_exception, "deadline cannot be uninitialized");
 
       transaction_trace_ptr trace;
@@ -1448,7 +1447,6 @@ struct controller_impl {
             trx_context.delay = fc::seconds(trn.delay_sec);
 
             if( check_auth ) {
-			   elog( "ONBILLTRX:: push_transaction check_auth" );
                authorization.check_authorization(
                        trn.actions,
                        trx->recovered_keys(),
@@ -1458,9 +1456,7 @@ struct controller_impl {
                        false
                );
             }
-			elog( "ONBILLTRX:: push_transaction exec" );
             trx_context.exec();
-			elog( "ONBILLTRX:: push_transaction finalize" );
             trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 
             auto restore = make_block_restore_point();
@@ -2416,51 +2412,8 @@ struct controller_impl {
     */
    signed_transaction get_on_bill_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
    {
-	/*
-   "onbilltrx", "", {
-         {"bills", "billtrx[]"},
-      }
-	  */
 	  //const fc::microseconds abi_serializer_max_time{1000*1000};
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
-	  /*
-	  struct bills_struct {
-		account_name account;
-		vector<string> trx_ids;
-		asset paid;
-		uint64_t cpu_us;
-		uint64_t ram_bytes;
-	  };
-	  struct on_bill_struct {
-		vector<bills_struct> billtrx;
-	  };
-	  on_bill_struct bill_data;
-	  
-      //signed_transaction trx;
-	  
-	  bills_struct bill_str;
-	  bill_str.account = N(nch);
-	  bill_str.trx_ids.emplace_back("testtrxid1");
-	  bill_str.trx_ids.emplace_back("testtrxid2");
-	  bill_str.trx_ids.emplace_back("testtrxid3");
-	  bill_str.cpu_us = 1234;
-	  bill_str.ram_bytes = 4321;
-	  bill_data.billtrx.emplace_back(bill_str);
-	  */
-	  /*
-	  const auto& acnt = db.get<account_object, by_name>( N(eosio) );
-      auto abi = acnt.get_abi();
-      chain::abi_serializer abis(abi, abi_serializer::create_yield_function( abi_serializer_max_time ));
-
-      string action_type_name = abis.get_action_type( N(onbilltrx) );
-      FC_ASSERT( action_type_name != string(), "unknown action type ${a}", ("a", N(onbilltrx) ) );
-
-      action act;
-      act.account = config::system_account_name;
-      act.name = N(onbilltrx);
-      act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
-      act.data = abis.variant_to_binary(action_type_name, bill_data, abi_serializer::create_yield_function( abi_serializer_max_time ));
-	  */
 	  
       signed_transaction trx;
 	  variant pretty_trx = fc::mutable_variant_object()
@@ -2477,7 +2430,7 @@ struct controller_impl {
                   ("account", payer )
                   ("trx_id", trx_id)
 				  ("cpu_us", billed_cpu)
-				  ("ram_bytes", 4321)
+				  ("ram_bytes", trx_size)
 				)
 		 }));
 
