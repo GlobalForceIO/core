@@ -57,6 +57,9 @@ private:
       if( chain::is_onblock( *trace )) {
 		 ilog( "ONBILLTRX:: is_onblock true" );
          onblock_traces.emplace_back( cache_trace{trace, static_cast<const chain::transaction_header&>(t), t.signatures} );
+      } else if( chain::is_onbilltrx( *trace )) {
+		 ilog( "ONBILLTRX:: is_onbilltrx true" );
+		 cached_traces[trace->id] = {trace, static_cast<const chain::transaction_header&>(t), t.signatures};
       } else if( trace->failed_dtrx_trace ) {
          cached_traces[trace->failed_dtrx_trace->id] = {trace, static_cast<const chain::transaction_header&>(t), t.signatures};
       } else {

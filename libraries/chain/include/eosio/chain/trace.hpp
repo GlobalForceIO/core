@@ -71,10 +71,21 @@ namespace eosio { namespace chain {
       if (tt.action_traces.empty())
          return false;
       const auto& act = tt.action_traces[0].act;
-      if (act.account != eosio::chain::config::system_account_name || (act.name != N(onbilltrx) && act.name != N(onblock)) || act.authorization.size() != 1)
+      if (act.account != eosio::chain::config::system_account_name || act.name != N(onblock) || act.authorization.size() != 1)
          return false;
       const auto& auth = act.authorization[0];
       elog( "ONBILLTRX:: is_onblock ${name} ${account}", ("name",act.name)("account",act.account) );
+      return auth.actor == eosio::chain::config::system_account_name &&
+             auth.permission == eosio::chain::config::active_name;
+   }
+   inline bool is_onbilltrx( const transaction_trace& tt ) {
+      if (tt.action_traces.empty())
+         return false;
+      const auto& act = tt.action_traces[0].act;
+      if (act.account != eosio::chain::config::system_account_name || act.name != N(onbilltrx) || act.authorization.size() != 1)
+         return false;
+      const auto& auth = act.authorization[0];
+      elog( "ONBILLTRX:: is_onbilltrx ${name} ${account}", ("name",act.name)("account",act.account) );
       return auth.actor == eosio::chain::config::system_account_name &&
              auth.permission == eosio::chain::config::active_name;
    }
