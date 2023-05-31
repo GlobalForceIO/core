@@ -2754,6 +2754,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
    
 	try {
 	  uint64_t trx_size = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
+	  uint64_t payment = billed_cpu_time_us + trx_size;
 	  const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	  name payer = trn.actions[0].authorization[0].actor;
 	  
@@ -2761,17 +2762,17 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	  asset_symbol = symbol("NCH", 4);
 	  const auto& db  = my->db();
       const auto* tbl = db.template find<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
-      share_type result = 0;
+      share_type balance = 0;
       // the balance is implied to be 0 if either the table or row does not exist
       if (tbl) {
          const auto *obj = db.template find<key_value_object, by_scope_primary>(boost::make_tuple(tbl->id, asset_symbol.to_symbol_code().value));
          if (obj) {
             //balance is the first field in the serialization
             fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
-            fc::raw::unpack(ds, result);
+            fc::raw::unpack(ds, balance);
          }
       }
-	  elog( "ONBILLTRX:: balance ${payer} ${result}", ("payer",payer)("result",result) );
+	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment}", ("payer",payer)("balance",balance)("payment",payment) );
 	  
 	  if(payer != N(eosio) && payer != N(eosio.token)){
 	    transaction_metadata_ptr onbtrx =
