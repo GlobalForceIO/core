@@ -2754,7 +2754,6 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	uint64_t trx_size = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 	const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	name payer = trn.actions[0].authorization[0].actor;
-	elog( "ONBILLTRX:: payer ${payer}", ("payer", payer) );
 	transaction_metadata_ptr onbtrx =
 			transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), payer, billed_cpu_time_us, trx_size ) ), transaction_metadata::trx_type::implicit );
 	my->push_transaction( onbtrx, deadline, 100, true, 0 );
