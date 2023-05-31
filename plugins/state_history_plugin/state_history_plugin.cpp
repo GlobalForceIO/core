@@ -416,9 +416,6 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
          if (chain::is_onblock(*p)){
 			ilog( "ONBILLTRX:: is_onblock true" );
             onblock_traces.emplace_back( augmented_transaction_trace{p, t} );
-         }else if (chain::is_onbilltrx(*p)){
-			ilog( "ONBILLTRX:: is_onbilltrx true" );
-            cached_traces[p->id] = augmented_transaction_trace{p, t};
          }else if (p->failed_dtrx_trace){
             cached_traces[p->failed_dtrx_trace->id] = augmented_transaction_trace{p, t};
          }else{
