@@ -248,14 +248,6 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
    //payment for RAM resources
    //const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
    //EOS_ASSERT( false, ram_usage_exceeded, "RAM ${ramb} bytes", ("ramb",usage.ram_usage));
-   
-	std::string memo;
-	memo = "TEST PAY";
-	chain::asset quantity;
-	//quantity.symbol = chain::symbol(CORE_SYMBOL);
-	//quantity.amount = 15;
-	chain::action( std::vector<chain::permission_level> {{account, N(active)}},
-                            N(eosio.token), N(transfer), make_transfer_data( account, N(nch), quantity, std::move(memo) ) );
 }
 
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
