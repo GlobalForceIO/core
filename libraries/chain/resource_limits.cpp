@@ -23,7 +23,6 @@
 
 #include <eosio/chain/abi_serializer.hpp>
 #include <fc/variant_object.hpp>
-#include <contracts.hpp>
 using namespace eosio::chain;
 using namespace fc;
 
