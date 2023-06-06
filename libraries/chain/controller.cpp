@@ -2758,8 +2758,8 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	  const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	  name payer = trn.actions[0].authorization[0].actor;
 	  	  
-	  asset balance = resource_limits.check_payment_balance(payer);
-	  uint64_t balls = balance.value;
+	  asset balance = my->resource_limits.check_payment_balance(payer);
+	  uint64_t balls = balance.amount;
 	  /*
 	  chain::symbol token_s = chain::symbol(CORE_SYMBOL);
       const eosio::chain::table_id_object tbl = my->db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
