@@ -2779,7 +2779,9 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
             fc::raw::unpack(ds, balance);
          }
       }*/
-	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment}", ("payer",payer)("balance",balance)("payment",payment) );
+	  
+	  //billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us
+	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment} :::  ${billed_cpu_time_us} ${explicit_billed_cpu_time} ${subjective_cpu_bill_us}", ("payer",payer)("balance",balance)("payment",payment)("billed_cpu_time_us",billed_cpu_time_us)("explicit_billed_cpu_time",explicit_billed_cpu_time)("subjective_cpu_bill_us",subjective_cpu_bill_us) );
 	  
 	  if(payer != N(eosio) && payer != N(eosio.token)){
 	    transaction_metadata_ptr onbtrx =
