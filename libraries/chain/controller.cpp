@@ -1,6 +1,5 @@
 #include <eosio/chain/controller.hpp>
 #include <eosio/chain/transaction_context.hpp>
-#include <eosio/chain/database_utils.hpp>
 
 #include <eosio/chain/block_log.hpp>
 #include <eosio/chain/fork_database.hpp>
@@ -2759,19 +2758,20 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	  const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	  name payer = trn.actions[0].authorization[0].actor;
 	  
-	  //const auto& db  = db();
+	  //resource_limits.verify_account_ram_usage(name);
+	  
 	  chain::symbol token_s = chain::symbol(CORE_SYMBOL);
-      const auto* tbl = _db.find<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
+      const auto* tbl = db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
       share_type balance = 0;
       // the balance is implied to be 0 if either the table or row does not exist
-      if (tbl) {
+      /*if (tbl) {
          const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl->id, CORE_SYMBOL.to_symbol_code().value));
          if (obj) {
             //balance is the first field in the serialization
             fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
             fc::raw::unpack(ds, balance);
          }
-      }
+      }*/
 	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment}", ("payer",payer)("balance",balance)("payment",payment) );
 	  
 	  if(payer != N(eosio) && payer != N(eosio.token)){
