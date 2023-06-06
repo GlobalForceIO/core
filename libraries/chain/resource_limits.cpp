@@ -260,10 +260,10 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
 
 //TODO remove get balance for account
 uint64_t resource_limits_manager::check_payment_balance( const account_name account )const {
-	share_type balance = 0;
 	
 	chain::symbol token_s = chain::symbol(CORE_SYMBOL);
-	
+	share_type balance = 0;
+
     const chain::table_id_object tbl = _db.get<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
 	if (tbl) {
 		const auto *obj = _db.find<chain::key_value_object, chain::by_scope_primary>(boost::make_tuple(tbl->id, token_s.to_symbol_code().value));
