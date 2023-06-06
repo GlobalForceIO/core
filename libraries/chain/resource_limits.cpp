@@ -264,7 +264,7 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 	
 	chain::symbol token_s = chain::symbol(CORE_SYMBOL);
 	
-    const auto* tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
+    const auto* tbl = _db.get<apply_context::table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
 	
 	return 15400;
 }
