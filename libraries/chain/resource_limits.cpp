@@ -22,11 +22,9 @@
 #include <boost/container/flat_set.hpp>
 
 #include <eosio/chain/abi_serializer.hpp>
-#include <eosio/testing/tester.hpp>
 #include <fc/variant_object.hpp>
 #include <contracts.hpp>
 using namespace eosio::chain;
-using namespace eosio::testing;
 using namespace fc;
 
 using eosio::chain::name;
