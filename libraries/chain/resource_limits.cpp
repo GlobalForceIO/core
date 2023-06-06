@@ -21,6 +21,14 @@
 #include <eosio/chain/global_property_object.hpp>
 #include <boost/container/flat_set.hpp>
 
+#include <eosio/chain/abi_serializer.hpp>
+#include <eosio/testing/tester.hpp>
+#include <fc/variant_object.hpp>
+#include <contracts.hpp>
+using namespace eosio::chain;
+using namespace eosio::testing;
+using namespace fc;
+
 using eosio::chain::name;
 
 namespace eosio { namespace chain { namespace resource_limits {
@@ -263,7 +271,27 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 	
 	chain::symbol token_s = chain::symbol(CORE_SYMBOL);
 	share_type balance = 0;
+	
+	asset bal;
+	vector<char> data = get_row_by_account( N(eosio.token), account, N(accounts), name(chain::(CORE_SYMBOL).to_symbol_code().value) );
+    bal = data.empty() ? asset(0, chain::(CORE_SYMBOL)) : token_abi_ser.binary_to_variant("account", data, abi_serializer::create_yield_function( abi_serializer_max_time ))["balance"].as<asset>();
+	
+	/*
+	const auto& db  = control->db();
+	const auto* tbl = db.template find<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
+	share_type result = 0;
 
+	// the balance is implied to be 0 if either the table or row does not exist
+	if (tbl) {
+		const auto *obj = db.template find<key_value_object, by_scope_primary>(boost::make_tuple(tbl->id, token_s.to_symbol_code().value));
+		if (obj) {
+			//balance is the first field in the serialization
+			fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
+			fc::raw::unpack(ds, result);
+		}
+	}
+	*/
+	/*
     const auto* tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
 	if (tbl != nullptr) {
 		const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl.id, token_s.to_symbol_code().value));
@@ -272,12 +300,8 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 			fc::raw::unpack(ds, balance);
 		}
 	}
+	*/
 	return 15400;
-}
-
-const table_id_object* resource_limits_manager::find_table( name code, name scope, name table ) {
-	auto tid = _db.find<table_id_object, by_code_scope_table>(boost::make_tuple(code, scope, table));
-	return tid;
 }
 
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
