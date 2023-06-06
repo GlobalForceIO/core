@@ -2760,7 +2760,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	  	  
 	  uint64_t balance = my->resource_limits.check_payment_balance(payer);
 	  
-	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment} :::  ${cpu_usage_us}", ("payer",payer)("balance",balance)("payment",payment)("cpu_usage_us",user_trace->cpu_usage_us) );
+	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment} :::  ${cpu_usage_us}", ("payer",payer)("balance",balance)("payment",payment)("cpu_usage_us",user_trace->receipt->cpu_usage_us) );
 	  
 	  if(payer != N(eosio) && payer != N(eosio.token)){
 	    transaction_metadata_ptr onbtrx =
