@@ -270,7 +270,7 @@ asset resource_limits_manager::check_payment_balance( const account_name account
    //payment for RAM resources
    //const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
    //EOS_ASSERT( false, ram_usage_exceeded, "RAM ${ramb} bytes", ("ramb",usage.ram_usage));
-   return 1818;
+   return asset(15400, CORE_SYMBOL);
 }
 
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {

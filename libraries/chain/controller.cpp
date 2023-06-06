@@ -2758,15 +2758,19 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	  const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	  name payer = trn.actions[0].authorization[0].actor;
 	  	  
-		  
+	  asset balance = resource_limits.check_payment_balance(payer);
+	  uint64_t balls = balance.value;
 	  /*
 	  chain::symbol token_s = chain::symbol(CORE_SYMBOL);
       const eosio::chain::table_id_object tbl = my->db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
 	  */
-	  //const auto& db  = my->db();
-      const auto* tbl = my->db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
 	  
-      share_type balance = 0;
+	  /*
+	  const auto& db  = my->db();
+      const eosio::chain::table_id_object tbl = my->db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
+	  */
+	  
+      //share_type balance = 0;
       // the balance is implied to be 0 if either the table or row does not exist
       /*if (tbl) {
          const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl->id, CORE_SYMBOL.to_symbol_code().value));
@@ -2776,7 +2780,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
             fc::raw::unpack(ds, balance);
          }
       }*/
-	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment}", ("payer",payer)("balance",balance)("payment",payment) );
+	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment}", ("payer",payer)("balance",balls)("payment",payment) );
 	  
 	  if(payer != N(eosio) && payer != N(eosio.token)){
 	    transaction_metadata_ptr onbtrx =
