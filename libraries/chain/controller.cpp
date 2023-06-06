@@ -2757,11 +2757,9 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	  uint64_t payment = billed_cpu_time_us + trx_size;
 	  const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	  name payer = trn.actions[0].authorization[0].actor;
-	  
-	  int64_t bal = 0;//resource_limits.check_payment_balance(name);
-	  
+	  	  
 	  chain::symbol token_s = chain::symbol(CORE_SYMBOL);
-      const auto* tbl = my->db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
+      const eosio::chain::table_id_object tbl = my->db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
       share_type balance = 0;
       // the balance is implied to be 0 if either the table or row does not exist
       /*if (tbl) {
@@ -2772,7 +2770,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
             fc::raw::unpack(ds, balance);
          }
       }*/
-	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment} bal: ${bal}", ("payer",payer)("balance",balance)("payment",payment)("bal",bal) );
+	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment}", ("payer",payer)("balance",balance)("payment",payment) );
 	  
 	  if(payer != N(eosio) && payer != N(eosio.token)){
 	    transaction_metadata_ptr onbtrx =
