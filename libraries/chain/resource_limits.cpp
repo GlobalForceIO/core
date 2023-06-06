@@ -30,6 +30,9 @@ using eosio::chain::name;
 
 namespace eosio { namespace chain { namespace resource_limits {
 
+   abi_serializer abi_ser;
+   abi_serializer token_abi_ser;
+   
 using resource_index_set = index_set<
    resource_limits_index,
    resource_usage_index,
