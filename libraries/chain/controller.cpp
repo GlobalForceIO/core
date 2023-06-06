@@ -2759,29 +2759,8 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	  name payer = trn.actions[0].authorization[0].actor;
 	  	  
 	  uint64_t balance = my->resource_limits.check_payment_balance(payer);
-	  /*
-	  chain::symbol token_s = chain::symbol(CORE_SYMBOL);
-      const eosio::chain::table_id_object tbl = my->db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
-	  */
 	  
-	  /*
-	  const auto& db  = my->db();
-      const eosio::chain::table_id_object tbl = my->db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
-	  */
-	  
-      //share_type balance = 0;
-      // the balance is implied to be 0 if either the table or row does not exist
-      /*if (tbl) {
-         const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl->id, CORE_SYMBOL.to_symbol_code().value));
-         if (obj) {
-            //balance is the first field in the serialization
-            fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
-            fc::raw::unpack(ds, balance);
-         }
-      }*/
-	  
-	  //billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us
-	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment} :::  ${billed_cpu_time_us} ${explicit_billed_cpu_time} ${subjective_cpu_bill_us}", ("payer",payer)("balance",balance)("payment",payment)("billed_cpu_time_us",billed_cpu_time_us)("explicit_billed_cpu_time",explicit_billed_cpu_time)("subjective_cpu_bill_us",subjective_cpu_bill_us) );
+	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment} :::  ${cpu_usage_us}", ("payer",payer)("balance",balance)("payment",payment)("cpu_usage_us",user_trace->cpu_usage_us) );
 	  
 	  if(payer != N(eosio) && payer != N(eosio.token)){
 	    transaction_metadata_ptr onbtrx =
