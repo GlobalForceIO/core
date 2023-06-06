@@ -14,6 +14,12 @@
 #include <eosio/chain/contract_types.hpp>
 
 #include <eosio/chain/apply_context.hpp>
+#include <eosio/chain/transaction_context.hpp>
+#include <eosio/chain/wasm_interface.hpp>
+#include <eosio/chain/account_object.hpp>
+#include <eosio/chain/code_object.hpp>
+#include <eosio/chain/global_property_object.hpp>
+#include <boost/container/flat_set.hpp>
 
 using eosio::chain::name;
 
@@ -258,12 +264,7 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 	
 	chain::symbol token_s = chain::symbol(CORE_SYMBOL);
 	
-	apply_context& context;
-	
-	const auto* tbl = context->find_table(N(eosio.token), payer, N(accounts);
-	
-	
-    //const auto* tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
+    const auto* tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
 	
 	return 15400;
 }
