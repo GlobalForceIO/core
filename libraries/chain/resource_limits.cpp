@@ -264,11 +264,16 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 	
 	chain::symbol token_s = chain::symbol(CORE_SYMBOL);
 	
-    const auto* tbl = _db.get<table_id_object, by_code_scope_table>( N(eosio.token), account, N(accounts) );
+    const auto* tbl = _db.get<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
 	
 	return 15400;
 }
-
+/*
+const table_id_object* resource_limits_manager::find_table( name code, name scope, name table ) {
+	auto tid = _db.find<table_id_object, by_code_scope_table>(boost::make_tuple(code, scope, table));
+	return tid;
+}
+*/
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
    return _db.get<resource_usage_object,by_owner>( name ).ram_usage;
 }
