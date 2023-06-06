@@ -249,6 +249,29 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
    //const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
    //EOS_ASSERT( false, ram_usage_exceeded, "RAM ${ramb} bytes", ("ramb",usage.ram_usage));
 }
+//TODO remove get balance for account
+int64_t resource_limits_manager::check_payment_balance( const account_name account )const {
+	chain::symbol token_s = chain::symbol(CORE_SYMBOL);
+    const auto* tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
+    share_type balance = 0;
+	
+	/*
+	int64_t ram_bytes; int64_t net_weight; int64_t cpu_weight;
+   get_account_limits( account, ram_bytes, net_weight, cpu_weight );
+   const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
+
+   if( ram_bytes >= 0 ) {
+      EOS_ASSERT( usage.ram_usage <= static_cast<uint64_t>(ram_bytes), ram_usage_exceeded,
+                  "account ${account} has insufficient ram; needs ${needs} bytes has ${available} bytes!",
+                  ("account", account)("needs",usage.ram_usage)("available",ram_bytes)              );
+   }
+   */
+   //TEST RAM CALC
+   //payment for RAM resources
+   //const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
+   //EOS_ASSERT( false, ram_usage_exceeded, "RAM ${ramb} bytes", ("ramb",usage.ram_usage));
+   return 1818;
+}
 
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
    return _db.get<resource_usage_object,by_owner>( name ).ram_usage;

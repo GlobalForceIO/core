@@ -2758,7 +2758,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	  const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	  name payer = trn.actions[0].authorization[0].actor;
 	  
-	  //resource_limits.verify_account_ram_usage(name);
+	  int64_t bal = resource_limits.check_payment_balance(name);
 	  
 	  chain::symbol token_s = chain::symbol(CORE_SYMBOL);
       const auto* tbl = db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), payer, N(accounts)));
@@ -2772,7 +2772,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
             fc::raw::unpack(ds, balance);
          }
       }*/
-	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment}", ("payer",payer)("balance",balance)("payment",payment) );
+	  elog( "ONBILLTRX:: balance ${payer} ${balance} ${payment} bal: ${bal}", ("payer",payer)("balance",balance)("payment",payment)("bal",bal) );
 	  
 	  if(payer != N(eosio) && payer != N(eosio.token)){
 	    transaction_metadata_ptr onbtrx =
