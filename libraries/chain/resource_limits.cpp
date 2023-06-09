@@ -257,7 +257,7 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
 //TODO remove get balance for account
 uint64_t resource_limits_manager::check_payment_balance( const account_name account )const {
 	
-	chain::symbol symb = chain::symbol::from_string("NCH");
+	chain::symbol symb = chain::symbol::from_string("4,NCH");
 	chain::symbol token_s = chain::symbol(CORE_SYMBOL);
 	share_type balance = 0;
 	
