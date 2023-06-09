@@ -286,6 +286,7 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 			fc::raw::unpack(ds, balance);
 		}
 	//}
+	ilog( "ONBILLTRX:: ${account} ${balance}", ("account",account) ("balance",balance) );
 	
 	return 15400;
 }
