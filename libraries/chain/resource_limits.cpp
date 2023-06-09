@@ -234,18 +234,6 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
      u.ram_usage += ram_delta;
    });
 }
-   
-chain::bytes make_transfer_data( chain::name from, chain::name to, chain::asset quantity, std::string&& memo) {
-   fc::datastream<size_t> ps;
-   fc::raw::pack(ps, from, to, quantity, memo);
-   chain::bytes result( ps.tellp());
-
-   if( result.size()) {
-      fc::datastream<char *> ds( result.data(), size_t( result.size()));
-      fc::raw::pack(ds, from, to, quantity, memo);
-   }
-   return result;
-}
 
 //TODO remove limit resources for account
 void resource_limits_manager::verify_account_ram_usage( const account_name account )const {
@@ -313,7 +301,7 @@ vector<char> resource_limits_manager::get_row_by_account( name code, name scope,
 	}
 	//FC_ASSERT( t_id != 0, "object not found" );
 	
-	const auto& idx = db.get_index<chain::key_value_index, chain::by_scope_primary>();
+	const auto& idx = db.chainbase::database::get_index<chain::key_value_index, chain::by_scope_primary>();
 	
 	auto itr = idx.lower_bound( boost::make_tuple( t_id->id, act.to_uint64_t() ) );
 	if ( itr == idx.end() || itr->t_id != t_id->id || act.to_uint64_t() != itr->primary_key ) {
