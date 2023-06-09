@@ -257,19 +257,18 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
 //TODO remove get balance for account
 uint64_t resource_limits_manager::check_payment_balance( const account_name account )const {
 	
-	chain::symbol symb = chain::symbol::from_string("4,NCH");
-	chain::symbol token_s = chain::symbol(CORE_SYMBOL);
+	chain::symbol token = chain::symbol::from_string("4,NCH");
 	share_type balance = 0;
 	
     const eosio::chain::table_id_object tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
 	//if (tbl.id != nullptr) {
-		const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl.id, token_s.to_symbol_code().value));
+		const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl.id, token.to_symbol_code().value));
 		if (obj) {
 			fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
 			fc::raw::unpack(ds, balance);
 		}
 	//}
-	ilog( "ONBILLTRX:: ${id} ${symbol} ${symbol2} ${symb} ${symb2} ${account} ${balance}", ("id",tbl.id) ("symbol",CORE_SYMBOL) ("symbol2",token_s.to_symbol_code()) ("symb",symb) ("symb2",symb.to_symbol_code()) ("account",account) ("balance",balance) );
+	ilog( "ONBILLTRX:: ${id} ${token} ${account} ${balance}", ("id",tbl.id) ("token",token) ("account",account) ("balance",balance) );
 	
 	return 15400;
 }
