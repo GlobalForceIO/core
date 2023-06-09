@@ -297,27 +297,6 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 	return 15400;
 }
 
-vector<char> resource_limits_manager::get_row_by_account( name code, name scope, name table, const account_name& act ) const {
-	vector<char> data;
-	const auto& db = control->db();
-	const auto* t_id = db.find<chain::table_id_object, chain::by_code_scope_table>( boost::make_tuple( code, scope, table ) );
-	if ( !t_id ) {
-		return data;
-	}
-	//FC_ASSERT( t_id != 0, "object not found" );
-	
-	const auto& idx = db.chainbase::database::get_index<chain::key_value_index, chain::by_scope_primary>();
-	
-	auto itr = idx.lower_bound( boost::make_tuple( t_id->id, act.to_uint64_t() ) );
-	if ( itr == idx.end() || itr->t_id != t_id->id || act.to_uint64_t() != itr->primary_key ) {
-		return data;
-	}
-	
-	data.resize( itr->value.size() );
-	memcpy( data.data(), itr->value.data(), data.size() );
-	return data;
-}
-
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
    return _db.get<resource_usage_object,by_owner>( name ).ram_usage;
 }
