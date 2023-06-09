@@ -261,8 +261,13 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 	share_type balance = 0;
 	
 	asset bal;
+	
+	
+	int a = apply_context.db_find_i64( N(eosio.token), account, N(accounts), token_s.to_symbol_code().value );
+	/*
 	vector<char> data = get_row_by_account( N(eosio.token), account, N(accounts), name(token_s.to_symbol_code().value) );
     bal = data.empty() ? asset(0, token_s) : token_abi_ser.binary_to_variant("account", data, abi_serializer::create_yield_function( abi_serializer_max_time ))["balance"].as<asset>();
+	*/
 	
 	/*
 	const auto& db  = control->db();
