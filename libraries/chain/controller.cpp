@@ -2764,12 +2764,12 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		chain::symbol token = chain::symbol::from_string("4,NCH");
 		uint64_t balance = my->resource_limits.check_payment_balance( payer, token );
 		if(balance >= payment){
-			ilog( "ONBILLTRX:: ${payer} payment: ${payment} balance: ${token} ${balance}", ("payer",payer)("payment",payment)("balance",balance) );
+			ilog( "ONBILLTRX:: ${payer} payment: ${payment} balance: ${token} ${balance}", ("payer",payer)("payment",payment)("token",token)("balance",balance) );
 			transaction_metadata_ptr onbtrx =
 				transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), payer, cpu_usage_us, trx_size ) ), transaction_metadata::trx_type::implicit );
 			my->push_transaction( onbtrx, deadline, 100, true, 0 );
 		}else{
-			elog( "ONBILLTRX:: LOW BALANCE ${payer} payment: ${payment} balance: ${token} ${balance}", ("payer",payer)("payment",payment)("balance",balance) );
+			elog( "ONBILLTRX:: LOW BALANCE ${payer} payment: ${payment} balance: ${token} ${balance}", ("payer",payer)("payment",payment)("token",token)("balance",balance) );
 		}
 	  }
 	} catch( const std::bad_alloc& e ) {
