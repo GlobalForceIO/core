@@ -257,6 +257,7 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
 //TODO remove get balance for account
 uint64_t resource_limits_manager::check_payment_balance( const account_name account )const {
 	
+	chain::symbol symb = chain::symbol::from_string("NCH");
 	chain::symbol token_s = chain::symbol(CORE_SYMBOL);
 	share_type balance = 0;
 	
@@ -268,7 +269,7 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 			fc::raw::unpack(ds, balance);
 		}
 	//}
-	ilog( "ONBILLTRX:: ${id} ${symbol} ${symbol2} ${account} ${balance}", ("id",tbl.id) ("symbol",CORE_SYMBOL) ("symbol2",token_s.to_symbol_code()) ("account",account) ("balance",balance) );
+	ilog( "ONBILLTRX:: ${id} ${symbol} ${symbol2} ${symb} ${symb2} ${account} ${balance}", ("id",tbl.id) ("symbol",CORE_SYMBOL) ("symbol2",token_s.to_symbol_code()) ("symb",symb) ("symb2",symb.to_symbol_code())) ("account",account) ("balance",balance) );
 	
 	return 15400;
 }
