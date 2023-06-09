@@ -80,7 +80,7 @@ namespace eosio { namespace chain { namespace resource_limits {
 
          void add_pending_ram_usage( const account_name account, int64_t ram_delta );
          void verify_account_ram_usage( const account_name account ) const;
-         uint64_t check_payment_balance( const account_name account ) const;
+         uint64_t check_payment_balance( const account_name account, chain::symbol token ) const;
 		 vector<char> get_row_by_account( name code, name scope, name table, const account_name& act ) const;
 		 
          /// set_account_limits returns true if new ram_bytes limit is more restrictive than the previously set one
