@@ -279,13 +279,13 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 	*/
 	
     const eosio::chain::table_id_object tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
-	if (tbl.id) {
+	//if (tbl.id != nullptr) {
 		const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl.id, token_s.to_symbol_code().value));
 		if (obj) {
 			fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
 			fc::raw::unpack(ds, balance);
 		}
-	}
+	//}
 	
 	return 15400;
 }
