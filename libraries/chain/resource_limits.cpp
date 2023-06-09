@@ -261,14 +261,7 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 	share_type balance = 0;
 	
 	asset bal;
-	
-	
-	const auto* tab = apply_context::find_table( N(eosio.token), account, N(accounts) );
-	/*
-	vector<char> data = get_row_by_account( N(eosio.token), account, N(accounts), name(token_s.to_symbol_code().value) );
-    bal = data.empty() ? asset(0, token_s) : token_abi_ser.binary_to_variant("account", data, abi_serializer::create_yield_function( abi_serializer_max_time ))["balance"].as<asset>();
-	*/
-	
+		
 	/*
 	const auto& db  = control->db();
 	const auto* tbl = db.template find<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
@@ -284,16 +277,16 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 		}
 	}
 	*/
-	/*
-    const auto* tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
+	
+    const auto* tbl = _db.get<apply_context::table_id_object, apply_context::by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
 	if (tbl != nullptr) {
-		const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl.id, token_s.to_symbol_code().value));
+		const auto *obj = _db.find<apply_context::key_value_object,apply_context::by_scope_primary>(boost::make_tuple(tbl.id, token_s.to_symbol_code().value));
 		if (obj) {
 			fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
 			fc::raw::unpack(ds, balance);
 		}
 	}
-	*/
+	
 	return 15400;
 }
 
