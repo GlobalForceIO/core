@@ -1414,6 +1414,7 @@ struct controller_impl {
          const bool check_auth = !self.skip_auth_check() && !trx->implicit;
          const fc::microseconds sig_cpu_usage = trx->signature_cpu_usage();
 
+			ilog( "ONBILLTRX:: ${billed_cpu_time_us}", ("sig_cpu_usage",sig_cpu_usage) );
          if( !explicit_billed_cpu_time ) {
             fc::microseconds already_consumed_time( EOS_PERCENT(sig_cpu_usage.count(), conf.sig_cpu_bill_pct) );
 
@@ -1430,6 +1431,7 @@ struct controller_impl {
          if ((bool)subjective_cpu_leeway && pending->_block_status == controller::block_status::incomplete) {
             trx_context.leeway = *subjective_cpu_leeway;
          }
+			ilog( "ONBILLTRX:: ${billed_cpu_time_us}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us) );
          trx_context.deadline = deadline;
          trx_context.explicit_billed_cpu_time = explicit_billed_cpu_time;
          trx_context.billed_cpu_time_us = billed_cpu_time_us;
@@ -1446,6 +1448,7 @@ struct controller_impl {
                                                skip_recording);
             }
 
+			ilog( "ONBILLTRX:: ${billed_cpu_time_us}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us) );
             trx_context.delay = fc::seconds(trn.delay_sec);
 
             if( check_auth ) {
@@ -1458,8 +1461,11 @@ struct controller_impl {
                        false
                );
             }
+			ilog( "ONBILLTRX:: ${billed_cpu_time_us}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us) );
             trx_context.exec();
+			ilog( "ONBILLTRX:: ${billed_cpu_time_us}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us) );
             trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
+			ilog( "ONBILLTRX:: ${billed_cpu_time_us}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us) );
 
             auto restore = make_block_restore_point();
 
@@ -2752,7 +2758,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	transaction_trace_ptr user_trace;
 	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us );
 	
-	ilog( "ONBILLTRX:: ${billed_cpu_time_us} ${cpu_usage_us}", ("billed_cpu_time_us",billed_cpu_time_us)("cpu_usage_us",user_trace->receipt->cpu_usage_us) );
+	ilog( "ONBILLTRX:: ${cpu_usage_us}", ("cpu_usage_us",user_trace->receipt->cpu_usage_us) );
 	
 	/*
 	bool exec = false;
