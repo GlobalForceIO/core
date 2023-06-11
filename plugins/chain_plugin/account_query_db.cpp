@@ -290,7 +290,6 @@ namespace eosio::chain_apis {
             return;
          }
          if( is_onblock( trace )) {
-			ilog( "ONBILLTRX:: is_onblock true" );
             onblock_traces.emplace_back( trace );
          } else if( trace->failed_dtrx_trace ) {
             cached_trace_map[trace->failed_dtrx_trace->id] = trace;
