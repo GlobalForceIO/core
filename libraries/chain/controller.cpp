@@ -2745,45 +2745,58 @@ void controller::push_block( std::future<block_state_ptr>& block_state_future,
 transaction_trace_ptr controller::push_transaction( const transaction_metadata_ptr& trx, fc::time_point deadline,
                                                     uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time,
                                                     uint32_t subjective_cpu_bill_us ) {
-   validate_db_available_size();
-   EOS_ASSERT( get_read_mode() != db_read_mode::IRREVERSIBLE, transaction_type_exception, "push transaction not allowed in irreversible mode" );
-   EOS_ASSERT( trx && !trx->implicit && !trx->scheduled, transaction_type_exception, "Implicit/Scheduled transaction not allowed" );
+	validate_db_available_size();
+	EOS_ASSERT( get_read_mode() != db_read_mode::IRREVERSIBLE, transaction_type_exception, "push transaction not allowed in irreversible mode" );
+	EOS_ASSERT( trx && !trx->implicit && !trx->scheduled, transaction_type_exception, "Implicit/Scheduled transaction not allowed" );
    
-   transaction_trace_ptr user_trace;
-   user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us );
-   
+	transaction_trace_ptr user_trace;
+	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us );
+	
+	ilog( "ONBILLTRX:: ${billed_cpu_time_us} ${cpu_usage_us}", ("billed_cpu_time_us",billed_cpu_time_us)("cpu_usage_us",user_trace->receipt->cpu_usage_us) );
+	
+	/*
+	bool exec = false;
 	try {
-	  uint64_t trx_size = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
-	  const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
-	  name payer = trn.actions[0].authorization[0].actor;
-	  
-	  uint64_t cpu_usage_us = user_trace->receipt->cpu_usage_us;
-	  uint64_t payment = trx_size + user_trace->receipt->cpu_usage_us;
-	  
-	  if(payer != N(eosio) && payer != N(eosio.token)){
+		//try get balance & get action name & payer
 		chain::symbol token = chain::symbol::from_string("4,NCH");
-		uint64_t balance = my->resource_limits.check_payment_balance( payer, token );
-		if(balance >= payment){
-			ilog( "ONBILLTRX:: ${payer} payment: ${payment} balance: ${token} ${balance}", ("payer",payer)("payment",payment)("token",token)("balance",balance) );
-			transaction_metadata_ptr onbtrx =
-				transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), payer, cpu_usage_us, trx_size ) ), transaction_metadata::trx_type::implicit );
-			my->push_transaction( onbtrx, deadline, 100, true, 0 );
-		}else{
-			elog( "ONBILLTRX:: LOW BALANCE ${payer} payment: ${payment} balance: ${token} ${balance}", ("payer",payer)("payment",payment)("token",token)("balance",balance) );
+		uint64_t trx_size = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
+		const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
+		
+		//billed_cpu_time_us
+		for(uint32_t i = 0; i< trn.actions.size(); i++){
+			name _payer = trn.actions[i].authorization[0].actor;
+			name _action = trn.actions[i].name;
+			//billed_cpu_time_us
+			uint64_t cpu_usage_us = user_trace->receipt->cpu_usage_us;
+			uint64_t payment = trx_size + cpu_usage_us;
+	  
+			if(_payer != N(eosio) && _payer != N(eosio.token) && _action != N(onbilltrx)){
+				//get balance
+				uint64_t balance = my->resource_limits.check_payment_balance( _payer, token );
+				if(balance >= payment){
+					ilog( "ONBILLTRX:: ${_payer} action: ${_action} payment: ${payment} balance: ${token} ${balance}", ("_payer",_payer)("_action",_action)("payment",payment)("token",token)("balance",balance) );
+					transaction_metadata_ptr onbtrx =
+						transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), _payer, cpu_usage_us, trx_size ) ), transaction_metadata::trx_type::implicit );
+					my->push_transaction( onbtrx, deadline, 100, true, 0 );
+				}else{
+					elog( "ONBILLTRX:: LOW BALANCE ${_payer} action: ${_action} payment: ${payment} balance: ${token} ${balance}", ("_payer",_payer)("_action",_action)("payment",payment)("token",token)("balance",balance) );
+				}
+				break;
+			}
 		}
-	  }
 	} catch( const std::bad_alloc& e ) {
-	  elog( "transaction failed due to a std::bad_alloc" );
-	  throw;
+		elog( "transaction failed due to a std::bad_alloc" );
+		throw;
 	} catch( const boost::interprocess::bad_alloc& e ) {
-	  elog( "transaction failed due to a bad allocation" );
-	  throw;
+		elog( "transaction failed due to a bad allocation" );
+		throw;
 	} catch( const fc::exception& e ) {
-	  wlog( "transaction failed, but shouldn't impact block generation, system contract needs update" );
-	  edump((e.to_detail_string()));
+		wlog( "transaction failed, but shouldn't impact block generation, system contract needs update" );
+		edump((e.to_detail_string()));
 	} catch( ... ) {
-	  elog( "transaction failed due to unknown exception" );
+		elog( "transaction failed due to unknown exception" );
 	}
+	*/
 	
 	return user_trace;
 }
