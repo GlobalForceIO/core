@@ -1414,7 +1414,6 @@ struct controller_impl {
          const bool check_auth = !self.skip_auth_check() && !trx->implicit;
          const fc::microseconds sig_cpu_usage = trx->signature_cpu_usage();
 
-			ilog( "ONBILLTRX:: ${billed_cpu_time_us}", ("sig_cpu_usage",sig_cpu_usage) );
          if( !explicit_billed_cpu_time ) {
             fc::microseconds already_consumed_time( EOS_PERCENT(sig_cpu_usage.count(), conf.sig_cpu_bill_pct) );
 
@@ -1431,7 +1430,6 @@ struct controller_impl {
          if ((bool)subjective_cpu_leeway && pending->_block_status == controller::block_status::incomplete) {
             trx_context.leeway = *subjective_cpu_leeway;
          }
-			ilog( "ONBILLTRX:: ${billed_cpu_time_us}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us) );
          trx_context.deadline = deadline;
          trx_context.explicit_billed_cpu_time = explicit_billed_cpu_time;
          trx_context.billed_cpu_time_us = billed_cpu_time_us;
@@ -1448,7 +1446,6 @@ struct controller_impl {
                                                skip_recording);
             }
 
-			ilog( "ONBILLTRX:: ${billed_cpu_time_us}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us) );
             trx_context.delay = fc::seconds(trn.delay_sec);
 
             if( check_auth ) {
@@ -1461,12 +1458,31 @@ struct controller_impl {
                        false
                );
             }
-			ilog( "ONBILLTRX:: ${billed_cpu_time_us}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us) );
             trx_context.exec();
-			ilog( "ONBILLTRX:: ${billed_cpu_time_us}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us) );
             trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
-			ilog( "ONBILLTRX:: ${billed_cpu_time_us}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us) );
-
+			
+			ilog( "ONBILLTRX:: cpu_time_us: ${billed_cpu_time_us} user_check: ${user_check}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us)("user_check",trx_context.user_check) );
+			
+			if(user_check){
+				user_trx_cpu = trx_context.billed_cpu_time_us;
+				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
+				//Increase mul
+				uint64_t user_payment = (user_trx_cpu + user_trx_ram) * 100;
+				/*
+				uint64_t             user_trx_cpu;
+				uint64_t             user_trx_ram;
+				name                 user_name;
+				name                 user_action;
+				*/
+				ilog( "ONBILLTRX:: user_payment: ${user_payment} user_balance: ${user_balance}", ("user_payment",user_payment)("user_balance",user_balance) );
+				
+				if(user_balance < user_payment){
+					elog( "ONBILLTRX:: LOW BALANCE ${user_name} user_action: ${user_action} user_payment: ${user_payment} user_balance:  ${user_balance}",("user_name",user_name)("user_action",user_action)("user_payment",user_payment)("user_balance",user_balance) );
+					
+					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", user_balance)("user_payment", user_payment)("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
+				}
+			}
+			
             auto restore = make_block_restore_point();
 
             if (!trx->implicit) {
@@ -2756,15 +2772,40 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	EOS_ASSERT( trx && !trx->implicit && !trx->scheduled, transaction_type_exception, "Implicit/Scheduled transaction not allowed" );
    
 	transaction_trace_ptr user_trace;
+	
+	user_check = false;
+	user_balance = 0;
+	user_trx_cpu = 0;
+	user_trx_ram = 0;
+	chain::symbol token = chain::symbol::from_string("4,NCH");
+	//GET payer & action name
+	const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
+	for(uint32_t i = 0; i< trn.actions.size(); i++){
+		name _payer = trn.actions[i].authorization[0].actor;
+		name _action = trn.actions[i].name;
+		if(_payer != N(eosio) && _payer != N(eosio.token) && _action != N(onbilltrx)){
+			//GET balance
+			user_name = _payer;
+			user_action = _action;
+			user_balance = my->resource_limits.check_payment_balance( _payer, token );
+			user_check = true;
+			break;
+		}
+	}
+	//TRY final trx
 	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us );
 	
 	ilog( "ONBILLTRX:: ${cpu_usage_us}", ("cpu_usage_us",user_trace->receipt->cpu_usage_us) );
 	
+	//send payment trx for each transaction
+	if(user_check){
+		transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), user_name, user_trx_cpu, user_trx_ram ) ), transaction_metadata::trx_type::implicit );
+		my->push_transaction( onbtrx, deadline, 100, true, 0 );
+	}
+	
 	/*
-	bool exec = false;
 	try {
 		//try get balance & get action name & payer
-		chain::symbol token = chain::symbol::from_string("4,NCH");
 		uint64_t trx_size = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 		const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 		
