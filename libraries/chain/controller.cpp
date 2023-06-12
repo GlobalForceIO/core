@@ -1198,12 +1198,12 @@ struct controller_impl {
    }
 
    /* store loaded user balance before push transaction */
-   bool      controller::user_check = false;
-   uint64_t  controller::user_balance = 0;
-   uint64_t  controller::user_trx_cpu = 0;
-   uint64_t  controller::user_trx_ram = 0;
-   name      controller::user_name;
-   name      controller::user_action;
+   bool      user_check;
+   uint64_t  user_balance;
+   uint64_t  user_trx_cpu;
+   uint64_t  user_trx_ram;
+   name      user_name;
+   name      user_action;
 
    transaction_trace_ptr push_scheduled_transaction( const transaction_id_type& trxid, fc::time_point deadline, uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time = false ) {
       const auto& idx = db.get_index<generated_transaction_multi_index,by_trx_id>();
