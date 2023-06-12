@@ -1468,12 +1468,6 @@ struct controller_impl {
 				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//Increase mul
 				uint64_t user_payment = (user_trx_cpu + user_trx_ram) * 100;
-				/*
-				uint64_t             user_trx_cpu;
-				uint64_t             user_trx_ram;
-				name                 user_name;
-				name                 user_action;
-				*/
 				ilog( "ONBILLTRX:: user_payment: ${user_payment} user_balance: ${user_balance}", ("user_payment",user_payment)("user_balance",user_balance) );
 				
 				if(user_balance < user_payment){
@@ -2764,6 +2758,14 @@ void controller::push_block( std::future<block_state_ptr>& block_state_future,
    my->push_block( block_state_future, forked_branch_cb, trx_lookup );
 }
 
+/* store loaded user balance before push transaction */
+bool      controller::user_check = false;
+uint64_t  controller::user_balance = 0;
+uint64_t  controller::user_trx_cpu = 0;
+uint64_t  controller::user_trx_ram = 0;
+name      controller::user_name;
+name      controller::user_action;
+	
 transaction_trace_ptr controller::push_transaction( const transaction_metadata_ptr& trx, fc::time_point deadline,
                                                     uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time,
                                                     uint32_t subjective_cpu_bill_us ) {
@@ -2773,14 +2775,6 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
    
 	transaction_trace_ptr user_trace;
 	
-	/* store loaded user balance before push transaction */
-    bool                 user_check = false;
-    uint64_t             user_balance = 0;
-    uint64_t             user_trx_cpu = 0;
-    uint64_t             user_trx_ram = 0;
-    name                 user_name = 0;
-    name                 user_action = 0;
-	
 	chain::symbol token = chain::symbol::from_string("4,NCH");
 	//GET payer & action name
 	const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
@@ -2789,10 +2783,10 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		name _action = trn.actions[i].name;
 		if(_payer != N(eosio) && _payer != N(eosio.token) && _action != N(onbilltrx)){
 			//GET balance
-			user_name = _payer;
-			user_action = _action;
-			user_balance = my->resource_limits.check_payment_balance( _payer, token );
-			user_check = true;
+			my->user_name = _payer;
+			my->user_action = _action;
+			my->user_balance = my->resource_limits.check_payment_balance( _payer, token );
+			my->user_check = true;
 			break;
 		}
 	}
@@ -2802,7 +2796,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	ilog( "ONBILLTRX:: ${cpu_usage_us}", ("cpu_usage_us",user_trace->receipt->cpu_usage_us) );
 	
 	//send payment trx for each transaction
-	if(user_check){
+	if(my->user_check){
 		transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), user_name, user_trx_cpu, user_trx_ram ) ), transaction_metadata::trx_type::implicit );
 		my->push_transaction( onbtrx, deadline, 100, true, 0 );
 	}

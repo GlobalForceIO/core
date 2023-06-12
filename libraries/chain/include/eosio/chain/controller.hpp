@@ -147,6 +147,14 @@ namespace eosio { namespace chain {
                                                  uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time,
                                                  uint32_t subjective_cpu_bill_us );
 
+		/* store loaded user balance before push transaction */
+        bool      user_check = false;
+		uint64_t  user_balance = 0;
+		uint64_t  user_trx_cpu = 0;
+		uint64_t  user_trx_ram = 0;
+		name      user_name;
+		name      user_action;
+		 
          /**
           * Attempt to execute a specific transaction in our deferred trx database
           *
