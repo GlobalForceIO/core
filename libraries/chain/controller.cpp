@@ -1461,13 +1461,13 @@ struct controller_impl {
             trx_context.exec();
             trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 			
-			ilog( "ONBILLTRX:: cpu_time_us: ${billed_cpu_time_us} user_check: ${user_check}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us)("user_check",trx_context.user_check) );
+			ilog( "ONBILLTRX:: cpu_time_us: ${billed_cpu_time_us} user_check: ${user_check}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us)("user_check",controller::user_check) );
 			
-			if(user_check){
+			if(controller::user_check){
 				my->user_trx_cpu = trx_context.billed_cpu_time_us;
 				my->user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//Increase mul
-				uint64_t user_payment = (my->user_trx_cpu + my->user_trx_ram) * 100;
+				uint64_t user_payment = (controller::user_trx_cpu + controller::user_trx_ram) * 100;
 				/*
 				uint64_t             user_trx_cpu;
 				uint64_t             user_trx_ram;
