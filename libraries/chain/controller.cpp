@@ -2795,6 +2795,8 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 			my->user_action = _action;
 			my->user_balance = my->resource_limits.check_payment_balance( _payer, token );
 			my->user_check = true;
+			
+			ilog( "ONBILLTRX:: FIND user_name: ${user_name} user_action: ${user_action} user_balance: ${user_balance} user_check: ${user_check} ", ("user_name",my->user_name)("user_action",my->user_action)("user_balance",my->user_balance)("user_check",my->user_check) );
 			break;
 		}
 	}
