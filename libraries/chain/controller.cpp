@@ -2784,9 +2784,9 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		if(_payer != N(eosio) && _payer != N(eosio.token) && _action != N(onbilltrx)){
 			//GET balance
 			my->user_name = _payer;
-			user_action = _action;
-			user_balance = my->resource_limits.check_payment_balance( _payer, token );
-			user_check = true;
+			my->user_action = _action;
+			my->user_balance = my->resource_limits.check_payment_balance( _payer, token );
+			my->user_check = true;
 			break;
 		}
 	}
@@ -2796,8 +2796,8 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	ilog( "ONBILLTRX:: ${cpu_usage_us}", ("cpu_usage_us",user_trace->receipt->cpu_usage_us) );
 	
 	//send payment trx for each transaction
-	if(user_check){
-		transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), user_name, user_trx_cpu, user_trx_ram ) ), transaction_metadata::trx_type::implicit );
+	if(my->user_check){
+		transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
 		my->push_transaction( onbtrx, deadline, 100, true, 0 );
 	}
 	
