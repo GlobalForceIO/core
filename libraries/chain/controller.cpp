@@ -1395,6 +1395,15 @@ struct controller_impl {
       return r;
    }
 
+   
+	/* store loaded user balance before push transaction */
+    bool                 user_check;
+    uint64_t             user_balance;
+    uint64_t             user_trx_cpu;
+    uint64_t             user_trx_ram;
+    name                 user_name;
+    name                 user_action;
+	
    /**
     *  This is the entry point for new transactions to the block state. It will check authorization and
     *  determine whether to execute it now or to delay it. Lastly it inserts a transaction receipt into
