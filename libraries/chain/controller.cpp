@@ -1481,16 +1481,7 @@ struct controller_impl {
 				if(user_balance < user_payment){
 					elog( "ONBILLTRX:: LOW BALANCE ${user_name} user_action: ${user_action} user_payment: ${user_payment} user_balance:  ${user_balance}",("user_name",user_name)("user_action",user_action)("user_payment",user_payment)("user_balance",user_balance) );
 					
-					uint64_t  _user_balance = user_balance;
-					uint64_t  _user_trx_cpu = user_trx_cpu;
-					uint64_t  _user_trx_ram = user_trx_ram;
-					name      _user_name = user_name;
-					name      _user_action = user_action;
-   
-					user_balance = 0;
-					user_check = false;
-			
-					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", _user_balance)("user_payment", user_payment)("user_action",_user_action)("RAM",_user_trx_ram)("CPU",_user_trx_cpu));
+					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", user_balance)("user_payment", user_payment)("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
 				}
 			}
 			
@@ -2778,6 +2769,14 @@ void controller::push_block( std::future<block_state_ptr>& block_state_future,
 transaction_trace_ptr controller::push_transaction( const transaction_metadata_ptr& trx, fc::time_point deadline,
                                                     uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time,
                                                     uint32_t subjective_cpu_bill_us ) {
+	
+	my->user_balance = 0;
+	my->user_trx_cpu = 0;
+	my->user_trx_ram = 0;
+	my->user_name = N(1);
+	my->user_action = N(1);
+	my->user_check = false;
+			
 	validate_db_available_size();
 	EOS_ASSERT( get_read_mode() != db_read_mode::IRREVERSIBLE, transaction_type_exception, "push transaction not allowed in irreversible mode" );
 	EOS_ASSERT( trx && !trx->implicit && !trx->scheduled, transaction_type_exception, "Implicit/Scheduled transaction not allowed" );
