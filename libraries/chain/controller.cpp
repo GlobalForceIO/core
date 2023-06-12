@@ -1490,7 +1490,7 @@ struct controller_impl {
 					user_balance = 0;
 					user_check = false;
 			
-					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", _user_balance)("user_payment", _user_payment)("user_action",_user_action)("RAM",_user_trx_ram)("CPU",_user_trx_cpu));
+					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", _user_balance)("user_payment", user_payment)("user_action",_user_action)("RAM",_user_trx_ram)("CPU",_user_trx_cpu));
 				}
 			}
 			
