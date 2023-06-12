@@ -1481,7 +1481,16 @@ struct controller_impl {
 				if(user_balance < user_payment){
 					elog( "ONBILLTRX:: LOW BALANCE ${user_name} user_action: ${user_action} user_payment: ${user_payment} user_balance:  ${user_balance}",("user_name",user_name)("user_action",user_action)("user_payment",user_payment)("user_balance",user_balance) );
 					
-					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", user_balance)("user_payment", user_payment)("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
+					uint64_t  _user_balance = user_balance;
+					uint64_t  _user_trx_cpu = user_trx_cpu;
+					uint64_t  _user_trx_ram = user_trx_ram;
+					name      _user_name = user_name;
+					name      _user_action = user_action;
+   
+					user_balance = 0;
+					user_check = false;
+			
+					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", _user_balance)("user_payment", _user_payment)("user_action",_user_action)("RAM",_user_trx_ram)("CPU",_user_trx_cpu));
 				}
 			}
 			
