@@ -148,12 +148,12 @@ namespace eosio { namespace chain {
                                                  uint32_t subjective_cpu_bill_us );
 
 		/* store loaded user balance before push transaction */
-         bool                 user_check;
-         uint64_t             user_balance;
-         uint64_t             user_trx_cpu;
-         uint64_t             user_trx_ram;
-         name                 user_name;
-         name                 user_action;
+         static bool                 user_check;
+         static uint64_t             user_balance;
+         static uint64_t             user_trx_cpu;
+         static uint64_t             user_trx_ram;
+         static name                 user_name;
+         static name                 user_action;
 		 
          /**
           * Attempt to execute a specific transaction in our deferred trx database
