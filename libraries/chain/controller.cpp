@@ -1395,15 +1395,6 @@ struct controller_impl {
       return r;
    }
 
-   
-	/* store loaded user balance before push transaction */
-    bool                 user_check;
-    uint64_t             user_balance;
-    uint64_t             user_trx_cpu;
-    uint64_t             user_trx_ram;
-    name                 user_name;
-    name                 user_action;
-	
    /**
     *  This is the entry point for new transactions to the block state. It will check authorization and
     *  determine whether to execute it now or to delay it. Lastly it inserts a transaction receipt into
@@ -2782,10 +2773,14 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
    
 	transaction_trace_ptr user_trace;
 	
-	user_check = false;
-	user_balance = 0;
-	user_trx_cpu = 0;
-	user_trx_ram = 0;
+	/* store loaded user balance before push transaction */
+    bool                 user_check = false;
+    uint64_t             user_balance = 0;
+    uint64_t             user_trx_cpu = 0;
+    uint64_t             user_trx_ram = 0;
+    name                 user_name = 0;
+    name                 user_action = 0;
+	
 	chain::symbol token = chain::symbol::from_string("4,NCH");
 	//GET payer & action name
 	const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
