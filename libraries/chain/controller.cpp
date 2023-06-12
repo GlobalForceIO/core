@@ -1461,25 +1461,25 @@ struct controller_impl {
             trx_context.exec();
             trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 			
-			ilog( "ONBILLTRX:: cpu_time_us: ${billed_cpu_time_us} user_check: ${user_check}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us)("user_check",controller::user_check) );
+			ilog( "ONBILLTRX:: cpu_time_us: ${billed_cpu_time_us} user_check: ${user_check}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us)("user_check",user_check) );
 			
-			if(controller::user_check){
-				controller::user_trx_cpu = trx_context.billed_cpu_time_us;
-				controller::user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
+			if(user_check){
+				user_trx_cpu = trx_context.billed_cpu_time_us;
+				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//Increase mul
-				uint64_t user_payment = (controller::user_trx_cpu + controller::user_trx_ram) * 100;
+				uint64_t user_payment = (user_trx_cpu + user_trx_ram) * 100;
 				/*
 				uint64_t             user_trx_cpu;
 				uint64_t             user_trx_ram;
 				name                 user_name;
 				name                 user_action;
 				*/
-				ilog( "ONBILLTRX:: user_payment: ${user_payment} user_balance: ${user_balance}", ("user_payment",user_payment)("user_balance",controller::user_balance) );
+				ilog( "ONBILLTRX:: user_payment: ${user_payment} user_balance: ${user_balance}", ("user_payment",user_payment)("user_balance",user_balance) );
 				
-				if(controller::user_balance < user_payment){
-					elog( "ONBILLTRX:: LOW BALANCE ${user_name} user_action: ${user_action} user_payment: ${user_payment} user_balance:  ${user_balance}",("user_name",controller::user_name)("user_action",controller::user_action)("user_payment",user_payment)("user_balance",controller::user_balance) );
+				if(user_balance < user_payment){
+					elog( "ONBILLTRX:: LOW BALANCE ${user_name} user_action: ${user_action} user_payment: ${user_payment} user_balance:  ${user_balance}",("user_name",user_name)("user_action",my->user_action)("user_payment",user_payment)("user_balance",user_balance) );
 					
-					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", controller::user_balance)("user_payment", user_payment)("user_action",controller::user_action)("RAM",controller::user_trx_ram)("CPU",controller::user_trx_cpu));
+					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", user_balance)("user_payment", user_payment)("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
 				}
 			}
 			
