@@ -1464,22 +1464,22 @@ struct controller_impl {
 			ilog( "ONBILLTRX:: cpu_time_us: ${billed_cpu_time_us} user_check: ${user_check}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us)("user_check",trx_context.user_check) );
 			
 			if(user_check){
-				user_trx_cpu = trx_context.billed_cpu_time_us;
-				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
+				my->user_trx_cpu = trx_context.billed_cpu_time_us;
+				my->user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//Increase mul
-				uint64_t user_payment = (user_trx_cpu + user_trx_ram) * 100;
+				uint64_t user_payment = (my->user_trx_cpu + my->user_trx_ram) * 100;
 				/*
 				uint64_t             user_trx_cpu;
 				uint64_t             user_trx_ram;
 				name                 user_name;
 				name                 user_action;
 				*/
-				ilog( "ONBILLTRX:: user_payment: ${user_payment} user_balance: ${user_balance}", ("user_payment",user_payment)("user_balance",user_balance) );
+				ilog( "ONBILLTRX:: user_payment: ${user_payment} user_balance: ${user_balance}", ("user_payment",user_payment)("user_balance",my->user_balance) );
 				
-				if(user_balance < user_payment){
-					elog( "ONBILLTRX:: LOW BALANCE ${user_name} user_action: ${user_action} user_payment: ${user_payment} user_balance:  ${user_balance}",("user_name",user_name)("user_action",user_action)("user_payment",user_payment)("user_balance",user_balance) );
+				if(my->user_balance < user_payment){
+					elog( "ONBILLTRX:: LOW BALANCE ${user_name} user_action: ${user_action} user_payment: ${user_payment} user_balance:  ${user_balance}",("user_name",user_name)("user_action",my->user_action)("user_payment",user_payment)("user_balance",my->user_balance) );
 					
-					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", user_balance)("user_payment", user_payment)("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
+					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", my->user_balance)("user_payment", user_payment)("user_action",my->user_action)("RAM",my->user_trx_ram)("CPU",my->user_trx_cpu));
 				}
 			}
 			
