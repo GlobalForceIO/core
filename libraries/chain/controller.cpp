@@ -2783,7 +2783,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		name _action = trn.actions[i].name;
 		if(_payer != N(eosio) && _payer != N(eosio.token) && _action != N(onbilltrx)){
 			//GET balance
-			user_name = _payer;
+			my->user_name = _payer;
 			user_action = _action;
 			user_balance = my->resource_limits.check_payment_balance( _payer, token );
 			user_check = true;
