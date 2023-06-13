@@ -1476,7 +1476,7 @@ struct controller_impl {
 				user_trx_cpu = trx_context.billed_cpu_time_us;
 				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//Increase mul
-				uint64_t user_payment = (user_trx_cpu + user_trx_ram) * 100;
+				uint64_t user_payment = (user_trx_cpu + user_trx_ram) * 10;
 				ilog( "ONBILLTRX:: user_payment: ${user_payment} user_balance: ${user_balance}", ("user_payment",user_payment)("user_balance",user_balance) );
 				
 				if(user_balance < user_payment){
