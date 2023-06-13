@@ -1412,7 +1412,7 @@ struct controller_impl {
                                            fc::time_point deadline,
                                            uint32_t billed_cpu_time_us,
                                            bool explicit_billed_cpu_time,
-                                           uint32_t subjective_cpu_bill_us, bool check )
+                                           uint32_t subjective_cpu_bill_us, bool user_check )
    {
 	ilog( "my->push_transaction" );
       EOS_ASSERT(deadline != fc::time_point(), transaction_exception, "deadline cannot be uninitialized");
@@ -2776,7 +2776,6 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	my->user_trx_ram = 0;
 	my->user_name = N(1);
 	my->user_action = N(1);
-	my->user_check = false;
 			
 	validate_db_available_size();
 	EOS_ASSERT( get_read_mode() != db_read_mode::IRREVERSIBLE, transaction_type_exception, "push transaction not allowed in irreversible mode" );
@@ -2784,6 +2783,8 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
    
 	transaction_trace_ptr user_trace;
 	
+	bool user_check;
+	user_check = false;
 	chain::symbol token = chain::symbol::from_string("4,NCH");
 	//GET payer & action name
 	const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
@@ -2795,9 +2796,9 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 			my->user_name = _payer;
 			my->user_action = _action;
 			my->user_balance = my->resource_limits.check_payment_balance( _payer, token );
-			my->user_check = true;
+			user_check = true;
 			
-			ilog( "ONBILLTRX:: FIND user_name: ${user_name} user_action: ${user_action} user_balance: ${user_balance} user_check: ${user_check} ", ("user_name",my->user_name)("user_action",my->user_action)("user_balance",my->user_balance)("user_check",my->user_check) );
+			ilog( "ONBILLTRX:: FIND user_name: ${user_name} user_action: ${user_action} user_balance: ${user_balance} user_check: ${user_check} ", ("user_name",my->user_name)("user_action",my->user_action)("user_balance",my->user_balance)("user_check",user_check) );
 			break;
 		}
 	}
@@ -2805,7 +2806,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, true );
 		
 	//send payment trx for each transaction
-	if(my->user_check){
+	if(user_check){
 		transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
 		my->push_transaction( onbtrx, deadline, 100, true, 0, false );
 	}
