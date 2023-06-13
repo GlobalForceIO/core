@@ -2786,7 +2786,17 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	for(uint32_t i = 0; i< trn.actions.size(); i++){
 		name _payer = trn.actions[i].authorization[0].actor;
 		name _action = trn.actions[i].name;
-		if(_payer != N(eosio) && _payer != N(eosio.token) && _payer != N(eosio.bpay) && _payer != N(eosio.vpay) && _payer != N(eosio.msig) && _payer != N(eosio.ram) && _payer != N(eosio.ramfee) && _payer != N(eosio.stake) && _payer != N(eosio.wrap) && _payer != N(eosio.bios) && _payer != N(eosio.rex) && _payer != N(eosio.saving) && _payer != N(eosio.names) && _payer != N(eosio.prods) && _action != N(onbilltrx) && _action != N(onblock)){
+		if(_payer != N(eosio) && _payer != N(eosio.token) && _payer != N(eosio.bpay) 
+		  && _payer != N(eosio.vpay) && _payer != N(eosio.msig) && _payer != N(eosio.ram) 
+		  && _payer != N(eosio.ramfee) && _payer != N(eosio.stake) && _payer != N(eosio.wrap) 
+		  && _payer != N(eosio.bios) && _payer != N(eosio.rex) && _payer != N(eosio.saving) 
+		  && _payer != N(eosio.names) && _payer != N(eosio.prods) 
+		   
+		  && _payer != N(nch) && _payer != N(nch.asset) && _payer != N(nch.hold) && _payer != N(nch.nft)  
+		  && _payer != N(nch.swap) && _payer != N(nch.address) && _payer != N(nch.fee) && _payer != N(nch.price)  
+		  && _payer != N(nch.types) && _payer != N(nch.dex) && _payer != N(nch.reg)
+		  
+		  && _action != N(onbilltrx) && _action != N(onblock)){
 			//GET balance
 			my->user_name = _payer;
 			my->user_action = _action;
