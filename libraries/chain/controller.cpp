@@ -1414,7 +1414,6 @@ struct controller_impl {
                                            bool explicit_billed_cpu_time,
                                            uint32_t subjective_cpu_bill_us, bool user_check )
    {
-	ilog( "my->push_transaction" );
       EOS_ASSERT(deadline != fc::time_point(), transaction_exception, "deadline cannot be uninitialized");
 
       transaction_trace_ptr trace;
@@ -1469,15 +1468,12 @@ struct controller_impl {
             }
             trx_context.exec();
             trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
-			
-			ilog( "ONBILLTRX:: cpu_time_us: ${billed_cpu_time_us} user_check: ${user_check}", ("billed_cpu_time_us",trx_context.billed_cpu_time_us)("user_check",user_check) );
-			
+						
 			if(user_check){
 				user_trx_cpu = trx_context.billed_cpu_time_us;
 				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//Increase mul
 				uint64_t user_payment = (user_trx_cpu + user_trx_ram) * 10;
-				ilog( "ONBILLTRX:: user_payment: ${user_payment} user_balance: ${user_balance}", ("user_payment",user_payment)("user_balance",user_balance) );
 				
 				if(user_balance < user_payment){
 					elog( "ONBILLTRX:: LOW BALANCE ${user_name} user_action: ${user_action} user_payment: ${user_payment} user_balance:  ${user_balance}",("user_name",user_name)("user_action",user_action)("user_payment",user_payment)("user_balance",user_balance) );
@@ -2770,7 +2766,6 @@ void controller::push_block( std::future<block_state_ptr>& block_state_future,
 transaction_trace_ptr controller::push_transaction( const transaction_metadata_ptr& trx, fc::time_point deadline,
                                                     uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time,
                                                     uint32_t subjective_cpu_bill_us ) {
-	ilog( "controller::push_transaction" );
 	my->user_balance = 0;
 	my->user_trx_cpu = 0;
 	my->user_trx_ram = 0;
