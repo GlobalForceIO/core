@@ -2806,7 +2806,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, true );
 		
 	//send payment trx for each transaction
-	if(user_check){
+	if(user_check && !user_trace->error_code){
 		transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
 		my->push_transaction( onbtrx, deadline, 100, true, 0, false );
 	}

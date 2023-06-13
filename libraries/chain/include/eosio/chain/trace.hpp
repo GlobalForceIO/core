@@ -71,7 +71,6 @@ namespace eosio { namespace chain {
       if (tt.action_traces.empty())
          return false;
       const auto& act = tt.action_traces[0].act;
-      elog( "ONBILLTRX:: is_onblock ${name} ${account}", ("name",act.name)("account",act.account) );
       if (act.account != eosio::chain::config::system_account_name || (act.name != N(onbilltrx) && act.name != N(onblock)) || act.authorization.size() != 1)
          return false;
       const auto& auth = act.authorization[0];
