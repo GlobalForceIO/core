@@ -1414,6 +1414,7 @@ struct controller_impl {
                                            bool explicit_billed_cpu_time,
                                            uint32_t subjective_cpu_bill_us )
    {
+	ilog( "my->push_transaction" );
       EOS_ASSERT(deadline != fc::time_point(), transaction_exception, "deadline cannot be uninitialized");
 
       transaction_trace_ptr trace;
@@ -2769,7 +2770,7 @@ void controller::push_block( std::future<block_state_ptr>& block_state_future,
 transaction_trace_ptr controller::push_transaction( const transaction_metadata_ptr& trx, fc::time_point deadline,
                                                     uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time,
                                                     uint32_t subjective_cpu_bill_us ) {
-	
+	ilog( "controller::push_transaction" );
 	my->user_balance = 0;
 	my->user_trx_cpu = 0;
 	my->user_trx_ram = 0;
