@@ -1964,10 +1964,10 @@ struct controller_impl {
 
          if( producer_block_id != ab._id ) {
             elog( "Validation block id does not match producer block id" );
-            /*report_block_header_diff( *b, *ab._unsigned_block );
+            report_block_header_diff( *b, *ab._unsigned_block );
             // this implicitly asserts that all header fields (less the signature) are identical
             EOS_ASSERT( producer_block_id == ab._id, block_validate_exception, "Block ID does not match",
-                        ("producer_block_id", producer_block_id)("validator_block_id", ab._id) );*/
+                        ("producer_block_id", producer_block_id)("validator_block_id", ab._id) );
          }
 
          if( !use_bsp_cached ) {
