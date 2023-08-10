@@ -1204,6 +1204,21 @@ struct controller_impl {
    uint64_t  user_trx_ram;
    name      user_name;
    name      user_action;
+   
+   struct pay_fee_trx {
+      const name& account;
+	  std::string trx_id;
+	  uint64_t cpu_us;
+	  uint64_t ram_bytes;
+      EOSLIB_SERIALIZE( pay_fee_trx, (account)(trx_id)(cpu_us)(ram_bytes) )
+   };
+   pay_fee_trx pay_fee_trx_;
+   /*struct pay_fee_trxs {
+      const std::vector<pay_fee_trx> trxs;
+      EOSLIB_SERIALIZE( pay_fee_trxs, (trxs) )
+   };
+   pay_fee_trxs fee_trxs;*/
+   vector<pay_fee_trx> fee_trxs;
 
    transaction_trace_ptr push_scheduled_transaction( const transaction_id_type& trxid, fc::time_point deadline, uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time = false ) {
       const auto& idx = db.get_index<generated_transaction_multi_index,by_trx_id>();
@@ -1669,6 +1684,9 @@ struct controller_impl {
                });
             in_trx_requiring_checks = true;
             push_transaction( onbtrx, fc::time_point::maximum(), self.get_global_properties().configuration.min_transaction_cpu_usage, true, 0, false );
+			
+			fee_trxs.clear();
+			
          } catch( const std::bad_alloc& e ) {
             elog( "on block transaction failed due to a std::bad_alloc" );
             throw;
@@ -2398,7 +2416,11 @@ struct controller_impl {
       on_block_act.account = config::system_account_name;
       on_block_act.name = N(onblock);
       on_block_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
-      on_block_act.data = fc::raw::pack(self.head_block_header());
+      //on_block_act.data = fc::raw::pack(on_block_act.data, self.head_block_header());
+	  
+	  //fc::raw::pack(on_block_act.data, self.head_block_header());
+	  
+	  on_block_act.data = fc::raw::pack(fee_trxs);
 	  
       signed_transaction trx;
       trx.actions.emplace_back(std::move(on_block_act));
@@ -2419,6 +2441,13 @@ struct controller_impl {
     */
    signed_transaction get_on_bill_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
    {
+		pay_fee_trx_.account = payer;
+		pay_fee_trx_.trx_id = trx_id;
+		pay_fee_trx_.cpu_us = payer;
+		pay_fee_trx_.ram_bytes = payer;
+		fee_trxs.emplace_back(pay_fee_trx_);
+		
+	/*
 	  //const fc::microseconds abi_serializer_max_time{1000*1000};
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  
@@ -2427,7 +2456,7 @@ struct controller_impl {
          ("actions", fc::variants({
             fc::mutable_variant_object()
                ("account", config::system_account_name)
-               ("name", "onblock")
+               ("name", "onbilltrx")
                ("authorization", fc::variants({
                   fc::mutable_variant_object()
                      ("actor", config::system_account_name )
@@ -2464,6 +2493,7 @@ struct controller_impl {
          trx.set_reference_block( self.head_block_id() );
       }
       return trx;
+	*/
    }
 
 }; /// controller_impl
@@ -2796,8 +2826,11 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		
 	//send payment trx for each transaction
 	if(user_check && !user_trace->error_code){
+		/*
 		transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
 		my->push_transaction( onbtrx, deadline, 100, true, 0, false );
+		*/
+		get_on_bill_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram );
 	}
 	
 	return user_trace;
