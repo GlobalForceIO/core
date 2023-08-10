@@ -2438,7 +2438,7 @@ struct controller_impl {
 	  //header obj
 	  fc::mutable_variant_object header_;//object
 	  //fc::variants header_;//array
-	  header_( "timestamp", head->header.timestamp.to_time_point() );
+	  header_( "timestamp", head->header.timestamp );
 	  header_( "producer", head->header.producer );
 	  header_( "confirmed", head->header.confirmed );
 	  header_( "previous", head->header.previous );
