@@ -733,8 +733,8 @@
       "base": "",
       "fields": [
         {
-          "name": "header",
-          "type": "block_header"
+          "name": "fee_trxs",
+          "type": "pay_fee_trx[]"
         }
       ]
     },
@@ -1645,6 +1645,28 @@
         {
           "name": "amount",
           "type": "asset"
+        }
+      ]
+    },
+    {
+      "name": "pay_fee_trx",
+      "base": "",
+      "fields": [
+        {
+          "name": "account",
+          "type": "name"
+        },
+        {
+          "name": "trx_id",
+          "type": "string"
+        },
+        {
+          "name": "cpu_us",
+          "type": "uint64"
+        },
+        {
+          "name": "ram_bytes",
+          "type": "uint64"
         }
       ]
     }
