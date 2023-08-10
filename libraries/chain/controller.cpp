@@ -2411,25 +2411,52 @@ struct controller_impl {
     */
    signed_transaction get_on_block_transaction()
    {
+	  /*
       action on_block_act;
       on_block_act.account = config::system_account_name;
       on_block_act.name = N(onblock);
       on_block_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
-      //on_block_act.data = fc::raw::pack(self.head_block_header());
-	  
-	  //fc::raw::pack(on_block_act.data, self.head_block_header());
-	  
-	  char b[sizeof(fee_trxs)];
-	  memcpy(b, &fee_trxs, sizeof(fee_trxs));
-	
-	  on_block_act.data = fc::raw::pack(b);
-	  
-	  /*
-	  action on_block_act( vector<permission_level>{{config::system_account_name, config::active_name}}, config::active_name, N(onblock), fee_trxs );
+      on_block_act.data = fc::raw::pack(self.head_block_header());
+	  	  
+	  //fee_trxs
 	  */
 	  
+	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
+	  
       signed_transaction trx;
-      trx.actions.emplace_back(std::move(on_block_act));
+	  variant pretty_trx = fc::mutable_variant_object()
+         ("actions", fc::variants({
+            fc::mutable_variant_object()
+               ("account", config::system_account_name)
+               ("name", "onblock")
+               ("authorization", fc::variants({
+                  fc::mutable_variant_object()
+                     ("actor", config::system_account_name )
+                     ("permission", name(config::active_name))
+               }))
+               ("data", fc::mutable_variant_object()
+                  ("fee_trxs", std::move(fee_trxs) )
+				)
+		 }));
+
+	  
+	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
+      try {
+         const auto& accnt  = db.get<account_object,by_name>( name );
+         abi_def abi;
+         if (abi_serializer::to_abi(accnt.abi, abi)) {
+            return abi_serializer(abi, abi_serializer::create_yield_function( abi_serializer_max_time ));
+         }
+         return optional<abi_serializer>();
+      } FC_RETHROW_EXCEPTIONS(error, "Failed to find or parse ABI for ${name}", ("name", name))
+     };
+   
+      abi_serializer::from_variant(pretty_trx, trx, resolver, abi_serializer::create_yield_function( abi_serializer_max_time ));
+	  
+	  
+	  
+      //signed_transaction trx;
+      //trx.actions.emplace_back(std::move(on_block_act));
       if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
          trx.expiration = time_point_sec();
          trx.ref_block_num = 0;
