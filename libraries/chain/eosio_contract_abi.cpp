@@ -206,10 +206,16 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
             {"sent_trx",  "bytes"}
       }
    });
-
+	/*
    eos_abi.structs.emplace_back( struct_def {
          "onblock", "", {
             {"header", "block_header"}
+      }
+   });
+   */
+   eos_abi.structs.emplace_back( struct_def {
+         "onblock", "", {
+            {"fee_trxs", "pay_fee_trx[]"}
       }
    });
    

@@ -677,8 +677,8 @@
             "base": "",
             "fields": [
                 {
-                    "name": "header",
-                    "type": "block_header"
+                    "name": "fee_trxs",
+                    "type": "pay_fee_trx"
                 }
             ]
         },
