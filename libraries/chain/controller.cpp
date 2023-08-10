@@ -2440,9 +2440,8 @@ struct controller_impl {
 	  //fc::variants header_;//array
 	  
 	  //header_( "timestamp", head->header.timestamp.to_time_point_sec() );
-	auto micro_since_epoch = head->header.timestamp.time_since_epoch();
 		 
-	  header_( "timestamp", micro_since_epoch.count() );
+	  header_( "timestamp", head->header.timestamp.count() );
 	  header_( "producer", head->header.producer );
 	  header_( "confirmed", head->header.confirmed );
 	  header_( "previous", head->header.previous );
