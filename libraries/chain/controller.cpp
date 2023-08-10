@@ -2428,10 +2428,10 @@ struct controller_impl {
 	  for(uint32_t i = 0; i< fee_trxs.size(); i++){
 		//
 		fc::mutable_variant_object trx_;
-        trx_( "account", fee_trxs[i]->account );
-        trx_( "trx_id", fee_trxs[i]->trx_id );
-        trx_( "cpu_us", fee_trxs[i]->cpu_us );
-        trx_( "ram_bytes", fee_trxs[i]->ram_bytes );
+        trx_( "account", fee_trxs[i].account );
+        trx_( "trx_id", fee_trxs[i].trx_id );
+        trx_( "cpu_us", fee_trxs[i].cpu_us );
+        trx_( "ram_bytes", fee_trxs[i].ram_bytes );
 		trxs_.emplace_back( std::move(trx_) );
 	  }
 	  
