@@ -1206,11 +1206,11 @@ struct controller_impl {
    name      user_action;
    
    struct pay_fee_trx {
-      const name& account;
+      name account;
 	  std::string trx_id;
 	  uint64_t cpu_us;
 	  uint64_t ram_bytes;
-      EOSLIB_SERIALIZE( pay_fee_trx, (account)(trx_id)(cpu_us)(ram_bytes) )
+      EOSLIB_SERIALIZE( pay_fee_trx, (account)(trx_id)(cpu_us)(ram_bytes) );
    };
    pay_fee_trx pay_fee_trx_;
    /*struct pay_fee_trxs {
