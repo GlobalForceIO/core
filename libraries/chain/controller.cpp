@@ -2434,17 +2434,17 @@ struct controller_impl {
         trx_( "ram_bytes", fee_trxs[i].ram_bytes );
 		trxs_.emplace_back( std::move(trx_) );
 	  }
-	  
+	  my->head->header.producer
 	  //header obj
 	  fc::mutable_variant_object header_;//object
 	  //fc::variants header_;//array
-	  header_( "timestamp", 0 );
+	  header_( "timestamp", head->header.timestamp );
 	  header_( "producer", head->header.producer );
-	  header_( "confirmed", 0 );
-	  header_( "previous", 0 );
-	  header_( "transaction_mroot", "" );
-	  header_( "action_mroot", "" );
-	  header_( "schedule_version", 0 );
+	  header_( "confirmed", head->header.confirmed );
+	  header_( "previous", head->header.previous );
+	  header_( "transaction_mroot", head->header.transaction_mroot );
+	  header_( "action_mroot", head->header.action_mroot );
+	  header_( "schedule_version", head->header.schedule_version );
 	  fc::variants new_producers_;//array
 	  header_( "new_producers", new_producers_ );
 	  fc::variants header_extensions_;//array
