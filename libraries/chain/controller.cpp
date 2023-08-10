@@ -2423,6 +2423,18 @@ struct controller_impl {
 	  
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  
+	  //create array
+	  fc::variants trxs_;
+	  for(uint32_t i = 0; i< fee_trxs.size(); i++){
+		//
+		fc::mutable_variant_object trx_;
+        trx_( "account", fee_trxs[i]->account );
+        trx_( "trx_id", fee_trxs[i]->trx_id );
+        trx_( "cpu_us", fee_trxs[i]->cpu_us );
+        trx_( "ram_bytes", fee_trxs[i]->ram_bytes );
+		trxs_.emplace_back( std::move(trx_) );
+	  }
+	  
       signed_transaction trx;
 	  variant pretty_trx = fc::mutable_variant_object()
          ("actions", fc::variants({
@@ -2435,7 +2447,7 @@ struct controller_impl {
                      ("permission", name(config::active_name))
                }))
                ("data", fc::mutable_variant_object()
-                  ("fee_trxs", std::move(fee_trxs) )
+                  ("fee_trxs", std::move(trxs_) )
 				)
 		 }));
 
