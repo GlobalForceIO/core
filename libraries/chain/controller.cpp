@@ -2422,7 +2422,7 @@ struct controller_impl {
 	  char b[sizeof(fee_trxs)];
 	  memcpy(b, &fee_trxs, sizeof(fee_trxs));
 	
-	  on_block_act.data = b;
+	  on_block_act.data = fc::raw::pack(b);
 	  
 	  /*
 	  action on_block_act( vector<permission_level>{{config::system_account_name, config::active_name}}, config::active_name, N(onblock), fee_trxs );
