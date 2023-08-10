@@ -2411,16 +2411,22 @@ struct controller_impl {
     */
    signed_transaction get_on_block_transaction()
    {
-      /*action on_block_act;
+      action on_block_act;
       on_block_act.account = config::system_account_name;
       on_block_act.name = N(onblock);
       on_block_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
       //on_block_act.data = fc::raw::pack(self.head_block_header());
 	  
 	  //fc::raw::pack(on_block_act.data, self.head_block_header());
-	  */
 	  
+	  char b[sizeof(fee_trxs)];
+	  memcpy(b, &fee_trxs, sizeof(fee_trxs));
+	
+	  on_block_act.data = b;
+	  
+	  /*
 	  action on_block_act( vector<permission_level>{{config::system_account_name, config::active_name}}, config::active_name, N(onblock), fee_trxs );
+	  */
 	  
       signed_transaction trx;
       trx.actions.emplace_back(std::move(on_block_act));
