@@ -476,7 +476,7 @@ struct controller_impl {
       auto blog_head_time = blog_head->timestamp.to_time_point();
       replay_head_time = blog_head_time;
       auto start_block_num = head->block_num + 1;
-      auto start = fc::time_point_sec::now();
+      auto start = fc::time_point::now();
 
       std::exception_ptr except_ptr;
 
@@ -2441,7 +2441,7 @@ struct controller_impl {
 	  
 	  //header_( "timestamp", head->header.timestamp.to_time_point_sec() );
 		 
-	  header_( "timestamp", head->header.timestamp / 1000 );
+	  header_( "timestamp", (head->header.timestamp.to_time_point()).count() );
 	  header_( "producer", head->header.producer );
 	  header_( "confirmed", head->header.confirmed );
 	  header_( "previous", head->header.previous );

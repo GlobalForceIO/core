@@ -41,7 +41,7 @@ namespace eosio { namespace chain {
          fc::time_point to_time_point() const {
             return (fc::time_point)(*this);
          }
-		 
+
          operator fc::time_point() const {
             int64_t msec = slot * (int64_t)IntervalMs;
             msec += EpochMs;
