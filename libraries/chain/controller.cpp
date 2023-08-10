@@ -2420,7 +2420,7 @@ struct controller_impl {
 	  
 	  //fc::raw::pack(on_block_act.data, self.head_block_header());
 	  
-	  on_block_act.data = fc::raw::pack(fee_trxs);
+	  on_block_act.data = fee_trxs;
 	  
       signed_transaction trx;
       trx.actions.emplace_back(std::move(on_block_act));
