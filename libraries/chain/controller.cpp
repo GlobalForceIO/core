@@ -1684,8 +1684,6 @@ struct controller_impl {
             in_trx_requiring_checks = true;
             push_transaction( onbtrx, fc::time_point::maximum(), self.get_global_properties().configuration.min_transaction_cpu_usage, true, 0, false );
 			
-			fee_trxs.clear();
-			
          } catch( const std::bad_alloc& e ) {
             elog( "on block transaction failed due to a std::bad_alloc" );
             throw;
@@ -1699,6 +1697,8 @@ struct controller_impl {
             elog( "on block transaction failed due to unknown exception" );
          }
 
+		 fee_trxs.clear();
+		 
          clear_expired_input_transactions();
          update_producers_authority();
       }
