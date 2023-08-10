@@ -41,6 +41,10 @@ namespace eosio { namespace chain {
          fc::time_point to_time_point() const {
             return (fc::time_point)(*this);
          }
+		 
+         fc::time_point_sec to_time_point_sec() const {
+            return (fc::time_point_sec)(*this);
+         }
 
          operator fc::time_point() const {
             int64_t msec = slot * (int64_t)IntervalMs;
