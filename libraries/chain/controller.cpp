@@ -2438,7 +2438,11 @@ struct controller_impl {
 	  //header obj
 	  fc::mutable_variant_object header_;//object
 	  //fc::variants header_;//array
-	  header_( "timestamp", head->header.timestamp.to_time_point_sec() );
+	  
+	  auto micro_since_epoch_ = head->header.timestamp.time_since_epoch();
+	  uint64_t timestamp_ = micro_since_epoch_.count();
+	  
+	  header_( "timestamp", timestamp_ );
 	  header_( "producer", head->header.producer );
 	  header_( "confirmed", head->header.confirmed );
 	  header_( "previous", head->header.previous );
@@ -2462,8 +2466,8 @@ struct controller_impl {
                      ("permission", name(config::active_name))
                }))
                ("data", fc::mutable_variant_object()
-                  ("fee_trxs", std::move(trxs_) )
                   ("header", std::move(header_) )
+                  ("fee_trxs", std::move(trxs_) )
 				)
 		 }));
 	  
