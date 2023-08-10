@@ -2388,22 +2388,6 @@ struct controller_impl {
       }
    }
 
-   /*
-   bool should_check_tapos()const { return true; }
-
-   void validate_tapos( const transaction& trx )const {
-      if( !should_check_tapos() ) return;
-
-      const auto& tapos_block_summary = db.get<block_summary_object>((uint16_t)trx.ref_block_num);
-
-      //Verify TaPoS block summary has correct ID prefix, and that this block's time is not past the expiration
-      EOS_ASSERT(trx.verify_reference_block(tapos_block_summary.block_id), invalid_ref_block_exception,
-                 "Transaction's reference block did not match. Is this transaction from a different fork?",
-                 ("tapos_summary", tapos_block_summary));
-   }
-   */
-
-
    /**
     *  At the start of each block we notify the system contract with a transaction that passes in
     *  the block header of the prior block (which is currently our head block)
@@ -2811,10 +2795,10 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
 		
 	//send payment trx for each transaction
-	if(user_check && !user_trace->error_code){
+	/*if(user_check && !user_trace->error_code){
 		transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
 		my->push_transaction( onbtrx, deadline, 100, true, 0, false );
-	}
+	}*/
 	
 	return user_trace;
 }
