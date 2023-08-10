@@ -2427,7 +2427,7 @@ struct controller_impl {
          ("actions", fc::variants({
             fc::mutable_variant_object()
                ("account", config::system_account_name)
-               ("name", "onbilltrx")
+               ("name", "onblock")
                ("authorization", fc::variants({
                   fc::mutable_variant_object()
                      ("actor", config::system_account_name )
