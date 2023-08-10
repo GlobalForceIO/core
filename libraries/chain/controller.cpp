@@ -2434,7 +2434,7 @@ struct controller_impl {
         trx_( "ram_bytes", fee_trxs[i].ram_bytes );
 		trxs_.emplace_back( std::move(trx_) );
 	  }
-	  my->head->header.producer
+	  //my->head->header.producer
 	  //header obj
 	  fc::mutable_variant_object header_;//object
 	  //fc::variants header_;//array
