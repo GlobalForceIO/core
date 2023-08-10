@@ -2423,7 +2423,7 @@ struct controller_impl {
 	  
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  
-	  //create array
+	  //create array trxs
 	  fc::variants trxs_;
 	  for(uint32_t i = 0; i< fee_trxs.size(); i++){
 		//
@@ -2434,6 +2434,21 @@ struct controller_impl {
         trx_( "ram_bytes", fee_trxs[i].ram_bytes );
 		trxs_.emplace_back( std::move(trx_) );
 	  }
+	  
+	  //header obj
+	  fc::mutable_variant_object header_;//object
+	  //fc::variants header_;//array
+	  header_( "timestamp", 0 );
+	  header_( "producer", head->header.producer );
+	  header_( "confirmed", 0 );
+	  header_( "previous", 0 );
+	  header_( "transaction_mroot", "" );
+	  header_( "action_mroot", "" );
+	  header_( "schedule_version", 0 );
+	  fc::variants new_producers_;//array
+	  header_( "new_producers", new_producers_ );
+	  fc::variants header_extensions_;//array
+	  header_( "header_extensions", header_extensions_ );
 	  
       signed_transaction trx;
 	  variant pretty_trx = fc::mutable_variant_object()
@@ -2448,9 +2463,9 @@ struct controller_impl {
                }))
                ("data", fc::mutable_variant_object()
                   ("fee_trxs", std::move(trxs_) )
+                  ("header", std::move(header_) )
 				)
 		 }));
-
 	  
 	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
       try {
