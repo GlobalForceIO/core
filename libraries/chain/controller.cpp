@@ -2441,13 +2441,6 @@ struct controller_impl {
     */
    signed_transaction get_on_bill_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
    {
-		pay_fee_trx_.account = payer;
-		pay_fee_trx_.trx_id = trx_id;
-		pay_fee_trx_.cpu_us = payer;
-		pay_fee_trx_.ram_bytes = payer;
-		fee_trxs.emplace_back(pay_fee_trx_);
-		
-	/*
 	  //const fc::microseconds abi_serializer_max_time{1000*1000};
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  
@@ -2493,7 +2486,6 @@ struct controller_impl {
          trx.set_reference_block( self.head_block_id() );
       }
       return trx;
-	*/
    }
 
 }; /// controller_impl
@@ -2826,11 +2818,16 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		
 	//send payment trx for each transaction
 	if(user_check && !user_trace->error_code){
+		pay_fee_trx_.account = my->user_name;
+		pay_fee_trx_.trx_id = trx->id();
+		pay_fee_trx_.cpu_us = my->user_trx_cpu;
+		pay_fee_trx_.ram_bytes = my->user_trx_ram;
+		fee_trxs.emplace_back(pay_fee_trx_);
+		
 		/*
 		transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
 		my->push_transaction( onbtrx, deadline, 100, true, 0, false );
 		*/
-		get_on_bill_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram );
 	}
 	
 	return user_trace;
