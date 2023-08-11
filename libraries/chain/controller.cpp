@@ -2441,16 +2441,16 @@ struct controller_impl {
 	  
 	  //header_( "timestamp", head->header.timestamp.to_time_point_sec() );
 
-	  ilog( "BLOCK HEADER timestamp 1 ${t}", ("t", head->header.timestamp.to_timestamp()) );
-	  ilog( "BLOCK HEADER timestamp 2 ${t}", ("t", head->header.timestamp) );
+	  ilog( "BLOCK HEADER timestamp 1 ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
+	  ilog( "BLOCK HEADER timestamp 2 ${t}", ("t", self.head_block_header().timestamp) );
 					 
-	  header_( "timestamp", head->header.timestamp.to_timestamp() );
-	  header_( "producer", head->header.producer );
-	  header_( "confirmed", head->header.confirmed );
-	  header_( "previous", head->header.previous );
-	  header_( "transaction_mroot", head->header.transaction_mroot );
-	  header_( "action_mroot", head->header.action_mroot );
-	  header_( "schedule_version", head->header.schedule_version );
+	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
+	  header_( "producer", self.head_block_header().producer );
+	  header_( "confirmed", self.head_block_header().confirmed );
+	  header_( "previous", self.head_block_header().previous );
+	  header_( "transaction_mroot", self.head_block_header().transaction_mroot );
+	  header_( "action_mroot", self.head_block_header().action_mroot );
+	  header_( "schedule_version", self.head_block_header().schedule_version );
 	  fc::variants new_producers_;//array
 	  header_( "new_producers", new_producers_ );
 	  fc::variants header_extensions_;//array
