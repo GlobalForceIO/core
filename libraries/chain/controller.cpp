@@ -2498,7 +2498,7 @@ struct controller_impl {
          trx.ref_block_num = 0;
          trx.ref_block_prefix = 0;
       } else {
-         trx.expiration = self.pending_block_time() + fc::microseconds(999'999); // Round up to nearest second to avoid appearing expired
+         trx.expiration = self.pending_block_time() + fc::microseconds(999'999);
          trx.set_reference_block( self.head_block_id() );
       }
       return trx;
