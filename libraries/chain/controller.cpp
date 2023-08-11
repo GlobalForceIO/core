@@ -2451,7 +2451,10 @@ struct controller_impl {
 	  header_( "transaction_mroot", self.head_block_header().transaction_mroot );
 	  header_( "action_mroot", self.head_block_header().action_mroot );
 	  header_( "schedule_version", self.head_block_header().schedule_version );
-	  fc::variants new_producers_;//array
+	  fc::mutable_variant_object new_producers_;//object
+	  new_producers_( "version", self.head_block_header().new_producers.version );
+	  fc::variants producers_;
+	  new_producers_( "producers", producers_ );
 	  header_( "new_producers", new_producers_ );
 	  fc::variants header_extensions_;//array
 	  header_( "header_extensions", header_extensions_ );
