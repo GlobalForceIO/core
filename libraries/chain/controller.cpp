@@ -2441,6 +2441,9 @@ struct controller_impl {
 	  
 	  //header_( "timestamp", head->header.timestamp.to_time_point_sec() );
 
+	  ilog( "BLOCK HEADER timestamp 1 ${t}", ("t", head->header.timestamp.to_timestamp()) );
+	  ilog( "BLOCK HEADER timestamp 2 ${t}", ("t", head->header.timestamp) );
+					 
 	  header_( "timestamp", head->header.timestamp.to_timestamp() );
 	  header_( "producer", head->header.producer );
 	  header_( "confirmed", head->header.confirmed );
