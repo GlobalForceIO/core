@@ -335,7 +335,6 @@ namespace eosio::chain_apis {
 
          if( onblock_traces.size() > 0 ){
 		   for(uint32_t i = 0; i< onblock_traces.size(); i++){
-		     ilog( "ONBILLTRX:: store_traces SAVE onblock_traces ID ${itr}", ("itr", i) );
              process_trace(*onblock_traces[i]);
 		   }
 		 }
@@ -349,7 +348,6 @@ namespace eosio::chain_apis {
 
             const auto it = cached_trace_map.find( id );
             if( it != cached_trace_map.end() ) {
-			   ilog( "ONBILLTRX:: process_trace ${id}", ("id",id) );
                process_trace( it->second );
             }
          }

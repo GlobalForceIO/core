@@ -1676,13 +1676,16 @@ struct controller_impl {
          }
 
          try {
+			elog( "onBlock 1" );
             transaction_metadata_ptr onbtrx =
                   transaction_metadata::create_no_recover_keys( packed_transaction( get_on_block_transaction() ), transaction_metadata::trx_type::implicit );
             auto reset_in_trx_requiring_checks = fc::make_scoped_exit([old_value=in_trx_requiring_checks,this](){
                   in_trx_requiring_checks = old_value;
                });
             in_trx_requiring_checks = true;
+			elog( "onBlock 2" );
             push_transaction( onbtrx, fc::time_point::maximum(), self.get_global_properties().configuration.min_transaction_cpu_usage, true, 0, false );
+			elog( "onBlock 3" );
 			
          } catch( const std::bad_alloc& e ) {
             elog( "on block transaction failed due to a std::bad_alloc" );
@@ -1697,7 +1700,9 @@ struct controller_impl {
             elog( "on block transaction failed due to unknown exception" );
          }
 
+			elog( "onBlock 4" );
 		 fee_trxs.clear();
+			elog( "onBlock 5" );
 		 
          clear_expired_input_transactions();
          update_producers_authority();

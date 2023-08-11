@@ -451,7 +451,6 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
       std::vector<augmented_transaction_trace> traces;
       if (onblock_traces.size() > 0){
 		 for(uint32_t i = 0; i< onblock_traces.size(); i++){
-		   ilog( "ONBILLTRX:: store_traces SAVE onblock_traces ID ${itr}", ("itr", i) );
 		   traces.push_back(onblock_traces[i]);
 		 }
 	  }
@@ -461,7 +460,6 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
             id = r.trx.get<transaction_id_type>();
          else
             id = r.trx.get<packed_transaction>().id();
-		    ilog( "ONBILLTRX:: store_traces SAVE transactions COUNT ${count} ${id}", ("count", block_state->block->transactions.size())("id", id) );
          auto it = cached_traces.find(id);
          EOS_ASSERT(it != cached_traces.end() && it->second.trace->receipt, plugin_exception,
                     "missing trace for transaction ${id}", ("id", id));
