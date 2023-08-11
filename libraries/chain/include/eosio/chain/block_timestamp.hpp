@@ -45,8 +45,8 @@ namespace eosio { namespace chain {
          uint32_t to_timestamp() const {
             auto time = (fc::time_point)(*this);
 			auto micro_since_epoch = time.time_since_epoch();
-			uint32_t time = micro_since_epoch.count();
-			return time;
+			uint32_t time_ = micro_since_epoch.count();
+			return time_;
          }
 
          operator fc::time_point() const {
