@@ -2470,7 +2470,7 @@ struct controller_impl {
                }))
                ("data", fc::mutable_variant_object()
                   ("header", std::move(header_) )
-                  /*("fee_trxs", std::move(trxs_) )*/
+                  ("fee_trxs", std::move(trxs_) )
 				)
 		 }));
 	  
