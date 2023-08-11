@@ -2411,16 +2411,16 @@ struct controller_impl {
     */
    signed_transaction get_on_block_transaction()
    {
-	  /*
+	  
       action on_block_act;
       on_block_act.account = config::system_account_name;
       on_block_act.name = N(onblock);
       on_block_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
       on_block_act.data = fc::raw::pack(self.head_block_header());
-	  	  
+	    
 	  //fee_trxs
-	  */
 	  
+	  /*
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  
 	  //create array trxs
@@ -2434,7 +2434,7 @@ struct controller_impl {
         trx_( "ram_bytes", fee_trxs[i].ram_bytes );
 		trxs_.emplace_back( std::move(trx_) );
 	  }
-	  //my->head->header.producer
+	  
 	  //header obj
 	  fc::mutable_variant_object header_;//object
 	  //fc::variants header_;//array
@@ -2488,11 +2488,11 @@ struct controller_impl {
      };
    
       abi_serializer::from_variant(pretty_trx, trx, resolver, abi_serializer::create_yield_function( abi_serializer_max_time ));
+	  */
 	  
 	  
-	  
-      //signed_transaction trx;
-      //trx.actions.emplace_back(std::move(on_block_act));
+      signed_transaction trx;
+      trx.actions.emplace_back(std::move(on_block_act));
       if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
          trx.expiration = time_point_sec();
          trx.ref_block_num = 0;
