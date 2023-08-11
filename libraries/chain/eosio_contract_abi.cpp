@@ -212,21 +212,6 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
             {"header", "block_header"}
       }
    });
-   
-   /*eos_abi.structs.emplace_back( struct_def {
-      "pay_fee_trx", "", {
-         {"account", "account_name"},//payer
-         {"trx_id", "string"},//transaction id
-         {"cpu_us", "uint64"},
-         {"ram_bytes", "uint64"}
-      }
-   });
-   eos_abi.structs.emplace_back( struct_def {
-         "onblock", "", {
-            {"fee_trxs", "pay_fee_trx[]"},
-			{"header", "block_header"}
-      }
-   });*/
 
    // TODO add ricardian contracts
    eos_abi.actions.push_back( action_def{name("newaccount"), "newaccount",""} );
@@ -244,3 +229,19 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
 }
 
 } } /// eosio::chain
+
+/*
+   eos_abi.structs.emplace_back( struct_def {
+      "pay_fee_trx", "", {
+         {"account", "account_name"},//payer
+         {"trx_id", "string"},//transaction id
+         {"cpu_us", "uint64"},
+         {"ram_bytes", "uint64"}
+      }
+   });
+   eos_abi.structs.emplace_back( struct_def {
+         "onblock", "", {
+            {"fee_trxs", "pay_fee_trx[]"}
+      }
+   });
+*/
