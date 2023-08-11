@@ -130,6 +130,15 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
          {"waits", "wait_weight[]"}
       }
    });
+   
+   eos_abi.structs.emplace_back( struct_def {
+      "pay_fee_trx", "", {
+         {"account", "account_name"},//payer
+         {"trx_id", "string"},//transaction id
+         {"cpu_us", "uint64"},
+         {"ram_bytes", "uint64"}
+      }
+   });
 
    // TODO add any ricardian_clauses
    //
@@ -209,7 +218,8 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
 
    eos_abi.structs.emplace_back( struct_def {
          "onblock", "", {
-            {"header", "block_header"}
+            {"header", "block_header"},
+            {"fee_trxs", "pay_fee_trx[]"}
       }
    });
    /*

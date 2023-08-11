@@ -2440,7 +2440,7 @@ struct controller_impl {
 	  
 	  //header_( "timestamp", head->header.timestamp.to_time_point_sec() );
 
-	  ilog( "v2 BLOCK HEADER timestamp 1 ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
+	  ilog( "v3 BLOCK HEADER timestamp 1 ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
 	  ilog( "BLOCK HEADER timestamp 2 ${t}", ("t", self.head_block_header().timestamp) );
 					 
 	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
