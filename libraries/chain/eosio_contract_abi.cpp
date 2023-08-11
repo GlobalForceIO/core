@@ -223,7 +223,7 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    });
    eos_abi.structs.emplace_back( struct_def {
          "onblock", "", {
-            /*{"fee_trxs", "pay_fee_trx[]"},*/
+            {"fee_trxs", "pay_fee_trx[]"},
 			{"header", "block_header"}
       }
    });*/
