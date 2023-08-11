@@ -60,7 +60,7 @@ namespace {
    >;
 
    /**
-    * Utility function to identify on-block and onbilltrx action
+    * Utility function to identify on-block action
     * @param p
     * @return
     */
@@ -68,7 +68,7 @@ namespace {
       if (p->action_traces.empty())
          return false;
       const auto& act = p->action_traces[0].act;
-      if (act.account != eosio::chain::config::system_account_name || (act.name != N(onbilltrx) && act.name != N(onblock)) || act.authorization.size() != 1)
+      if (act.account != eosio::chain::config::system_account_name || act.name != N(onblock) || act.authorization.size() != 1)
          return false;
       const auto& auth = act.authorization[0];
       return auth.actor == eosio::chain::config::system_account_name &&

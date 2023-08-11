@@ -1676,17 +1676,13 @@ struct controller_impl {
          }
 
          try {
-			elog( "onBlock 1" );
             transaction_metadata_ptr onbtrx =
                   transaction_metadata::create_no_recover_keys( packed_transaction( get_on_block_transaction() ), transaction_metadata::trx_type::implicit );
             auto reset_in_trx_requiring_checks = fc::make_scoped_exit([old_value=in_trx_requiring_checks,this](){
                   in_trx_requiring_checks = old_value;
                });
             in_trx_requiring_checks = true;
-			elog( "onBlock 2" );
             push_transaction( onbtrx, fc::time_point::maximum(), self.get_global_properties().configuration.min_transaction_cpu_usage, true, 0, false );
-			elog( "onBlock 3" );
-			
          } catch( const std::bad_alloc& e ) {
             elog( "on block transaction failed due to a std::bad_alloc" );
             throw;
@@ -1700,10 +1696,8 @@ struct controller_impl {
             elog( "on block transaction failed due to unknown exception" );
          }
 
-			elog( "onBlock 4" );
 		 fee_trxs.clear();
-			elog( "onBlock 5" );
-		 
+
          clear_expired_input_transactions();
          update_producers_authority();
       }
@@ -2498,6 +2492,7 @@ struct controller_impl {
 	  
       signed_transaction trx;
       trx.actions.emplace_back(std::move(on_block_act));
+	  
       if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
          trx.expiration = time_point_sec();
          trx.ref_block_num = 0;
@@ -2508,60 +2503,6 @@ struct controller_impl {
       }
       return trx;
    }
-   
-   /**
-    *  At the start of each block we notify the system contract with a transaction that passes in
-    *  the block header of the prior block (which is currently our head block)
-    */
-   signed_transaction get_on_bill_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
-   {
-	  //const fc::microseconds abi_serializer_max_time{1000*1000};
-	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
-	  
-      signed_transaction trx;
-	  variant pretty_trx = fc::mutable_variant_object()
-         ("actions", fc::variants({
-            fc::mutable_variant_object()
-               ("account", config::system_account_name)
-               ("name", "onbilltrx")
-               ("authorization", fc::variants({
-                  fc::mutable_variant_object()
-                     ("actor", config::system_account_name )
-                     ("permission", name(config::active_name))
-               }))
-               ("data", fc::mutable_variant_object()
-                  ("account", payer )
-                  ("trx_id", trx_id)
-				  ("cpu_us", billed_cpu)
-				  ("ram_bytes", trx_size)
-				)
-		 }));
-
-	  
-	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
-      try {
-         const auto& accnt  = db.get<account_object,by_name>( name );
-         abi_def abi;
-         if (abi_serializer::to_abi(accnt.abi, abi)) {
-            return abi_serializer(abi, abi_serializer::create_yield_function( abi_serializer_max_time ));
-         }
-         return optional<abi_serializer>();
-      } FC_RETHROW_EXCEPTIONS(error, "Failed to find or parse ABI for ${name}", ("name", name))
-     };
-   
-      abi_serializer::from_variant(pretty_trx, trx, resolver, abi_serializer::create_yield_function( abi_serializer_max_time ));
-	  
-      if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
-         trx.expiration = time_point_sec();
-         trx.ref_block_num = 0;
-         trx.ref_block_prefix = 0;
-      } else {
-         trx.expiration = self.pending_block_time() + fc::microseconds(999'999); // Round up to nearest second to avoid appearing expired
-         trx.set_reference_block( self.head_block_id() );
-      }
-      return trx;
-   }
-
 }; /// controller_impl
 
 const resource_limits_manager&   controller::get_resource_limits_manager()const
@@ -2876,7 +2817,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		  && _payer != N(nch.swap) && _payer != N(nch.address) && _payer != N(nch.fee) && _payer != N(nch.price)  
 		  && _payer != N(nch.types) && _payer != N(nch.dex) && _payer != N(nch.reg)
 		  
-		  && _action != N(onbilltrx) && _action != N(onblock)){
+		  && _action != N(onblock)){
 			//GET balance
 			my->user_name = _payer;
 			my->user_action = _action;
@@ -2897,11 +2838,6 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		my->pay_fee_trx_.cpu_us = my->user_trx_cpu;
 		my->pay_fee_trx_.ram_bytes = my->user_trx_ram;
 		my->fee_trxs.emplace_back(my->pay_fee_trx_);
-		
-		/*
-		transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_bill_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
-		my->push_transaction( onbtrx, deadline, 100, true, 0, false );
-		*/
 	}
 	
 	return user_trace;

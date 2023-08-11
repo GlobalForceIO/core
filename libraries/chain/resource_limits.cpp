@@ -263,7 +263,6 @@ uint64_t resource_limits_manager::check_payment_balance( const account_name acco
 		fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
 		fc::raw::unpack(ds, balance);
 	}
-	ilog( "ONBILLTRX:: ${account} ${token} ${balance}",("account",account)("token",token)("balance",balance));
 	return balance;
 }
 
