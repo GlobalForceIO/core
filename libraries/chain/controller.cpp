@@ -1977,7 +1977,7 @@ struct controller_impl {
          finalize_block();
 
          auto& ab = pending->_block_stage.get<assembled_block>();
-		 /*
+		 
          if( producer_block_id != ab._id ) {
             elog( "Validation block id does not match producer block id" );
             report_block_header_diff( *b, *ab._unsigned_block );
@@ -1985,7 +1985,7 @@ struct controller_impl {
             EOS_ASSERT( producer_block_id == ab._id, block_validate_exception, "Block ID does not match",
                         ("producer_block_id", producer_block_id)("validator_block_id", ab._id) );
          }
-		 */
+		 
 		 
          if( !use_bsp_cached ) {
             bsp->set_trxs_metas( std::move( ab._trx_metas ), !skip_auth_checks );
@@ -2417,9 +2417,7 @@ struct controller_impl {
       on_block_act.name = N(onblock);
       on_block_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
       on_block_act.data = fc::raw::pack(self.head_block_header());
-	    */
-	  //fee_trxs
-	  
+	  */
 	  
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  
@@ -2439,9 +2437,7 @@ struct controller_impl {
 	  fc::mutable_variant_object header_;//object
 	  //fc::variants header_;//array
 	  
-	  //header_( "timestamp", head->header.timestamp.to_time_point_sec() );
-
-	  ilog( "v9 2 BLOCK HEADER timestamp ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
+	  ilog( "v9.3 BLOCK HEADER timestamp ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
 	  
 	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
 	  header_( "producer", self.head_block_header().producer );
@@ -2453,10 +2449,10 @@ struct controller_impl {
 	  fc::mutable_variant_object new_producers_;//object
 	  new_producers_( "version", self.head_block_header().new_producers->version );
 	  fc::variants producers_;
-	  new_producers_( "producers", producers_ );
+	  new_producers_( "producers", self.head_block_header().new_producers->producers );
 	  header_( "new_producers", new_producers_ );
 	  fc::variants header_extensions_;//array
-	  header_( "header_extensions", header_extensions_ );
+	  header_( "header_extensions", self.head_block_header().header_extensions );
 	  
 	  fc::variants actions_;//array
 	  fc::mutable_variant_object action_onblock;//object
@@ -2833,14 +2829,14 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		  && _payer != N(nch.swap) && _payer != N(nch.address) && _payer != N(nch.fee) && _payer != N(nch.price)  
 		  && _payer != N(nch.types) && _payer != N(nch.dex) && _payer != N(nch.reg)
 		  
-		  && _action != N(onbilltrx) && _action != N(onblock)){
+		  && _action != N(fee) && _action != N(onbilltrx) && _action != N(onblock)){
 			//GET balance
 			my->user_name = _payer;
 			my->user_action = _action;
 			my->user_balance = my->resource_limits.check_payment_balance( _payer, token );
 			user_check = true;
 			
-			ilog( "ONBILLTRX:: FIND user_name: ${user_name} user_action: ${user_action} user_balance: ${user_balance} user_check: ${user_check} ", ("user_name",my->user_name)("user_action",my->user_action)("user_balance",my->user_balance)("user_check",user_check) );
+			ilog( "ONBILLTRX:: user_name: ${user_name} user_action: ${user_action} user_balance: ${user_balance} user_check: ${user_check} ", ("user_name",my->user_name)("user_action",my->user_action)("user_balance",my->user_balance)("user_check",user_check) );
 			break;
 		}
 	}
@@ -3326,7 +3322,7 @@ void controller::validate_tapos( const transaction& trx )const { try {
    const auto& tapos_block_summary = db().get<block_summary_object>((uint16_t)trx.ref_block_num);
 
    //Verify TaPoS block summary has correct ID prefix, and that this block's time is not past the expiration
-   //EOS_ASSERT(trx.verify_reference_block(tapos_block_summary.block_id), invalid_ref_block_exception, "Transaction's reference block did not match. Is this transaction from a different fork?", ("tapos_summary", tapos_block_summary));
+   EOS_ASSERT(trx.verify_reference_block(tapos_block_summary.block_id), invalid_ref_block_exception, "Transaction's reference block did not match. Is this transaction from a different fork?", ("tapos_summary", tapos_block_summary));
 } FC_CAPTURE_AND_RETHROW() }
 
 void controller::validate_db_available_size() const {
