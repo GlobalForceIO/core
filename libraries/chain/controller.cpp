@@ -1978,8 +1978,17 @@ struct controller_impl {
 
          auto& ab = pending->_block_stage.get<assembled_block>();
 		 
+		 /*
+		 
+		   block_id_type                     _id;
+		   pending_block_header_state        _pending_block_header_state;
+		   vector<transaction_metadata_ptr>  _trx_metas;
+		   signed_block_ptr                  _unsigned_block;
+		 */
+		 
          if( producer_block_id != ab._id ) {
             elog( "Validation block id does not match producer block id" );
+			elog( "v9.3 BLOCK ASSERT count TRX : {count}", ("count", ab._trx_metas.size()) );
             report_block_header_diff( *b, *ab._unsigned_block );
             // this implicitly asserts that all header fields (less the signature) are identical
             EOS_ASSERT( producer_block_id == ab._id, block_validate_exception, "Block ID does not match",
