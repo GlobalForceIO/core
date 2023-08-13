@@ -2459,10 +2459,10 @@ struct controller_impl {
 	  fc::mutable_variant_object new_producers_;//object
 	  new_producers_( "version", self.head_block_header().new_producers->version );
 	  fc::variants producers_;
-	  new_producers_( "producers", std::move(producers_) );
+	  new_producers_( "producers", producers_ );
 	  header_( "new_producers", new_producers_ );
 	  fc::variants header_extensions_;//array
-	  header_( "header_extensions", std::move(header_extensions_) );
+	  header_( "header_extensions", header_extensions_ );
 	  
 	fc::variants actions_;//array
 	fc::mutable_variant_object action_onblock;//object
