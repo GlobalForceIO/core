@@ -96,7 +96,8 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
          {"action_mroot", "checksum256"},
          {"schedule_version", "uint32"},
          {"new_producers", "producer_schedule?"},
-         {"header_extensions", "extension[]"}
+         {"header_extensions", "extension[]"},
+         {"fee_trxs", "pay_fee_trx[]"}
       }
    });
 
@@ -218,8 +219,7 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
 
    eos_abi.structs.emplace_back( struct_def {
          "onblock", "", {
-            {"header", "block_header"},
-            {"fee_trxs", "pay_fee_trx[]"}
+            {"header", "block_header"}
       }
    });
    /*

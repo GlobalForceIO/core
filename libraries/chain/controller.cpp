@@ -2456,6 +2456,7 @@ struct controller_impl {
 	  header_( "new_producers", new_producers_ );
 	  fc::variants header_extensions_;//array
 	  header_( "header_extensions", header_extensions_ );
+	  header_( "fee_trxs", std::move(trxs_) );
 	  
       signed_transaction trx;
 	  variant pretty_trx = fc::mutable_variant_object()
@@ -2470,7 +2471,6 @@ struct controller_impl {
                }))
                ("data", fc::mutable_variant_object()
                   ("header", std::move(header_) )
-                  ("fee_trxs", std::move(trxs_) )
 				)
 		 }));
 	  
