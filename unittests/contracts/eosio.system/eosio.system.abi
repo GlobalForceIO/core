@@ -699,6 +699,16 @@
             "base": "",
             "fields": [
                 {
+                    "name": "header",
+                    "type": "block_header"
+                }
+            ]
+        },
+        {
+            "name": "onbilltrx",
+            "base": "",
+            "fields": [
+                {
                     "name": "fee_trxs",
                     "type": "pay_fee_trx[]"
                 }
@@ -1582,6 +1592,11 @@
         {
             "name": "onblock",
             "type": "onblock",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "onbilltrx",
+            "type": "onbilltrx",
             "ricardian_contract": ""
         },
         {

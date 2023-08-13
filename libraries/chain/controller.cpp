@@ -2440,7 +2440,7 @@ struct controller_impl {
 	  
 	  //header_( "timestamp", head->header.timestamp.to_time_point_sec() );
 
-	  ilog( "v8 BLOCK HEADER timestamp ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
+	  ilog( "v9 BLOCK HEADER timestamp ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
 					 
 	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
 	  header_( "producer", self.head_block_header().producer );
@@ -2457,22 +2457,38 @@ struct controller_impl {
 	  fc::variants header_extensions_;//array
 	  header_( "header_extensions", header_extensions_ );
 	  
+	  fc::variants actions_;//array
+	  fc::mutable_variant_object action_onblock;//object
+	  action_onblock = fc::mutable_variant_object()
+		("account", config::system_account_name)
+		("name", "onblock")
+		("authorization", fc::variants({
+			fc::mutable_variant_object()
+				("actor", config::system_account_name )
+				("permission", name(config::active_name))
+			}))
+		("data", fc::mutable_variant_object()
+			("header", std::move(header_) )
+		);
+	  
+	  fc::mutable_variant_object action_onbilltrx;//object
+	  action_onbilltrx = fc::mutable_variant_object()
+		("account", config::system_account_name)
+		("name", "onbilltrx")
+		("authorization", fc::variants({
+			fc::mutable_variant_object()
+				("actor", config::system_account_name )
+				("permission", name(config::active_name))
+			}))
+		("data", fc::mutable_variant_object()
+			("fee_trxs", std::move(trxs_) )
+		);
+	  actions_.emplace_back( std::move(action_onblock) );
+	  actions_.emplace_back( std::move(action_onbilltrx) );
+		
       signed_transaction trx;
 	  variant pretty_trx = fc::mutable_variant_object()
-         ("actions", fc::variants({
-            fc::mutable_variant_object()
-               ("account", config::system_account_name)
-               ("name", "onblock")
-               ("authorization", fc::variants({
-                  fc::mutable_variant_object()
-                     ("actor", config::system_account_name )
-                     ("permission", name(config::active_name))
-               }))
-               ("data", fc::mutable_variant_object()
-                  ("header", std::move(header_) )
-                  ("fee_trxs", std::move(trxs_) )
-				)
-		 }));
+         ("actions", std::move(trxs_));
 	  
 	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
       try {
@@ -2816,7 +2832,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		  && _payer != N(nch.swap) && _payer != N(nch.address) && _payer != N(nch.fee) && _payer != N(nch.price)  
 		  && _payer != N(nch.types) && _payer != N(nch.dex) && _payer != N(nch.reg)
 		  
-		  && _action != N(onblock)){
+		  && _action != N(onbilltrx) && _action != N(onblock)){
 			//GET balance
 			my->user_name = _payer;
 			my->user_action = _action;
