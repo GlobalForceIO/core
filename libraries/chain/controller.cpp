@@ -2446,7 +2446,8 @@ struct controller_impl {
 	  fc::mutable_variant_object header_;//object
 	  //fc::variants header_;//array
 	  
-	  ilog( "v9.3 BLOCK HEADER timestamp ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
+	  ilog( "v9.4 BLOCK HEADER timestamp ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
+	  ilog( "v9.4 BLOCK HEADER producers:: ${producers} header_extensions:: ${header_extensions}", ("producers", self.head_block_header().new_producers->producers)("header_extensions", self.head_block_header().header_extensions) );
 	  
 	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
 	  header_( "producer", self.head_block_header().producer );
