@@ -2441,7 +2441,7 @@ struct controller_impl {
 	  
 	  //header_( "timestamp", head->header.timestamp.to_time_point_sec() );
 
-	  ilog( "v9 1 BLOCK HEADER timestamp ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
+	  ilog( "v9 2 BLOCK HEADER timestamp ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
 	  
 	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
 	  header_( "producer", self.head_block_header().producer );
