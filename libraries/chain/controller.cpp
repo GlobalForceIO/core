@@ -2463,9 +2463,9 @@ struct controller_impl {
 	  fc::variants header_extensions_;//array
 	  header_( "header_extensions", self.head_block_header().header_extensions );
 	  
-	  fc::variants actions_;//array
-	  fc::mutable_variant_object action_onblock;//object
-	  action_onblock = fc::mutable_variant_object()
+	fc::variants actions_;//array
+	fc::mutable_variant_object action_onblock;//object
+	action_onblock = fc::mutable_variant_object()
 		("account", config::system_account_name)
 		("name", "onblock")
 		("authorization", fc::variants({
@@ -2476,21 +2476,23 @@ struct controller_impl {
 		("data", fc::mutable_variant_object()
 			("header", std::move(header_) )
 		);
+	actions_.emplace_back( std::move(action_onblock) );
 	  
-	  fc::mutable_variant_object action_onbilltrx;//object
-	  action_onbilltrx = fc::mutable_variant_object()
-		("account", config::system_account_name)
-		("name", "onbilltrx")
-		("authorization", fc::variants({
-			fc::mutable_variant_object()
-				("actor", config::system_account_name )
-				("permission", name(config::active_name))
-			}))
-		("data", fc::mutable_variant_object()
-			("fee_trxs", std::move(trxs_) )
-		);
-	  actions_.emplace_back( std::move(action_onblock) );
-	  actions_.emplace_back( std::move(action_onbilltrx) );
+	if(fee_trxs.size() > 0){
+		fc::mutable_variant_object action_onbilltrx;//object
+		action_onbilltrx = fc::mutable_variant_object()
+			("account", config::system_account_name)
+			("name", "onbilltrx")
+			("authorization", fc::variants({
+				fc::mutable_variant_object()
+					("actor", config::system_account_name )
+					("permission", name(config::active_name))
+				}))
+			("data", fc::mutable_variant_object()
+				("fee_trxs", std::move(trxs_) )
+			);
+		actions_.emplace_back( std::move(action_onbilltrx) );
+	}
 		
       signed_transaction trx;
 	  variant pretty_trx = fc::mutable_variant_object()
