@@ -1977,7 +1977,7 @@ struct controller_impl {
          finalize_block();
 
          auto& ab = pending->_block_stage.get<assembled_block>();
-
+		 /*
          if( producer_block_id != ab._id ) {
             elog( "Validation block id does not match producer block id" );
             report_block_header_diff( *b, *ab._unsigned_block );
@@ -1985,7 +1985,8 @@ struct controller_impl {
             EOS_ASSERT( producer_block_id == ab._id, block_validate_exception, "Block ID does not match",
                         ("producer_block_id", producer_block_id)("validator_block_id", ab._id) );
          }
-
+		 */
+		 
          if( !use_bsp_cached ) {
             bsp->set_trxs_metas( std::move( ab._trx_metas ), !skip_auth_checks );
          }
@@ -2440,7 +2441,7 @@ struct controller_impl {
 	  
 	  //header_( "timestamp", head->header.timestamp.to_time_point_sec() );
 
-	  ilog( "v9 BLOCK HEADER timestamp ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
+	  ilog( "v9 1 BLOCK HEADER timestamp ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
 					 
 	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
 	  header_( "producer", self.head_block_header().producer );
