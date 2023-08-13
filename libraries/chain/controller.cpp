@@ -2488,7 +2488,7 @@ struct controller_impl {
 		
       signed_transaction trx;
 	  variant pretty_trx = fc::mutable_variant_object()
-         ("actions", std::move(trxs_));
+         ("actions", std::move(actions_));
 	  
 	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
       try {
