@@ -1978,14 +1978,6 @@ struct controller_impl {
 
          auto& ab = pending->_block_stage.get<assembled_block>();
 		 
-		 /*
-		 
-		   block_id_type                     _id;
-		   pending_block_header_state        _pending_block_header_state;
-		   vector<transaction_metadata_ptr>  _trx_metas;
-		   signed_block_ptr                  _unsigned_block;
-		 */
-		 
          if( producer_block_id != ab._id ) {
             elog( "Validation block id does not match producer block id" );
             report_block_header_diff( *b, *ab._unsigned_block );
@@ -1993,7 +1985,6 @@ struct controller_impl {
             EOS_ASSERT( producer_block_id == ab._id, block_validate_exception, "Block ID does not match",
                         ("producer_block_id", producer_block_id)("validator_block_id", ab._id) );
          }
-		 
 		 
          if( !use_bsp_cached ) {
             bsp->set_trxs_metas( std::move( ab._trx_metas ), !skip_auth_checks );
@@ -2443,11 +2434,11 @@ struct controller_impl {
 	  
 	  fc::variants producers_;//array
 	  //new_producers_( "producers", std::move(producers_) );
-	  //new_producers_( "producers", std::move(self.head_block_header().new_producers->producers) );
-	  //header_( "new_producers", new_producers_ );
+	  new_producers_( "producers", self.head_block_header().new_producers->producers );
+	  header_( "new_producers", new_producers_ );
 	  
 	  fc::variants header_extensions_;//array
-	  //header_( "header_extensions", std::move(self.head_block_header().header_extensions) );
+	  header_( "header_extensions", self.head_block_header().header_extensions );
 	  //header_( "header_extensions", std::move(header_extensions_) );
 	  
 	  /*
