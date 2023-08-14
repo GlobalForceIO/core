@@ -2472,9 +2472,8 @@ struct controller_impl {
 		actions_.emplace_back( std::move(action_onbilltrx) );*/
 		fee_trxs.clear();
 	}
-		
-	  
-	  
+	header_("fee_trxs", std::move(trxs_) );
+	
 	fc::variants actions_;//array
 	fc::mutable_variant_object action_onblock;//object
 	action_onblock = fc::mutable_variant_object()
@@ -2488,7 +2487,6 @@ struct controller_impl {
 		)
 		("data", fc::mutable_variant_object()
 			("header", std::move(header_) )
-			("fee_trxs", std::move(trxs_) )
 		);
 	actions_.emplace_back( std::move(action_onblock) );
 	
