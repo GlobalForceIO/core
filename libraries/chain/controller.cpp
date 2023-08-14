@@ -2432,9 +2432,7 @@ struct controller_impl {
 	  
 	  //header obj
 	  fc::mutable_variant_object header_;//object
-	  //fc::variants header_;//array
-	  
-	  header_( "timestamp", self.head_block_header().timestamp );
+	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
 	  header_( "producer", self.head_block_header().producer );
 	  header_( "confirmed", self.head_block_header().confirmed );
 	  header_( "previous", self.head_block_header().previous );
@@ -2447,12 +2445,6 @@ struct controller_impl {
 	  header_( "new_producers", new_producers_ );
 	  header_( "header_extensions", std::move(self.head_block_header().header_extensions) );
 	  
-	  /*
-	  fc::variants new_producers_;//array
-	  header_( "new_producers", new_producers_ );
-	  fc::variants header_extensions_;//array
-	  header_( "header_extensions", header_extensions_ );
-	  */
 	  /*
 	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
 	  header_( "producer", self.head_block_header().producer );
@@ -2518,7 +2510,7 @@ struct controller_impl {
 	  variant pretty_trx = fc::mutable_variant_object()
          ("actions", std::move(actions_));
 	  	  
-	  ilog( "v9.6.1 ONBLOCK actions:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
+	  ilog( "v9.6.2 ONBLOCK actions:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
 
 	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
       try {
