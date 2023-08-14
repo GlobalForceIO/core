@@ -1988,7 +1988,7 @@ struct controller_impl {
 		 
          if( producer_block_id != ab._id ) {
             elog( "Validation block id does not match producer block id" );
-			elog( "v9.3 BLOCK ASSERT count TRX : {count}", ("count", ab._trx_metas.size()) );
+			elog( "v9.3 BLOCK ASSERT TRX count: ${count} HEADER: ${_pending_block_header_state}", ("count", ab._trx_metas.size())("_pending_block_header_state", ab._pending_block_header_state) );
             report_block_header_diff( *b, *ab._unsigned_block );
             // this implicitly asserts that all header fields (less the signature) are identical
             EOS_ASSERT( producer_block_id == ab._id, block_validate_exception, "Block ID does not match",
