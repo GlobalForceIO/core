@@ -2431,11 +2431,11 @@ struct controller_impl {
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  
 	  //header obj
-	  fc::mutable_variant_object header_;//object
+	  fc::mutable_variant_object header_ = self.head_block_header();//object
 	  //fc::variants header_;//array
 	  
-	  ilog( "v9.5 BLOCK HEADER timestamp:: ${t} prod:: ${producers} ext:: ${header_extensions}", ("t", self.head_block_header().timestamp.to_timestamp())("producers", self.head_block_header().new_producers->producers)("header_extensions", self.head_block_header().header_extensions) );
-	  
+	  ilog( "v9.6 BLOCK HEADER timestamp:: ${t} prod:: ${producers} ext:: ${header_extensions}", ("t", self.head_block_header().timestamp.to_timestamp())("producers", self.head_block_header().new_producers->producers)("header_extensions", self.head_block_header().header_extensions) );
+	  /*
 	  header_( "timestamp", time_point_sec() );
 	  header_( "producer", head->header.producer );
 	  header_( "confirmed", head->header.confirmed );
@@ -2447,6 +2447,7 @@ struct controller_impl {
 	  header_( "new_producers", new_producers_ );
 	  fc::variants header_extensions_;//array
 	  header_( "header_extensions", header_extensions_ );
+	  */
 	  /*
 	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
 	  header_( "producer", self.head_block_header().producer );
@@ -2475,7 +2476,8 @@ struct controller_impl {
 			fc::mutable_variant_object()
 				("actor", config::system_account_name )
 				("permission", name(config::active_name))
-			}))
+			})
+		)
 		("data", fc::mutable_variant_object()
 			("header", std::move(header_) )
 		);
@@ -2499,7 +2501,8 @@ struct controller_impl {
 				fc::mutable_variant_object()
 					("actor", config::system_account_name )
 					("permission", name(config::active_name))
-				}))
+				})
+			)
 			("data", fc::mutable_variant_object()
 				("fee_trxs", std::move(trxs_) )
 			);
