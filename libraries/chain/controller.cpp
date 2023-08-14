@@ -2436,6 +2436,18 @@ struct controller_impl {
 	  
 	  ilog( "v9.5 BLOCK HEADER timestamp:: ${t} prod:: ${producers} ext:: ${header_extensions}", ("t", self.head_block_header().timestamp.to_timestamp())("producers", self.head_block_header().new_producers->producers)("header_extensions", self.head_block_header().header_extensions) );
 	  
+	  header_( "timestamp", time_point_sec() );
+	  header_( "producer", head->header.producer );
+	  header_( "confirmed", head->header.confirmed );
+	  header_( "previous", head->header.previous );
+	  header_( "transaction_mroot", head->header.transaction_mroot );
+	  header_( "action_mroot", head->header.action_mroot );
+	  header_( "schedule_version", head->header.schedule_version );
+	  fc::variants new_producers_;//array
+	  header_( "new_producers", new_producers_ );
+	  fc::variants header_extensions_;//array
+	  header_( "header_extensions", header_extensions_ );
+	  /*
 	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
 	  header_( "producer", self.head_block_header().producer );
 	  header_( "confirmed", self.head_block_header().confirmed );
@@ -2443,16 +2455,17 @@ struct controller_impl {
 	  header_( "transaction_mroot", self.head_block_header().transaction_mroot );
 	  header_( "action_mroot", self.head_block_header().action_mroot );
 	  header_( "schedule_version", self.head_block_header().schedule_version );
+	  
 	  fc::mutable_variant_object new_producers_;//object
 	  new_producers_( "version", self.head_block_header().new_producers->version );
 	  fc::variants producers_;//array
 	  //new_producers_( "producers", std::move(self.head_block_header().new_producers->producers) );
 	  new_producers_( "producers", std::move(producers_) );
-	  header_( "new_producers", std::move(new_producers_) );
+	  header_( "new_producers", new_producers_ );
 	  fc::variants header_extensions_;//array
 	  //header_( "header_extensions", std::move(self.head_block_header().header_extensions) );
-	  header_( "header_extensions", std::move(header_extensions_) );
-	  
+	  header_( "header_extensions", header_extensions_ );
+	  */
 	fc::variants actions_;//array
 	fc::mutable_variant_object action_onblock;//object
 	action_onblock = fc::mutable_variant_object()
@@ -2469,19 +2482,15 @@ struct controller_impl {
 	actions_.emplace_back( std::move(action_onblock) );
 	  
 	if(fee_trxs.size() > 0){
-	
-		//create array trxs
-		fc::variants trxs_;
+		fc::variants trxs_;//array trxs
 		for(uint32_t i = 0; i< fee_trxs.size(); i++){
-		//
-		fc::mutable_variant_object trx_;
+			fc::mutable_variant_object trx_;
 			trx_( "account", fee_trxs[i].account );
 			trx_( "trx_id", fee_trxs[i].trx_id );
 			trx_( "cpu_us", fee_trxs[i].cpu_us );
 			trx_( "ram_bytes", fee_trxs[i].ram_bytes );
 			trxs_.emplace_back( std::move(trx_) );
 		}
-	
 		fc::mutable_variant_object action_onbilltrx;//object
 		action_onbilltrx = fc::mutable_variant_object()
 			("account", config::system_account_name)
