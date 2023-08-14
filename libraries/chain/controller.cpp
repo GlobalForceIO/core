@@ -2431,11 +2431,9 @@ struct controller_impl {
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  
 	  //header obj
-	  fc::mutable_variant_object header_ = self.head_block_header();//object
+	  fc::mutable_variant_object header_;//object
 	  //fc::variants header_;//array
 	  
-	  ilog( "v9.6 BLOCK HEADER timestamp:: ${t} prod:: ${producers} ext:: ${header_extensions}", ("t", self.head_block_header().timestamp.to_timestamp())("producers", self.head_block_header().new_producers->producers)("header_extensions", self.head_block_header().header_extensions) );
-	  /*
 	  header_( "timestamp", time_point_sec() );
 	  header_( "producer", head->header.producer );
 	  header_( "confirmed", head->header.confirmed );
@@ -2443,6 +2441,13 @@ struct controller_impl {
 	  header_( "transaction_mroot", head->header.transaction_mroot );
 	  header_( "action_mroot", head->header.action_mroot );
 	  header_( "schedule_version", head->header.schedule_version );
+	  fc::mutable_variant_object new_producers_;//object
+	  new_producers_( "version", self.head_block_header().new_producers->version );
+	  new_producers_( "producers", std::move(self.head_block_header().new_producers->producers) );
+	  header_( "new_producers", new_producers_ );
+	  header_( "header_extensions", std::move(self.head_block_header().header_extensions) );
+	  
+	  /*
 	  fc::variants new_producers_;//array
 	  header_( "new_producers", new_producers_ );
 	  fc::variants header_extensions_;//array
@@ -2512,7 +2517,9 @@ struct controller_impl {
       signed_transaction trx;
 	  variant pretty_trx = fc::mutable_variant_object()
          ("actions", std::move(actions_));
-	  
+	  	  
+	  ilog( "v9.6 ONBLOCK actions:: ${actions_}", ("actions_", actions_) );
+
 	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
       try {
          const auto& accnt  = db.get<account_object,by_name>( name );
