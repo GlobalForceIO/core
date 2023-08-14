@@ -2418,6 +2418,8 @@ struct controller_impl {
       on_block_act.data = fc::raw::pack(self.head_block_header());
 	  */
 	  
+	ilog( "v9.6.3 BLOCK HEADER:: ${head_block_header}", ("head_block_header", self.head_block_header()) );
+	
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  
 	  //header obj
@@ -2433,33 +2435,14 @@ struct controller_impl {
 	  new_producers_( "version", self.head_block_header().new_producers->version );
 	  
 	  fc::variants producers_;//array
-	  //new_producers_( "producers", std::move(producers_) );
-	  new_producers_( "producers", self.head_block_header().new_producers->producers );
+	  new_producers_( "producers", std::move(producers_) );
+	  //new_producers_( "producers", self.head_block_header().new_producers->producers );
 	  header_( "new_producers", new_producers_ );
 	  
 	  fc::variants header_extensions_;//array
 	  header_( "header_extensions", self.head_block_header().header_extensions );
 	  //header_( "header_extensions", std::move(header_extensions_) );
 	  
-	  /*
-	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
-	  header_( "producer", self.head_block_header().producer );
-	  header_( "confirmed", self.head_block_header().confirmed );
-	  header_( "previous", self.head_block_header().previous );
-	  header_( "transaction_mroot", self.head_block_header().transaction_mroot );
-	  header_( "action_mroot", self.head_block_header().action_mroot );
-	  header_( "schedule_version", self.head_block_header().schedule_version );
-	  
-	  fc::mutable_variant_object new_producers_;//object
-	  new_producers_( "version", self.head_block_header().new_producers->version );
-	  fc::variants producers_;//array
-	  //new_producers_( "producers", std::move(self.head_block_header().new_producers->producers) );
-	  new_producers_( "producers", std::move(producers_) );
-	  header_( "new_producers", new_producers_ );
-	  fc::variants header_extensions_;//array
-	  //header_( "header_extensions", std::move(self.head_block_header().header_extensions) );
-	  header_( "header_extensions", header_extensions_ );
-	  */
 	fc::variants actions_;//array
 	fc::mutable_variant_object action_onblock;//object
 	action_onblock = fc::mutable_variant_object()
@@ -2502,11 +2485,11 @@ struct controller_impl {
 		actions_.emplace_back( std::move(action_onbilltrx) );
 	}
 		
-      signed_transaction trx;
-	  variant pretty_trx = fc::mutable_variant_object()
-         ("actions", std::move(actions_));
+    signed_transaction trx;
+	variant pretty_trx = fc::mutable_variant_object()
+        ("actions", std::move(actions_));
 	  	  
-	  ilog( "v9.6.2 ONBLOCK actions:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
+	ilog( "v9.6.3 ONBLOCK TRX:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
 
 	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
       try {
