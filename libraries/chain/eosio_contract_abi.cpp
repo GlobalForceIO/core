@@ -88,7 +88,7 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
 
    eos_abi.structs.emplace_back( struct_def {
       "block_header", "", {
-         {"timestamp", "time_point"},
+         {"timestamp", "uint32"},
          {"producer", "account_name"},
          {"confirmed", "uint16"},
          {"previous", "block_id_type"},
