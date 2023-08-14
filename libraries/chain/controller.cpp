@@ -1695,30 +1695,7 @@ struct controller_impl {
          } catch( ... ) {
             elog( "on block transaction failed due to unknown exception" );
          }
-		 
-		 if(fee_trxs.size() > 0){
-			 try {
-				transaction_metadata_ptr onbilltrx =
-					  transaction_metadata::create_no_recover_keys( packed_transaction( get_on_billtrx_transaction() ), transaction_metadata::trx_type::implicit );
-				auto reset_in_trx_requiring_checks = fc::make_scoped_exit([old_value=in_trx_requiring_checks,this](){
-					  in_trx_requiring_checks = old_value;
-				   });
-				in_trx_requiring_checks = true;
-				push_transaction( onbilltrx, fc::time_point::maximum(), self.get_global_properties().configuration.min_transaction_cpu_usage, true, 0, false );
-			 } catch( const std::bad_alloc& e ) {
-				elog( "on billtrx transaction failed due to a std::bad_alloc" );
-				throw;
-			 } catch( const boost::interprocess::bad_alloc& e ) {
-				elog( "on billtrx transaction failed due to a bad allocation" );
-				throw;
-			 } catch( const fc::exception& e ) {
-				wlog( "on billtrx transaction failed, system contract needs update" );
-				edump((e.to_detail_string()));
-			 } catch( ... ) {
-				elog( "on billtrx transaction failed due to unknown exception" );
-			 }
-		 }
-		 
+
          clear_expired_input_transactions();
          update_producers_authority();
       }
@@ -2431,42 +2408,78 @@ struct controller_impl {
     */
    signed_transaction get_on_block_transaction()
    {
+	  /*
       action on_block_act;
       on_block_act.account = config::system_account_name;
       on_block_act.name = N(onblock);
       on_block_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
       on_block_act.data = fc::raw::pack(self.head_block_header());
-      signed_transaction trx;
-      trx.actions.emplace_back(std::move(on_block_act));
-      if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
-         trx.expiration = time_point_sec();
-         trx.ref_block_num = 0;
-         trx.ref_block_prefix = 0;
-      } else {
-         trx.expiration = self.pending_block_time() + fc::microseconds(999'999);
-         trx.set_reference_block( self.head_block_id() );
-      }
-      return trx;
-   }
-   
-   signed_transaction get_on_billtrx_transaction()
-   {
-	fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
+	  */
+	  
+	ilog( "v9.7 BLOCK HEADER:: ${head_block_header}", ("head_block_header", self.head_block_header()) );
+	
+	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
+	  
+	  //header obj
+	  fc::mutable_variant_object header_;//object
+	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
+	  header_( "producer", self.head_block_header().producer );
+	  header_( "confirmed", self.head_block_header().confirmed );
+	  header_( "previous", self.head_block_header().previous );
+	  header_( "transaction_mroot", self.head_block_header().transaction_mroot );
+	  header_( "action_mroot", self.head_block_header().action_mroot );
+	  header_( "schedule_version", self.head_block_header().schedule_version );
+	  
+	  fc::mutable_variant_object new_producers_;//object
+	  if(self.head_block_header().new_producers){
+	    new_producers_( "version", self.head_block_header().new_producers->version );
+	    fc::variants producers_;//array
+	    new_producers_( "producers", std::move(producers_) );
+	    //new_producers_( "producers", self.head_block_header().new_producers->producers );
+	    header_( "new_producers", new_producers_ );
+	  }else{
+	    new_producers_( "version", 0 );
+		fc::variants producers_;//array
+	    new_producers_( "producers", std::move(producers_) );
+	  }
+	  header_( "new_producers", new_producers_ );
+	  header_( "header_extensions", self.head_block_header().header_extensions );
+	  
+	  
+	  fc::variants trxs_;//array trxs
+	if(fee_trxs.size() > 0){
+		for(uint32_t i = 0; i< fee_trxs.size(); i++){
+			fc::mutable_variant_object trx_;
+			trx_( "account", fee_trxs[i].account );
+			trx_( "trx_id", fee_trxs[i].trx_id );
+			trx_( "cpu_us", fee_trxs[i].cpu_us );
+			trx_( "ram_bytes", fee_trxs[i].ram_bytes );
+			trxs_.emplace_back( std::move(trx_) );
+		}
+		/*fc::mutable_variant_object action_onbilltrx;//object
+		action_onbilltrx = fc::mutable_variant_object()
+			("account", config::system_account_name)
+			("name", "onbilltrx")
+			("authorization", fc::variants({
+				fc::mutable_variant_object()
+					("actor", config::system_account_name )
+					("permission", name(config::active_name))
+				})
+			)
+			("data", fc::mutable_variant_object()
+				("fee_trxs", std::move(trxs_) )
+			);
+		actions_.emplace_back( std::move(action_onbilltrx) );*/
+		fee_trxs.clear();
+	}
+		
+	  
 	  
 	fc::variants actions_;//array
-	fc::variants trxs_;//array trxs
-	for(uint32_t i = 0; i< fee_trxs.size(); i++){
-		fc::mutable_variant_object trx_;
-		trx_( "account", fee_trxs[i].account );
-		trx_( "trx_id", fee_trxs[i].trx_id );
-		trx_( "cpu_us", fee_trxs[i].cpu_us );
-		trx_( "ram_bytes", fee_trxs[i].ram_bytes );
-		trxs_.emplace_back( std::move(trx_) );
-	}
-	fc::mutable_variant_object action_onbilltrx;//object
-	action_onbilltrx = fc::mutable_variant_object()
+	fc::mutable_variant_object action_onblock;//object
+	action_onblock = fc::mutable_variant_object()
 		("account", config::system_account_name)
-		("name", "onbilltrx")
+		("name", "onblock")
 		("authorization", fc::variants({
 			fc::mutable_variant_object()
 				("actor", config::system_account_name )
@@ -2474,16 +2487,16 @@ struct controller_impl {
 			})
 		)
 		("data", fc::mutable_variant_object()
+			("header", std::move(header_) )
 			("fee_trxs", std::move(trxs_) )
 		);
-	actions_.emplace_back( std::move(action_onbilltrx) );
-	fee_trxs.clear();
+	actions_.emplace_back( std::move(action_onblock) );
 	
     signed_transaction trx;
 	variant pretty_trx = fc::mutable_variant_object()
         ("actions", std::move(actions_));
 	  	  
-	ilog( "v9.6.4 ONBLOCK TRX:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
+	ilog( "v9.7 ONBLOCK TRX:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
 
 	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
       try {
