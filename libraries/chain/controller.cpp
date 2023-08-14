@@ -2431,17 +2431,17 @@ struct controller_impl {
 	  header_( "transaction_mroot", self.head_block_header().transaction_mroot );
 	  header_( "action_mroot", self.head_block_header().action_mroot );
 	  header_( "schedule_version", self.head_block_header().schedule_version );
-	  fc::mutable_variant_object new_producers_;//object
-	  new_producers_( "version", self.head_block_header().new_producers->version );
 	  
-	  fc::variants producers_;//array
-	  new_producers_( "producers", std::move(producers_) );
-	  //new_producers_( "producers", self.head_block_header().new_producers->producers );
-	  header_( "new_producers", new_producers_ );
+	  if(self.head_block_header().new_producers){
+	    fc::mutable_variant_object new_producers_;//object
+	    new_producers_( "version", self.head_block_header().new_producers->version );
+	    fc::variants producers_;//array
+	    new_producers_( "producers", std::move(producers_) );
+	    //new_producers_( "producers", self.head_block_header().new_producers->producers );
+	    header_( "new_producers", new_producers_ );
+	  }
 	  
-	  fc::variants header_extensions_;//array
 	  header_( "header_extensions", self.head_block_header().header_extensions );
-	  //header_( "header_extensions", std::move(header_extensions_) );
 	  
 	fc::variants actions_;//array
 	fc::mutable_variant_object action_onblock;//object
