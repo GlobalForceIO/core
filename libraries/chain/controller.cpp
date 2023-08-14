@@ -2430,24 +2430,11 @@ struct controller_impl {
 	  
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  
-	  //create array trxs
-	  fc::variants trxs_;
-	  for(uint32_t i = 0; i< fee_trxs.size(); i++){
-		//
-		fc::mutable_variant_object trx_;
-        trx_( "account", fee_trxs[i].account );
-        trx_( "trx_id", fee_trxs[i].trx_id );
-        trx_( "cpu_us", fee_trxs[i].cpu_us );
-        trx_( "ram_bytes", fee_trxs[i].ram_bytes );
-		trxs_.emplace_back( std::move(trx_) );
-	  }
-	  
 	  //header obj
 	  fc::mutable_variant_object header_;//object
 	  //fc::variants header_;//array
 	  
-	  ilog( "v9.4 BLOCK HEADER timestamp ${t}", ("t", self.head_block_header().timestamp.to_timestamp()) );
-	  ilog( "v9.4 BLOCK HEADER producers:: ${producers} header_extensions:: ${header_extensions}", ("producers", self.head_block_header().new_producers->producers)("header_extensions", self.head_block_header().header_extensions) );
+	  ilog( "v9.5 BLOCK HEADER timestamp:: ${t} prod:: ${producers} ext:: ${header_extensions}", ("t", self.head_block_header().timestamp.to_timestamp())("producers", self.head_block_header().new_producers->producers)("header_extensions", self.head_block_header().header_extensions) );
 	  
 	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
 	  header_( "producer", self.head_block_header().producer );
@@ -2480,6 +2467,19 @@ struct controller_impl {
 	actions_.emplace_back( std::move(action_onblock) );
 	  
 	if(fee_trxs.size() > 0){
+	
+		//create array trxs
+		fc::variants trxs_;
+		for(uint32_t i = 0; i< fee_trxs.size(); i++){
+		//
+		fc::mutable_variant_object trx_;
+			trx_( "account", fee_trxs[i].account );
+			trx_( "trx_id", fee_trxs[i].trx_id );
+			trx_( "cpu_us", fee_trxs[i].cpu_us );
+			trx_( "ram_bytes", fee_trxs[i].ram_bytes );
+			trxs_.emplace_back( std::move(trx_) );
+		}
+	
 		fc::mutable_variant_object action_onbilltrx;//object
 		action_onbilltrx = fc::mutable_variant_object()
 			("account", config::system_account_name)
@@ -2511,8 +2511,6 @@ struct controller_impl {
      };
    
       abi_serializer::from_variant(pretty_trx, trx, resolver, abi_serializer::create_yield_function( abi_serializer_max_time ));
-	  
-	  
 	  
       //signed_transaction trx;
       //trx.actions.emplace_back(std::move(on_block_act));
