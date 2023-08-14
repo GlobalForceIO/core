@@ -2434,13 +2434,13 @@ struct controller_impl {
 	  fc::mutable_variant_object header_;//object
 	  //fc::variants header_;//array
 	  
-	  header_( "timestamp", time_point_sec() );
-	  header_( "producer", head->header.producer );
-	  header_( "confirmed", head->header.confirmed );
-	  header_( "previous", head->header.previous );
-	  header_( "transaction_mroot", head->header.transaction_mroot );
-	  header_( "action_mroot", head->header.action_mroot );
-	  header_( "schedule_version", head->header.schedule_version );
+	  header_( "timestamp", self.head_block_header().timestamp );
+	  header_( "producer", self.header.producer );
+	  header_( "confirmed", self.header.confirmed );
+	  header_( "previous", self.header.previous );
+	  header_( "transaction_mroot", self.header.transaction_mroot );
+	  header_( "action_mroot", self.header.action_mroot );
+	  header_( "schedule_version", self.header.schedule_version );
 	  fc::mutable_variant_object new_producers_;//object
 	  new_producers_( "version", self.head_block_header().new_producers->version );
 	  new_producers_( "producers", std::move(self.head_block_header().new_producers->producers) );
@@ -2518,7 +2518,7 @@ struct controller_impl {
 	  variant pretty_trx = fc::mutable_variant_object()
          ("actions", std::move(actions_));
 	  	  
-	  ilog( "v9.6 ONBLOCK actions:: ${actions_}", ("actions_", actions_) );
+	  ilog( "v9.6.1 ONBLOCK actions:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
 
 	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
       try {
