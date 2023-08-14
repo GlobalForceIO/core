@@ -2435,12 +2435,12 @@ struct controller_impl {
 	  //fc::variants header_;//array
 	  
 	  header_( "timestamp", self.head_block_header().timestamp );
-	  header_( "producer", self.header.producer );
-	  header_( "confirmed", self.header.confirmed );
-	  header_( "previous", self.header.previous );
-	  header_( "transaction_mroot", self.header.transaction_mroot );
-	  header_( "action_mroot", self.header.action_mroot );
-	  header_( "schedule_version", self.header.schedule_version );
+	  header_( "producer", self.head_block_header().producer );
+	  header_( "confirmed", self.head_block_header().confirmed );
+	  header_( "previous", self.head_block_header().previous );
+	  header_( "transaction_mroot", self.head_block_header().transaction_mroot );
+	  header_( "action_mroot", self.head_block_header().action_mroot );
+	  header_( "schedule_version", self.head_block_header().schedule_version );
 	  fc::mutable_variant_object new_producers_;//object
 	  new_producers_( "version", self.head_block_header().new_producers->version );
 	  new_producers_( "producers", std::move(self.head_block_header().new_producers->producers) );
