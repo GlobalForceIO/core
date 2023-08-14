@@ -1696,8 +1696,6 @@ struct controller_impl {
             elog( "on block transaction failed due to unknown exception" );
          }
 
-		 fee_trxs.clear();
-
          clear_expired_input_transactions();
          update_producers_authority();
       }
@@ -2418,7 +2416,7 @@ struct controller_impl {
       on_block_act.data = fc::raw::pack(self.head_block_header());
 	  */
 	  
-	ilog( "v9.6.3 BLOCK HEADER:: ${head_block_header}", ("head_block_header", self.head_block_header()) );
+	ilog( "v9.6.4 BLOCK HEADER:: ${head_block_header}", ("head_block_header", self.head_block_header()) );
 	
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  
@@ -2487,13 +2485,14 @@ struct controller_impl {
 				("fee_trxs", std::move(trxs_) )
 			);
 		actions_.emplace_back( std::move(action_onbilltrx) );
+		fee_trxs.clear();
 	}
 		
     signed_transaction trx;
 	variant pretty_trx = fc::mutable_variant_object()
         ("actions", std::move(actions_));
 	  	  
-	ilog( "v9.6.3 ONBLOCK TRX:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
+	ilog( "v9.6.4 ONBLOCK TRX:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
 
 	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
       try {
