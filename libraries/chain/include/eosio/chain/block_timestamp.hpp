@@ -44,7 +44,7 @@ namespace eosio { namespace chain {
 
          uint32_t to_timestamp() const {
             auto time = (fc::time_point_sec)(*this);
-			uint64_t  sec_since_epoch = t.sec_since_epoch();
+			uint64_t  sec_since_epoch = time.sec_since_epoch();
 			uint32_t time_ = (sec_since_epoch * 1000 - EpochMs) / IntervalMs;
 			return time_;
          }
