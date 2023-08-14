@@ -2443,13 +2443,13 @@ struct controller_impl {
 	  new_producers_( "version", self.head_block_header().new_producers->version );
 	  
 	  fc::variants producers_;//array
-	  new_producers_( "producers", std::move(producers_) );
+	  //new_producers_( "producers", std::move(producers_) );
 	  //new_producers_( "producers", std::move(self.head_block_header().new_producers->producers) );
-	  header_( "new_producers", new_producers_ );
+	  //header_( "new_producers", new_producers_ );
 	  
 	  fc::variants header_extensions_;//array
 	  //header_( "header_extensions", std::move(self.head_block_header().header_extensions) );
-	  header_( "header_extensions", std::move(header_extensions_) );
+	  //header_( "header_extensions", std::move(header_extensions_) );
 	  
 	  /*
 	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
