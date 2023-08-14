@@ -2432,15 +2432,19 @@ struct controller_impl {
 	  header_( "action_mroot", self.head_block_header().action_mroot );
 	  header_( "schedule_version", self.head_block_header().schedule_version );
 	  
+	  fc::mutable_variant_object new_producers_;//object
 	  if(self.head_block_header().new_producers){
-	    fc::mutable_variant_object new_producers_;//object
 	    new_producers_( "version", self.head_block_header().new_producers->version );
 	    fc::variants producers_;//array
 	    new_producers_( "producers", std::move(producers_) );
 	    //new_producers_( "producers", self.head_block_header().new_producers->producers );
 	    header_( "new_producers", new_producers_ );
+	  }else{
+	    new_producers_( "version", 0 );
+		fc::variants producers_;//array
+	    new_producers_( "producers", std::move(producers_) );
 	  }
-	  
+	  header_( "new_producers", new_producers_ );
 	  header_( "header_extensions", self.head_block_header().header_extensions );
 	  
 	fc::variants actions_;//array
