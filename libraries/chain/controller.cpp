@@ -2426,7 +2426,7 @@ struct controller_impl {
       return trx;
    }
    
-   /*
+   
    signed_transaction get_on_billtrx_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
    {
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
@@ -2478,7 +2478,7 @@ struct controller_impl {
          trx.set_reference_block( self.head_block_id() );
       }
       return trx;
-   }*/
+   }
 }; /// controller_impl
 
 const resource_limits_manager&   controller::get_resource_limits_manager()const

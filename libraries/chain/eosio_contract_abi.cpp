@@ -221,11 +221,11 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
             {"header", "block_header"}
       }
    });
-   /*eos_abi.structs.emplace_back( struct_def {
+   eos_abi.structs.emplace_back( struct_def {
          "onbilltrx", "", {
             {"fee_trxs", "pay_fee_trx[]"}
       }
-   });*/
+   });
 
    // TODO add ricardian contracts
    eos_abi.actions.push_back( action_def{name("newaccount"), "newaccount",""} );
@@ -238,7 +238,7 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    eos_abi.actions.push_back( action_def{name("canceldelay"), "canceldelay",""} );
    eos_abi.actions.push_back( action_def{name("onerror"), "onerror",""} );
    eos_abi.actions.push_back( action_def{name("onblock"), "onblock",""} );
-   //eos_abi.actions.push_back( action_def{name("onbilltrx"), "onbilltrx",""} );
+   eos_abi.actions.push_back( action_def{name("onbilltrx"), "onbilltrx",""} );
 
    return eos_abi;
 }
