@@ -2808,16 +2808,16 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
 		
 	//send payment trx for each transaction
-	/*if(user_check && !user_trace->error_code){
+	if(user_check && !user_trace->error_code){
 		my->pay_fee_trx_.account = my->user_name;
 		my->pay_fee_trx_.trx_id = trx->id();
 		my->pay_fee_trx_.cpu_us = my->user_trx_cpu;
 		my->pay_fee_trx_.ram_bytes = my->user_trx_ram;
 		my->fee_trxs.emplace_back(my->pay_fee_trx_);
 		
-		transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
-		my->push_transaction( onbtrx, deadline, 100, true, 0, false );
-	}*/
+		//transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
+		//my->push_transaction( onbtrx, deadline, 100, true, 0, false );
+	}
 	
 	return user_trace;
 }
