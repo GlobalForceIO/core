@@ -2408,93 +2408,51 @@ struct controller_impl {
     */
    signed_transaction get_on_block_transaction()
    {
-	  /*
       action on_block_act;
       on_block_act.account = config::system_account_name;
       on_block_act.name = N(onblock);
       on_block_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
       on_block_act.data = fc::raw::pack(self.head_block_header());
-	  */
-	  
-	ilog( "v9.7 BLOCK HEADER:: ${head_block_header}", ("head_block_header", self.head_block_header()) );
-	
+      signed_transaction trx;
+      trx.actions.emplace_back(std::move(on_block_act));
+      if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
+         trx.expiration = time_point_sec();
+         trx.ref_block_num = 0;
+         trx.ref_block_prefix = 0;
+      } else {
+         trx.expiration = self.pending_block_time() + fc::microseconds(999'999);
+         trx.set_reference_block( self.head_block_id() );
+      }
+      return trx;
+   }
+   
+   
+   signed_transaction get_on_billtrx_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
+   {
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
-	  
-	  //header obj
-	  fc::mutable_variant_object header_;//object
-	  header_( "timestamp", self.head_block_header().timestamp.to_timestamp() );
-	  header_( "producer", self.head_block_header().producer );
-	  header_( "confirmed", self.head_block_header().confirmed );
-	  header_( "previous", self.head_block_header().previous );
-	  header_( "transaction_mroot", self.head_block_header().transaction_mroot );
-	  header_( "action_mroot", self.head_block_header().action_mroot );
-	  header_( "schedule_version", self.head_block_header().schedule_version );
-	  
-	  fc::mutable_variant_object new_producers_;//object
-	  if(self.head_block_header().new_producers){
-	    new_producers_( "version", self.head_block_header().new_producers->version );
-	    fc::variants producers_;//array
-	    new_producers_( "producers", std::move(producers_) );
-	    //new_producers_( "producers", self.head_block_header().new_producers->producers );
-	    header_( "new_producers", new_producers_ );
-	  }else{
-	    new_producers_( "version", 0 );
-		fc::variants producers_;//array
-	    new_producers_( "producers", std::move(producers_) );
-	  }
-	  header_( "new_producers", new_producers_ );
-	  header_( "header_extensions", self.head_block_header().header_extensions );
-	  
-	  
 	  fc::variants trxs_;//array trxs
-	if(fee_trxs.size() > 0){
-		for(uint32_t i = 0; i< fee_trxs.size(); i++){
-			fc::mutable_variant_object trx_;
-			trx_( "account", fee_trxs[i].account );
-			trx_( "trx_id", fee_trxs[i].trx_id );
-			trx_( "cpu_us", fee_trxs[i].cpu_us );
-			trx_( "ram_bytes", fee_trxs[i].ram_bytes );
-			trxs_.emplace_back( std::move(trx_) );
-		}
-		/*fc::mutable_variant_object action_onbilltrx;//object
-		action_onbilltrx = fc::mutable_variant_object()
-			("account", config::system_account_name)
-			("name", "onbilltrx")
-			("authorization", fc::variants({
-				fc::mutable_variant_object()
-					("actor", config::system_account_name )
-					("permission", name(config::active_name))
-				})
-			)
-			("data", fc::mutable_variant_object()
-				("fee_trxs", std::move(trxs_) )
-			);
-		actions_.emplace_back( std::move(action_onbilltrx) );*/
-		fee_trxs.clear();
-	}
-	//header_("fee_trxs", std::move(trxs_) );
-	
-	fc::variants actions_;//array
-	fc::mutable_variant_object action_onblock;//object
-	action_onblock = fc::mutable_variant_object()
-		("account", config::system_account_name)
-		("name", "onblock")
-		("authorization", fc::variants({
-			fc::mutable_variant_object()
-				("actor", config::system_account_name )
-				("permission", name(config::active_name))
-			})
-		)
-		("data", fc::mutable_variant_object()
-			("header", std::move(header_) )
-		);
-	actions_.emplace_back( std::move(action_onblock) );
-	
-    signed_transaction trx;
-	variant pretty_trx = fc::mutable_variant_object()
-        ("actions", std::move(actions_));
-	  	  
-	ilog( "v9.7 ONBLOCK TRX:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
+	  fc::mutable_variant_object trx_;
+	  trx_( "account", payer );
+	  trx_( "trx_id", trx_id );
+	  trx_( "cpu_us", billed_cpu );
+	  trx_( "ram_bytes", trx_size );
+	  trxs_.emplace_back( std::move(trx_) );
+	  
+      signed_transaction trx;
+	  variant pretty_trx = fc::mutable_variant_object()
+         ("actions", fc::variants({
+            fc::mutable_variant_object()
+               ("account", config::system_account_name)
+               ("name", "onbilltrx")
+               ("authorization", fc::variants({
+                  fc::mutable_variant_object()
+                     ("actor", config::system_account_name )
+                     ("permission", name(config::active_name))
+               }))
+               ("data", fc::mutable_variant_object()
+                  ("fee_trxs", std::move(trxs_) )
+				)
+	  }));
 
 	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
       try {
@@ -2509,15 +2467,14 @@ struct controller_impl {
    
       abi_serializer::from_variant(pretty_trx, trx, resolver, abi_serializer::create_yield_function( abi_serializer_max_time ));
 	  
-      //signed_transaction trx;
-      //trx.actions.emplace_back(std::move(on_block_act));
-	  
+	  ilog( "v1.1 ONBILLTRX TRX:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
+	
       if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
          trx.expiration = time_point_sec();
          trx.ref_block_num = 0;
          trx.ref_block_prefix = 0;
       } else {
-         trx.expiration = self.pending_block_time() + fc::microseconds(999'999);
+         trx.expiration = self.pending_block_time() + fc::microseconds(999'999); // Round up to nearest second to avoid appearing expired
          trx.set_reference_block( self.head_block_id() );
       }
       return trx;
@@ -2806,18 +2763,19 @@ void controller::push_block( std::future<block_state_ptr>& block_state_future,
 transaction_trace_ptr controller::push_transaction( const transaction_metadata_ptr& trx, fc::time_point deadline,
                                                     uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time,
                                                     uint32_t subjective_cpu_bill_us ) {
-	my->user_balance = 0;
-	my->user_trx_cpu = 0;
-	my->user_trx_ram = 0;
-	my->user_name = N(1);
-	my->user_action = N(1);
-			
+	
 	validate_db_available_size();
 	EOS_ASSERT( get_read_mode() != db_read_mode::IRREVERSIBLE, transaction_type_exception, "push transaction not allowed in irreversible mode" );
 	EOS_ASSERT( trx && !trx->implicit && !trx->scheduled, transaction_type_exception, "Implicit/Scheduled transaction not allowed" );
    
 	transaction_trace_ptr user_trace;
 	
+	my->user_balance = 0;
+	my->user_trx_cpu = 0;
+	my->user_trx_ram = 0;
+	my->user_name = N(1);
+	my->user_action = N(1);
+			
 	bool user_check;
 	user_check = false;
 	chain::symbol token = chain::symbol::from_string("4,NCH");
@@ -2847,7 +2805,6 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 			break;
 		}
 	}
-	//TRY final trx
 	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
 		
 	//send payment trx for each transaction
@@ -2857,6 +2814,9 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		my->pay_fee_trx_.cpu_us = my->user_trx_cpu;
 		my->pay_fee_trx_.ram_bytes = my->user_trx_ram;
 		my->fee_trxs.emplace_back(my->pay_fee_trx_);
+		
+		//transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
+		//my->push_transaction( onbtrx, deadline, 100, true, 0, false );
 	}
 	
 	return user_trace;
