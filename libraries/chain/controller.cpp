@@ -2778,7 +2778,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 			
 	bool user_check;
 	user_check = false;
-	chain::symbol token = chain::symbol::from_string("4,NCH");
+	chain::symbol token = chain::symbol::from_string("4,GFL");
 	//GET payer & action name
 	const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	for(uint32_t i = 0; i< trn.actions.size(); i++){
@@ -2790,9 +2790,9 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		  && _payer != N(eosio.bios) && _payer != N(eosio.rex) && _payer != N(eosio.saving) 
 		  && _payer != N(eosio.names) && _payer != N(eosio.prods) 
 		   
-		  && _payer != N(nch) && _payer != N(nch.asset) && _payer != N(nch.hold) && _payer != N(nch.nft)  
-		  && _payer != N(nch.swap) && _payer != N(nch.address) && _payer != N(nch.fee) && _payer != N(nch.price)  
-		  && _payer != N(nch.types) && _payer != N(nch.dex) && _payer != N(nch.reg)
+		  && _payer != N(gf) && _payer != N(gf.asset) && _payer != N(gf.hold) && _payer != N(gf.nft)  
+		  && _payer != N(gf.swap) && _payer != N(gf.address) && _payer != N(gf.fee) && _payer != N(gf.price)  
+		  && _payer != N(gf.types) && _payer != N(gf.dex) && _payer != N(gf.reg)
 		  
 		  && _action != N(fee) && _action != N(onbilltrx) && _action != N(onblock)){
 			//GET balance
