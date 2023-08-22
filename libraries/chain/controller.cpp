@@ -2778,7 +2778,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 			
 	bool user_check;
 	user_check = false;
-	chain::symbol token = chain::symbol::from_string("4,GFL");
+	chain::symbol token = chain::symbol::from_string("4,GFT");
 	//GET payer & action name
 	const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	for(uint32_t i = 0; i< trn.actions.size(); i++){
