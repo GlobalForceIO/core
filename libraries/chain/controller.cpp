@@ -2793,8 +2793,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		  && _payer != N(gf) && _payer != N(gf.asset) && _payer != N(gf.hold) && _payer != N(gf.nft)  
 		  && _payer != N(gf.swap) && _payer != N(gf.address) && _payer != N(gf.fee) && _payer != N(gf.price)  
 		  && _payer != N(gf.types) && _payer != N(gf.dex) && _payer != N(gf.reg)
-		  
-		  && _action != N(fee) && _action != N(onbilltrx) && _action != N(onblock)){
+		  ){
 			//GET balance
 			my->user_name = _payer;
 			my->user_action = _action;
