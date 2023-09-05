@@ -1204,6 +1204,7 @@ struct controller_impl {
    uint64_t  user_trx_ram;
    name      user_name;
    name      user_action;
+   string TokenName = "4,GFT";
    
    struct pay_fee_trx {
       name account;
@@ -1490,9 +1491,9 @@ struct controller_impl {
 				uint64_t user_payment = (user_trx_cpu + user_trx_ram) * 10;
 				
 				if(user_balance < user_payment){
-					elog( "ONBILLTRX:: LOW BALANCE ${user_name} user_action: ${user_action} user_payment: ${user_payment} user_balance:  ${user_balance}",("user_name",user_name)("user_action",user_action)("user_payment",user_payment)("user_balance",user_balance) );
+					elog( "ONBILLTRX:: LOW BALANCE ${user_name} user_action: ${user_action} user_payment: ${user_payment} user_balance:  ${user_balance} "+TokenName,("user_name",user_name)("user_action",user_action)("user_payment",user_payment)("user_balance",user_balance) );
 					
-					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", user_balance)("user_payment", user_payment)("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
+					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance} "+TokenName+", payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", user_balance)("user_payment", user_payment)("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
 				}
 			}
 			
@@ -2776,9 +2777,8 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	my->user_name = N(1);
 	my->user_action = N(1);
 			
-	bool user_check;
-	user_check = false;
-	chain::symbol token = chain::symbol::from_string("4,GFT");
+	bool user_check = false;
+	chain::symbol token = chain::symbol::from_string(my->TokenName);
 	//GET payer & action name
 	const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	for(uint32_t i = 0; i< trn.actions.size(); i++){
