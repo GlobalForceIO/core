@@ -112,6 +112,18 @@ void resource_limits_manager::read_from_snapshot( const snapshot_reader_ptr& sna
    });
 }
 
+//TODO check existing config table
+/*
+void resource_limits_manager::verify_billtrx_config()const {
+	_db.create<resource_billtrx_config_object>([&]( resource_billtrx_config_object& t ) {
+      t.ram_fee = 10;
+      t.cpu_fee = 10;
+      t.last_update = time_point_sec();
+   });
+   ilog( "ONBILLTRX:: resource_limits_manager:verify_billtrx_config");
+}
+*/
+
 void resource_limits_manager::initialize_account(const account_name& account) {
    _db.create<resource_limits_object>([&]( resource_limits_object& bl ) {
       bl.owner = account;

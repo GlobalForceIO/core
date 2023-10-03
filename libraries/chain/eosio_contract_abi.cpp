@@ -130,15 +130,6 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
          {"waits", "wait_weight[]"}
       }
    });
-   
-   eos_abi.structs.emplace_back( struct_def {
-      "pay_fee_trx", "", {
-         {"account", "account_name"},//payer
-         {"trx_id", "string"},//transaction id
-         {"cpu_us", "uint64"},
-         {"ram_bytes", "uint64"}
-      }
-   });
 
    // TODO add any ricardian_clauses
    //
@@ -210,20 +201,23 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    });
 
    eos_abi.structs.emplace_back( struct_def {
-         "onerror", "", {
-            {"sender_id", "uint128"},
-            {"sent_trx",  "bytes"}
+      "onerror", "", {
+         {"sender_id", "uint128"},
+         {"sent_trx",  "bytes"}
       }
    });
 
    eos_abi.structs.emplace_back( struct_def {
-         "onblock", "", {
-            {"header", "block_header"}
+      "onblock", "", {
+         {"header", "block_header"}
       }
    });
    eos_abi.structs.emplace_back( struct_def {
-         "onbilltrx", "", {
-            {"fee_trxs", "pay_fee_trx[]"}
+      "onbilltrx", "", {
+         {"account", "account_name"},//payer
+         {"trx_id", "string"},//transaction id
+         {"cpu_us", "uint64"},
+         {"ram_bytes", "uint64"}
       }
    });
 

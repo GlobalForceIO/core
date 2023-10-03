@@ -1205,20 +1205,6 @@ struct controller_impl {
    name      user_name;
    name      user_action;
    string TokenName = "4,GFT";
-   
-   struct pay_fee_trx {
-      name account;
-	  std::string trx_id;
-	  uint64_t cpu_us;
-	  uint64_t ram_bytes;
-   };
-   pay_fee_trx pay_fee_trx_;
-   /*struct pay_fee_trxs {
-      const std::vector<pay_fee_trx> trxs;
-      EOSLIB_SERIALIZE( pay_fee_trxs, (trxs) )
-   };
-   pay_fee_trxs fee_trxs;*/
-   vector<pay_fee_trx> fee_trxs;
 
    transaction_trace_ptr push_scheduled_transaction( const transaction_id_type& trxid, fc::time_point deadline, uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time = false ) {
       const auto& idx = db.get_index<generated_transaction_multi_index,by_trx_id>();
@@ -1495,6 +1481,12 @@ struct controller_impl {
 					
 					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance} "+TokenName+", payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", user_balance)("user_payment", user_payment)("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
 				}
+				
+				//send payment trx
+				//account = my->user_name;
+				//trx_id = trx->id();
+				//cpu_us = my->user_trx_cpu;
+				//ram_bytes = my->user_trx_ram;/
 			}
 			
             auto restore = make_block_restore_point();
@@ -2430,6 +2422,38 @@ struct controller_impl {
    
    signed_transaction get_on_billtrx_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
    {
+	  action on_billtrx_act;
+      on_billtrx_act.account = config::system_account_name;
+      on_billtrx_act.name = N(onbilltrx);
+      on_billtrx_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
+	  
+	  struct on_billtrx_data_ {
+		account_name	account;
+		string			trx_id;
+		uint64_t		cpu_us;
+		uint64_t		ram_bytes;
+		EOSLIB_SERIALIZE( on_billtrx_data_, (account)(trx_id)(cpu_us)(ram_bytes) )
+	  };
+	  on_billtrx_data_ on_billtrx_data;
+	  on_billtrx_data.account = payer;
+	  on_billtrx_data.trx_id = trx_id;
+	  on_billtrx_data.cpu_us = billed_cpu;
+	  on_billtrx_data.ram_bytes = trx_size;
+	  
+      on_billtrx_act.data = fc::raw::pack(on_billtrx_data);
+      signed_transaction trx;
+      trx.actions.emplace_back(std::move(on_billtrx_act));
+      if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
+         trx.expiration = time_point_sec();
+         trx.ref_block_num = 0;
+         trx.ref_block_prefix = 0;
+      } else {
+         trx.expiration = self.pending_block_time() + fc::microseconds(999'999);
+         trx.set_reference_block( self.head_block_id() );
+      }
+      return trx;
+	  
+		/*
 	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
 	  fc::variants trxs_;//array trxs
 	  fc::mutable_variant_object trx_;
@@ -2479,6 +2503,7 @@ struct controller_impl {
          trx.set_reference_block( self.head_block_id() );
       }
       return trx;
+	  */
    }
 }; /// controller_impl
 
@@ -2794,6 +2819,9 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		  && _payer != N(gf.swap) && _payer != N(gf.address) && _payer != N(gf.fee) && _payer != N(gf.price)  
 		  && _payer != N(gf.types) && _payer != N(gf.dex) && _payer != N(gf.reg)
 		  ){
+			//check config
+			//my->resource_limits.verify_billtrx_config();
+			
 			//GET balance
 			my->user_name = _payer;
 			my->user_action = _action;
@@ -2805,18 +2833,6 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		}
 	}
 	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
-		
-	//send payment trx for each transaction
-	if(user_check && !user_trace->error_code){
-		my->pay_fee_trx_.account = my->user_name;
-		my->pay_fee_trx_.trx_id = trx->id();
-		my->pay_fee_trx_.cpu_us = my->user_trx_cpu;
-		my->pay_fee_trx_.ram_bytes = my->user_trx_ram;
-		my->fee_trxs.emplace_back(my->pay_fee_trx_);
-		
-		//transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
-		//my->push_transaction( onbtrx, deadline, 100, true, 0, false );
-	}
 	
 	return user_trace;
 }

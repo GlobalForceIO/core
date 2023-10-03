@@ -49,11 +49,6 @@ namespace eosio { namespace chain { namespace resource_limits {
       }
    };
 
-   struct account_billing_limit {
-      chain::asset bill;
-      chain::asset available;
-   };
-
    struct account_resource_limit {
       int64_t used = 0; ///< quantity used in current window
       int64_t available = 0; ///< quantity available in current window (based upon fractional reserve)
@@ -111,7 +106,6 @@ namespace eosio { namespace chain { namespace resource_limits {
    };
 } } } /// eosio::chain
 
-FC_REFLECT( eosio::chain::resource_limits::account_billing_limit, (bill)(available) )
 FC_REFLECT( eosio::chain::resource_limits::account_resource_limit, (used)(available)(max) )
 FC_REFLECT( eosio::chain::resource_limits::ratio, (numerator)(denominator))
 FC_REFLECT( eosio::chain::resource_limits::elastic_limit_parameters, (target)(max)(periods)(max_multiplier)(contract_rate)(expand_rate))

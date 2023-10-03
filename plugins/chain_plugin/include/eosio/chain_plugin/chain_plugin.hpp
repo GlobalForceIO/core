@@ -143,7 +143,6 @@ public:
       name                       producer_name;
    };
 
-   using account_billing_limit = chain::resource_limits::account_billing_limit;
    using account_resource_limit = chain::resource_limits::account_resource_limit;
 
    struct get_account_results {
