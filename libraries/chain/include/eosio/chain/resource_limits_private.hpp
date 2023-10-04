@@ -272,7 +272,9 @@ namespace eosio { namespace chain { namespace resource_limits {
    class resource_billtrx_config_object : public chainbase::object<resource_billtrx_config_object_type, resource_billtrx_config_object> {
       OBJECT_CTOR(resource_billtrx_config_object);
       id_type id;
-	  
+	  uint64_t ram_fee = 0ULL;
+	  uint64_t cpu_fee = 0ULL;
+	  uint64_t last_update = 0ULL;
    };
 
    //onbilltrx config table
