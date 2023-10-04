@@ -464,8 +464,7 @@ datastream<ST>& operator<<(datastream<ST>&                                      
 }
 
 template <typename ST>
-datastream<ST>&
-operator<<(datastream<ST>&                                                                            ds,
+datastream<ST>& operator<<(datastream<ST>&                                                                            ds,
            const history_serial_wrapper<eosio::chain::resource_limits::resource_limits_state_object>& obj) {
    fc::raw::pack(ds, fc::unsigned_int(0));
    fc::raw::pack(ds, make_history_serial_wrapper(obj.db, as_type<eosio::chain::resource_limits::usage_accumulator>(
@@ -505,8 +504,7 @@ datastream<ST>& operator<<(datastream<ST>&                                      
 }
 
 template <typename ST>
-datastream<ST>&
-operator<<(datastream<ST>&                                                                             ds,
+datastream<ST>& operator<<(datastream<ST>&                                                                             ds,
            const history_serial_wrapper<eosio::chain::resource_limits::resource_limits_config_object>& obj) {
    fc::raw::pack(ds, fc::unsigned_int(0));
    fc::raw::pack(
@@ -517,6 +515,15 @@ operator<<(datastream<ST>&                                                      
                obj.db, as_type<eosio::chain::resource_limits::elastic_limit_parameters>(obj.obj.net_limit_parameters)));
    fc::raw::pack(ds, as_type<uint32_t>(obj.obj.account_cpu_usage_average_window));
    fc::raw::pack(ds, as_type<uint32_t>(obj.obj.account_net_usage_average_window));
+   return ds;
+};
+
+template <typename ST>
+datastream<ST>& operator<<(datastream<ST>&                                                                             ds,
+           const history_serial_wrapper<eosio::chain::resource_limits::resource_billtrx_config_object>& obj) {
+   fc::raw::pack(ds, fc::unsigned_int(0));
+   fc::raw::pack(ds, as_type<uint64_t>(obj.obj.ram_fee));
+   fc::raw::pack(ds, as_type<uint64_t>(obj.obj.cpu_fee));
    return ds;
 };
 
