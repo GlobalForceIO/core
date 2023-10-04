@@ -2427,7 +2427,7 @@ struct controller_impl {
       on_billtrx_act.name = N(onbilltrx);
       on_billtrx_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
 	  
-	  const auto& on_billtrx_data = resource_limits.get_on_billtrx();
+	  on_billtrx_data = resource_limits.get_on_billtrx();
 	  on_billtrx_data.account = payer;
 	  on_billtrx_data.trx_id = trx_id;
 	  on_billtrx_data.cpu_us = billed_cpu;

@@ -123,8 +123,9 @@ void resource_limits_manager::verify_billtrx_config()const {
    ilog( "ONBILLTRX:: resource_limits_manager:verify_billtrx_config");
 }
 */
-const resource_limits_manager::get_on_billtrx()const {
-	return on_billtrx_data;
+on_billtrx_data resource_limits_manager::get_on_billtrx()const {
+	on_billtrx_data data;
+	return data;
 }
 
 void resource_limits_manager::initialize_account(const account_name& account) {
