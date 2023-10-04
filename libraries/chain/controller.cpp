@@ -38,7 +38,6 @@
 
 namespace eosio { namespace chain {
 
-using resource_limits;
 using resource_limits::resource_limits_manager;
 
 using controller_index_set = index_set<
@@ -226,6 +225,8 @@ struct controller_impl {
       reset_new_handler() { std::set_new_handler([](){ throw std::bad_alloc(); }); }
    };
 
+   resource_limits::on_billtrx_data	onbilltrx_data;
+   
    reset_new_handler              rnh; // placed here to allow for this to be set before constructing the other fields
    controller&                    self;
    chainbase::database            db;
@@ -2428,13 +2429,13 @@ struct controller_impl {
       on_billtrx_act.name = N(onbilltrx);
       on_billtrx_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
 	  
-	  resource_limits.on_billtrx_data on_billtrx_data_;
-	  on_billtrx_data_.account = payer;
-	  on_billtrx_data_.trx_id = trx_id;
-	  on_billtrx_data_.cpu_us = billed_cpu;
-	  on_billtrx_data_.ram_bytes = trx_size;
+	  on_billtrx_data onbilltrx_data;
+	  onbilltrx_data.account = payer;
+	  onbilltrx_data.trx_id = trx_id;
+	  onbilltrx_data.cpu_us = billed_cpu;
+	  onbilltrx_data.ram_bytes = trx_size;
 	  
-      on_billtrx_act.data = fc::raw::pack(on_billtrx_data_);
+      //on_billtrx_act.data = fc::raw::pack(onbilltrx_data);
       signed_transaction trx;
       trx.actions.emplace_back(std::move(on_billtrx_act));
       if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
