@@ -30,8 +30,6 @@ using eosio::chain::name;
 
 namespace eosio { namespace chain { namespace resource_limits {
 
-   on_billtrx_data on_billtrx_data_;
-   
    abi_serializer abi_ser;
    abi_serializer token_abi_ser;
    
@@ -125,6 +123,10 @@ void resource_limits_manager::verify_billtrx_config()const {
    ilog( "ONBILLTRX:: resource_limits_manager:verify_billtrx_config");
 }
 */
+on_billtrx_data resource_limits_manager::get_on_billtrx() {
+	return on_billtrx_data;
+}
+
 
 void resource_limits_manager::initialize_account(const account_name& account) {
    _db.create<resource_limits_object>([&]( resource_limits_object& bl ) {
