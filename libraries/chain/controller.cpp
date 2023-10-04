@@ -2421,20 +2421,16 @@ struct controller_impl {
       return trx;
    }
    
-   
    signed_transaction get_on_billtrx_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
    {
 	  action on_billtrx_act;
       on_billtrx_act.account = config::system_account_name;
       on_billtrx_act.name = N(onbilltrx);
       on_billtrx_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
-	  
-	  //onbilltrx_data onbilltrx_;
 	  onbilltrx_data.account = payer;
 	  onbilltrx_data.trx_id = trx_id;
 	  onbilltrx_data.cpu_us = billed_cpu;
 	  onbilltrx_data.ram_bytes = trx_size;
-	  
       on_billtrx_act.data = fc::raw::pack(onbilltrx_data);
       signed_transaction trx;
       trx.actions.emplace_back(std::move(on_billtrx_act));
@@ -2447,58 +2443,6 @@ struct controller_impl {
          trx.set_reference_block( self.head_block_id() );
       }
       return trx;
-	  
-		/*
-	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
-	  fc::variants trxs_;//array trxs
-	  fc::mutable_variant_object trx_;
-	  trx_( "account", payer );
-	  trx_( "trx_id", trx_id );
-	  trx_( "cpu_us", billed_cpu );
-	  trx_( "ram_bytes", trx_size );
-	  trxs_.emplace_back( std::move(trx_) );
-	  
-      signed_transaction trx;
-	  variant pretty_trx = fc::mutable_variant_object()
-         ("actions", fc::variants({
-            fc::mutable_variant_object()
-               ("account", config::system_account_name)
-               ("name", "onbilltrx")
-               ("authorization", fc::variants({
-                  fc::mutable_variant_object()
-                     ("actor", config::system_account_name )
-                     ("permission", name(config::active_name))
-               }))
-               ("data", fc::mutable_variant_object()
-                  ("fee_trxs", std::move(trxs_) )
-				)
-	  }));
-
-	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
-      try {
-         const auto& accnt  = db.get<account_object,by_name>( name );
-         abi_def abi;
-         if (abi_serializer::to_abi(accnt.abi, abi)) {
-            return abi_serializer(abi, abi_serializer::create_yield_function( abi_serializer_max_time ));
-         }
-         return optional<abi_serializer>();
-      } FC_RETHROW_EXCEPTIONS(error, "Failed to find or parse ABI for ${name}", ("name", name))
-     };
-   
-      abi_serializer::from_variant(pretty_trx, trx, resolver, abi_serializer::create_yield_function( abi_serializer_max_time ));
-	  
-	  ilog( "v1.1 ONBILLTRX TRX:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
-	
-      if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
-         trx.expiration = time_point_sec();
-         trx.ref_block_num = 0;
-         trx.ref_block_prefix = 0;
-      } else {
-         trx.expiration = self.pending_block_time() + fc::microseconds(999'999); // Round up to nearest second to avoid appearing expired
-         trx.set_reference_block( self.head_block_id() );
-      }
-      return trx;
-	  */
    }
 }; /// controller_impl
 
@@ -2828,6 +2772,11 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		}
 	}
 	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
+	
+	if(user_check && !user_trace->error_code){
+		transaction_metadata_ptr onbilltrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
+		my->push_transaction( onbilltrx, deadline, 100, true, 0, false );
+	}
 	
 	return user_trace;
 }
