@@ -274,7 +274,6 @@ namespace eosio { namespace chain { namespace resource_limits {
       id_type id;
 	  uint64_t ram_fee = 0ULL;
 	  uint64_t cpu_fee = 0ULL;
-	  uint64_t last_update = 0ULL;
    };
 
    //onbilltrx config table
