@@ -135,7 +135,6 @@ bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uin
 	_db.modify(config, [&](resource_billtrx_config_object& t){
 		t.ram_fee = 10;
 		t.cpu_fee = 10;
-		t.last_update = time_point_sec();
 	});
 	*/
 	
