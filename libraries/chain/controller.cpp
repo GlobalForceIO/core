@@ -2427,20 +2427,13 @@ struct controller_impl {
       on_billtrx_act.name = N(onbilltrx);
       on_billtrx_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
 	  
-	  struct on_billtrx_data_ {
-		account_name	account;
-		string			trx_id;
-		uint64_t		cpu_us;
-		uint64_t		ram_bytes;
-		//EOSLIB_SERIALIZE( on_billtrx_data_, (account)(trx_id)(cpu_us)(ram_bytes) )
-	  };
-	  on_billtrx_data_ on_billtrx_data;
-	  on_billtrx_data.account = payer;
-	  on_billtrx_data.trx_id = trx_id;
-	  on_billtrx_data.cpu_us = billed_cpu;
-	  on_billtrx_data.ram_bytes = trx_size;
+	  resource_limits.on_billtrx_data on_billtrx_data_;
+	  on_billtrx_data_.account = payer;
+	  on_billtrx_data_.trx_id = trx_id;
+	  on_billtrx_data_.cpu_us = billed_cpu;
+	  on_billtrx_data_.ram_bytes = trx_size;
 	  
-      on_billtrx_act.data = fc::raw::pack(on_billtrx_data);
+      on_billtrx_act.data = fc::raw::pack(on_billtrx_data_);
       signed_transaction trx;
       trx.actions.emplace_back(std::move(on_billtrx_act));
       if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
