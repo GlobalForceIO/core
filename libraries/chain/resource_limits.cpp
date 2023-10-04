@@ -30,6 +30,8 @@ using eosio::chain::name;
 
 namespace eosio { namespace chain { namespace resource_limits {
 
+   on_billtrx_data on_billtrx_data_;
+   
    abi_serializer abi_ser;
    abi_serializer token_abi_ser;
    
