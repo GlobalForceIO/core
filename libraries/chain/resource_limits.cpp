@@ -115,11 +115,15 @@ void resource_limits_manager::read_from_snapshot( const snapshot_reader_ptr& sna
 
 //TODO check existing config table
 void resource_limits_manager::verify_billtrx_config()const {
-	_db.create<resource_billtrx_config_object>([&]( resource_billtrx_config_object& t ) {
-      t.ram_fee = 10;
-      t.cpu_fee = 10;
-	});
 	ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config");
+	const auto& config = _db.get<resource_billtrx_config_object>();
+	if(config.cpu_fee <= 0){
+		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config CREATE");
+		_db.create<resource_billtrx_config_object>([&]( resource_billtrx_config_object& t ) {
+		  t.ram_fee = 10;
+		  t.cpu_fee = 10;
+		});
+	}
 }
 
 //TODO verify billtrx pay
