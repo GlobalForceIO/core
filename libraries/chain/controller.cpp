@@ -2775,7 +2775,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	
 	if(user_check && !user_trace->error_code){
 		
-		resource_limits.verify_billtrx_pay( my->user_name, my->user_trx_cpu, my->user_trx_ram );
+		my->resource_limits.verify_billtrx_pay( my->user_name, my->user_trx_cpu, my->user_trx_ram );
 		
 		transaction_metadata_ptr onbilltrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
 		//my->push_transaction( onbilltrx, deadline, 100, true, 0, false );
