@@ -173,6 +173,9 @@ public:
       fc::variant                rex_info;
 
       optional<account_resource_limit> subjective_cpu_bill_limit;
+	  
+	  uint64_t					 fee_config_cpu = 0;
+	  uint64_t					 fee_config_ram = 0;
    };
 
    struct get_account_params {
@@ -804,7 +807,7 @@ FC_REFLECT( eosio::chain_apis::read_only::get_scheduled_transactions_result, (tr
 FC_REFLECT( eosio::chain_apis::read_only::get_account_results,
             (account_name)(head_block_num)(head_block_time)(privileged)(last_code_update)(created)
             (core_liquid_balance)(ram_quota)(net_weight)(cpu_weight)(net_limit)(cpu_limit)(ram_usage)(permissions)
-            (total_resources)(self_delegated_bandwidth)(refund_request)(voter_info)(rex_info)(subjective_cpu_bill_limit) )
+            (total_resources)(self_delegated_bandwidth)(refund_request)(voter_info)(rex_info)(subjective_cpu_bill_limit)(fee_config_cpu)(fee_config_ram) )
 // @swap code_hash
 FC_REFLECT( eosio::chain_apis::read_only::get_code_results, (account_name)(code_hash)(wast)(wasm)(abi) )
 FC_REFLECT( eosio::chain_apis::read_only::get_code_hash_results, (account_name)(code_hash) )
