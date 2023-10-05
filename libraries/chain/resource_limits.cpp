@@ -130,13 +130,11 @@ bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uin
 	const auto& config = _db.get<resource_billtrx_config_object>();
 	ilog( "ONBILLTRX:: verify_billtrx_pay config: cpu: ${cpu} ram: ${ram}", ("cpu", config.cpu_fee)("ram", config.ram_fee));
 	
-	/*
 	//update config
 	_db.modify(config, [&](resource_billtrx_config_object& t){
-		t.ram_fee = 10;
-		t.cpu_fee = 10;
+		t.ram_fee += ram;
+		t.cpu_fee += cpu;
 	});
-	*/
 	
 	return true;
 }

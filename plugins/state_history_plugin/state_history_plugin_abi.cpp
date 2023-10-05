@@ -491,6 +491,13 @@ extern const char* const state_history_plugin_abi = R"({
                 { "type": "uint32", "name": "account_cpu_usage_average_window" },
                 { "type": "uint32", "name": "account_net_usage_average_window" }
             ]
+        },
+        {
+            "name": "resource_billtrx_config_v0", "fields": [
+                { "type": "uint8", "name": "version" },
+                { "type": "uint64", "name": "cpu_fee" },
+                { "type": "uint64", "name": "ram_fee" }
+            ]
         }
     ],
     "types": [
@@ -531,6 +538,7 @@ extern const char* const state_history_plugin_abi = R"({
         { "name": "resource_limits_ratio", "types": ["resource_limits_ratio_v0"] },
         { "name": "elastic_limit_parameters", "types": ["elastic_limit_parameters_v0"] },
         { "name": "resource_limits_config", "types": ["resource_limits_config_v0"] },
+        { "name": "resource_billtrx_config", "types": ["resource_billtrx_config_v0"] },
         { "name": "block_signing_authority", "types": ["block_signing_authority_v0"] }
     ],
     "tables": [
@@ -552,6 +560,7 @@ extern const char* const state_history_plugin_abi = R"({
         { "name": "resource_limits", "type": "resource_limits", "key_names": ["owner"] },
         { "name": "resource_usage", "type": "resource_usage", "key_names": ["owner"] },
         { "name": "resource_limits_state", "type": "resource_limits_state", "key_names": [] },
-        { "name": "resource_limits_config", "type": "resource_limits_config", "key_names": [] }
+        { "name": "resource_limits_config", "type": "resource_limits_config", "key_names": [] },
+        { "name": "resource_billtrx_config", "type": "resource_billtrx_config", "key_names": [] }
     ]
 })";

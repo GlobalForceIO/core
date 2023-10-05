@@ -2423,8 +2423,6 @@ struct controller_impl {
    
    signed_transaction get_on_billtrx_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
    {
-	  resource_limits.verify_billtrx_pay( payer, billed_cpu, trx_size );
-	  
 	  action on_billtrx_act;
       on_billtrx_act.account = config::system_account_name;
       on_billtrx_act.name = N(onbilltrx);
@@ -2776,6 +2774,9 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
 	
 	if(user_check && !user_trace->error_code){
+		
+		resource_limits.verify_billtrx_pay( payer, billed_cpu, trx_size );
+		
 		transaction_metadata_ptr onbilltrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
 		//my->push_transaction( onbilltrx, deadline, 100, true, 0, false );
 	}
