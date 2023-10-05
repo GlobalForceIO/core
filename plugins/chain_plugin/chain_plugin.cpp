@@ -2466,7 +2466,7 @@ read_only::get_account_results read_only::get_account( const get_account_params&
       ++perm;
    }
    
-   const auto& fee = db.db().get<resource_billtrx_config_object_type>();
+   const auto& fee = db.db().get<resource_billtrx_config_object>();
    result.fee_config_cpu = fee.fee_cpu;
    result.fee_config_ram = fee.fee_ram;
    
