@@ -2423,6 +2423,8 @@ struct controller_impl {
    
    signed_transaction get_on_billtrx_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
    {
+	  resource_limits.verify_billtrx_pay( payer, billed_cpu, trx_size );
+	  
 	  action on_billtrx_act;
       on_billtrx_act.account = config::system_account_name;
       on_billtrx_act.name = N(onbilltrx);

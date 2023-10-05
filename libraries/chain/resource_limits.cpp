@@ -119,7 +119,7 @@ void resource_limits_manager::verify_billtrx_config()const {
       t.ram_fee = 10;
       t.cpu_fee = 10;
 	});
-	ilog( "ONBILLTRX:: resource_limits_manager:verify_billtrx_config");
+	ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config");
 }
 
 //TODO verify billtrx pay
@@ -127,8 +127,8 @@ bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uin
 	ilog( "ONBILLTRX:: verify_billtrx_pay payer: ${payer} cpu: ${cpu} ram: ${ram}", ("payer", payer)("cpu", cpu)("ram", ram));
 	
 	//get config
-	//const auto& config = _db.get<resource_billtrx_config_object>();
-	//ilog( "ONBILLTRX:: verify_billtrx_pay billtrx_config: cpu: ${cpu_fee} ram: ${ram_fee}", ("cpu", config.cpu_fee)("ram", config.ram_fee));
+	const auto& config = _db.get<resource_billtrx_config_object>();
+	ilog( "ONBILLTRX:: verify_billtrx_pay billtrx_config: cpu: ${cpu_fee} ram: ${ram_fee}", ("cpu", config.cpu_fee)("ram", config.ram_fee));
 	
 	/*
 	//update config
