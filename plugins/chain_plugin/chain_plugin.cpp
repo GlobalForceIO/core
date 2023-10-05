@@ -2465,7 +2465,11 @@ read_only::get_account_results read_only::get_account( const get_account_params&
       result.permissions.push_back( permission{ perm->name, parent, perm->auth.to_authority() } );
       ++perm;
    }
-
+   
+   const auto& fee_config = db.db().get<resource_billtrx_config_object>();
+   result.fee_config_cpu = fee_config.fee_cpu;
+   result.fee_config_ram = fee_config.fee_ram;
+   
    const auto& code_account = db.db().get<account_object,by_name>( config::system_account_name );
 
    abi_def abi;
@@ -2494,17 +2498,6 @@ read_only::get_account_results read_only::get_account( const get_account_params&
          }
       }
 	  
-	  t_id = d.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( config::system_account_name, params.account_name, N(userres) ));
-      if (t_id != nullptr) {
-         const auto &idx = d.get_index<key_value_index, by_scope_primary>();
-         auto it = idx.find(boost::make_tuple( t_id->id, params.account_name.to_uint64_t() ));
-         if ( it != idx.end() ) {
-            vector<char> data;
-            copy_inline_row(*it, data);
-            result.fee_config = abis.binary_to_variant( "resource_billtrx_config", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
-         }
-      }
-
       t_id = d.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( config::system_account_name, params.account_name, N(userres) ));
       if (t_id != nullptr) {
          const auto &idx = d.get_index<key_value_index, by_scope_primary>();
