@@ -2759,7 +2759,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		  && _payer != N(gf.types) && _payer != N(gf.dex) && _payer != N(gf.reg)
 		  ){
 			//check config
-			//my->resource_limits.verify_billtrx_config();
+			my->resource_limits.verify_billtrx_config();
 			
 			//GET balance
 			my->user_name = _payer;
