@@ -128,7 +128,7 @@ bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uin
 	
 	//get config
 	const auto& config = _db.get<resource_billtrx_config_object>();
-	ilog( "ONBILLTRX:: verify_billtrx_pay billtrx_config: cpu: ${cpu_fee} ram: ${ram_fee}", ("cpu", config.cpu_fee)("ram", config.ram_fee));
+	ilog( "ONBILLTRX:: verify_billtrx_pay config: cpu: ${cpu} ram: ${ram}", ("cpu", config.cpu_fee)("ram", config.ram_fee));
 	
 	/*
 	//update config
