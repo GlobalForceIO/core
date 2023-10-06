@@ -301,11 +301,11 @@ int64_t resource_limits_manager::get_account_ram_usage( const account_name& name
    return _db.get<resource_usage_object,by_owner>( name ).ram_usage;
 }
 
-int64_t resource_limits_manager::get_fee_cpu( const account_name& name )const {
+int64_t resource_limits_manager::get_fee_cpu()const {
    return _db.get<resource_billtrx_config_object>().cpu_fee;
 }
 
-int64_t resource_limits_manager::get_fee_ram( const account_name& name )const {
+int64_t resource_limits_manager::get_fee_ram()const {
    return _db.get<resource_billtrx_config_object>().ram_fee;
 }
 
