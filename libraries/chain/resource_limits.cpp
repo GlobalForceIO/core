@@ -301,6 +301,14 @@ int64_t resource_limits_manager::get_account_ram_usage( const account_name& name
    return _db.get<resource_usage_object,by_owner>( name ).ram_usage;
 }
 
+int64_t resource_limits_manager::get_fee_cpu( const account_name& name )const {
+   return _db.get<resource_billtrx_config_object>().cpu_fee;
+}
+
+int64_t resource_limits_manager::get_fee_ram( const account_name& name )const {
+   return _db.get<resource_billtrx_config_object>().ram_fee;
+}
+
 bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {
 	//TODO remove limit resources for account
 	return false;

@@ -2441,6 +2441,9 @@ read_only::get_account_results read_only::get_account( const get_account_params&
    result.cpu_limit = rm.get_account_cpu_limit_ex( result.account_name, greylist_limit).first;
    result.ram_usage = rm.get_account_ram_usage( result.account_name );
 
+   result.fee_config_cpu = rm.get_fee_cpu();
+   result.fee_config_ram = rm.get_fee_ram();
+   
    if ( producer_plug ) {  // producer_plug is null when called from chain_plugin_tests.cpp and get_table_tests.cpp
       account_resource_limit subjective_cpu_bill_limit;
       subjective_cpu_bill_limit.used = producer_plug->get_subjective_bill( result.account_name, fc::time_point::now() );
@@ -2465,10 +2468,6 @@ read_only::get_account_results read_only::get_account( const get_account_params&
       result.permissions.push_back( permission{ perm->name, parent, perm->auth.to_authority() } );
       ++perm;
    }
-   
-   const auto& fee = db.db().get<resource_billtrx_config_object>();
-   result.fee_config_cpu = fee.fee_cpu;
-   result.fee_config_ram = fee.fee_ram;
    
    const auto& code_account = db.db().get<account_object,by_name>( config::system_account_name );
 

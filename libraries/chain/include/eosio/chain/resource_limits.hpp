@@ -111,6 +111,9 @@ namespace eosio { namespace chain { namespace resource_limits {
          std::pair<account_resource_limit, bool> get_account_net_limit_ex( const account_name& name, uint32_t greylist_limit = config::maximum_elastic_resource_multiplier ) const;
 
          int64_t get_account_ram_usage( const account_name& name ) const;
+		 
+         int64_t get_fee_cpu() const;
+         int64_t get_fee_ram() const;
 
       private:
          chainbase::database& _db;
