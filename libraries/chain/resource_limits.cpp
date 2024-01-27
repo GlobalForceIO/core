@@ -132,9 +132,6 @@ void resource_limits_manager::verify_billtrx_config()const {
 		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("cpu_fee", config.ram_fee), ("cpu_fee", config.cpu_fee));
 	}
 	
-	
-
-	
 	/*
 	const auto& config = _db.get<resource_billtrx_config_object>();
 	if(config.cpu_fee <= 0){
@@ -149,8 +146,8 @@ void resource_limits_manager::verify_billtrx_config()const {
 
 //TODO verify billtrx pay
 bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uint64_t cpu, uint64_t ram )const {
-	ilog( "ONBILLTRX:: verify_billtrx_pay payer: ${payer} cpu: ${cpu} ram: ${ram}", ("payer", payer)("cpu", cpu)("ram", ram));
-	
+	ilog( "ONBILLTRX:: DISABLE verify_billtrx_pay payer: ${payer} cpu: ${cpu} ram: ${ram}", ("payer", payer)("cpu", cpu)("ram", ram));
+	/*
 	//get config
 	const auto& config = _db.get<resource_billtrx_config_object>();
 	ilog( "ONBILLTRX:: verify_billtrx_pay config: cpu: ${cpu} ram: ${ram}", ("cpu", config.cpu_fee)("ram", config.ram_fee));
@@ -160,7 +157,7 @@ bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uin
 		t.ram_fee += ram;
 		t.cpu_fee += cpu;
 	});
-	
+	*/
 	return true;
 }
 
@@ -323,11 +320,11 @@ int64_t resource_limits_manager::get_account_ram_usage( const account_name& name
 }
 
 int64_t resource_limits_manager::get_fee_cpu()const {
-   return _db.get<resource_billtrx_config_object>().cpu_fee;
+   return 22;
 }
 
 int64_t resource_limits_manager::get_fee_ram()const {
-   return _db.get<resource_billtrx_config_object>().ram_fee;
+   return 21;
 }
 
 bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {
