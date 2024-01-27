@@ -120,6 +120,38 @@ void resource_limits_manager::verify_billtrx_config()const {
 	account_name scope = N(eosio);
 	account_name tablename = N(configfee);
 	
+	fc::variant config_fee;
+	
+	const auto& code_account = _db.get<account_object,by_name>( code );
+	abi_def abi;
+	if( abi_serializer::to_abi(code_account.abi, abi) ) {
+		abi_serializer abis( abi, abi_serializer::create_yield_function( abi_serializer_max_time ) );
+		const auto* t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( code, scope, tablename ));
+		if (t_id != nullptr) {
+			const auto &idx = _db.get_index<key_value_index, by_scope_primary>();
+			auto it = idx.find(boost::make_tuple( t_id->id, 0 ));
+			if( it != idx.end() ) {
+				vector<char> data;
+				copy_inline_row(*it, data);
+				config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
+				
+				/*
+				if( config_fee.is_object() ) {
+				 auto& obj = config_fee.get_object();
+				 asset vote_stake = asset::from_string( obj["vote_stake"].as_string() );
+				 asset rex_balance = asset::from_string( obj["rex_balance"].as_string() );
+				 std::cout << rex_balance.get_symbol().name() << " balances: " << std::endl;
+				 std::cout << indent << std::left << std::setw(11)
+						   << "balance:" << std::right << std::setw(18) << rex_balance << std::endl;
+				 std::cout << indent << std::left << std::setw(11)
+						   << "staked:" << std::right << std::setw(18) << vote_stake << std::endl;
+				 std::cout << std::endl;
+			  }
+				*/
+			}
+		}
+	}
+	/*
 	auto *config;
     const eosio::chain::table_id_object tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple( code, scope, tablename ));
 	//find by primary index, primary = 0
@@ -130,6 +162,7 @@ void resource_limits_manager::verify_billtrx_config()const {
 		
 		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("cpu_fee", config.ram_fee), ("cpu_fee", config.cpu_fee));
 	}
+	*/
 	
 	/*
 	const auto& config = _db.get<resource_billtrx_config_object>();
