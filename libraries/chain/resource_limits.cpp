@@ -120,11 +120,9 @@ void resource_limits_manager::verify_billtrx_config()const {
 	account_name scope = N(eosio);
 	account_name tablename = N(configfee);
 	
-	fc::variant config_fee;
-	
 	const fc::microseconds abi_serializer_max_time = fc::seconds(10);
 	bool  shorten_abi_errors = true;
-	const auto& code_account = _db.get<account_object,by_name>( code );
+	const auto& code_account = _db.get<account_object,by_name>( N(eosio) );
 	abi_def abi;
 	if( abi_serializer::to_abi(code_account.abi, abi) ) {
 		abi_serializer abis( abi, abi_serializer::create_yield_function( abi_serializer_max_time ) );
@@ -135,30 +133,24 @@ void resource_limits_manager::verify_billtrx_config()const {
 			if( it != idx.end() ) {
 				vector<char> data;
 				
-				//copy_inline_row(*it, data);
-				
 				data.resize( it->value.size() );
 				memcpy( data.data(), it->value.data(), it->value.size() );
-				/*
-				static void copy_inline_row(const chain::key_value_object& obj, vector<char>& data) {
-					data.resize( obj.value.size() );
-					memcpy( data.data(), obj.value.data(), obj.value.size() );
-				}
-				*/
-   
-   
-				config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
 				
-				/*
+				fc::variant config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
+				
 				if( config_fee.is_object() ) {
-				 auto& obj = config_fee.get_object();
-				 uint64_t ram_fee = atoi( obj["ram_fee"].as_string() );
-				 uint64_t cpu_fee = atoi( obj["cpu_fee"].as_string() );
-				 ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("cpu_fee", ram_fee), ("cpu_fee", cpu_fee));
-			  }
-				*/
+					auto& obj = config_fee.get_object();
+					uint64_t ram_fee = atoi( obj["ram_fee"].as_string() );
+					uint64_t cpu_fee = atoi( obj["cpu_fee"].as_string() );
+					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("cpu_fee", ram_fee), ("cpu_fee", cpu_fee));
+				}else{
+					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: FAIL READ config_fee object");
+				}
+			
 			}
 		}
+	}else{
+		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: FAIL LOAD ABI from ${code}", ("code", code));
 	}
 	/*
 	auto *config;
@@ -170,17 +162,6 @@ void resource_limits_manager::verify_billtrx_config()const {
 		fc::raw::unpack(ds, config);
 		
 		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("cpu_fee", config.ram_fee), ("cpu_fee", config.cpu_fee));
-	}
-	*/
-	
-	/*
-	const auto& config = _db.get<resource_billtrx_config_object>();
-	if(config.cpu_fee <= 0){
-		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config CREATE");
-		_db.create<resource_billtrx_config_object>([&]( resource_billtrx_config_object& t ) {
-		  t.ram_fee = 10;
-		  t.cpu_fee = 10;
-		});
 	}
 	*/
 }
