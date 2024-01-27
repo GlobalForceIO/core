@@ -134,10 +134,11 @@ void resource_limits_manager::verify_billtrx_config()const {
 			auto it = idx.find(boost::make_tuple( t_id->id, 0 ));
 			if( it != idx.end() ) {
 				vector<char> data;
-				copy_inline_row(*it, data);
 				
-				data.resize( it.value.size() );
-				memcpy( data.data(), it.value.data(), it.value.size() );
+				//copy_inline_row(*it, data);
+				
+				data.resize( it->value.size() );
+				memcpy( data.data(), it->value.data(), it->value.size() );
 				/*
 				static void copy_inline_row(const chain::key_value_object& obj, vector<char>& data) {
 					data.resize( obj.value.size() );
