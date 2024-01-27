@@ -144,8 +144,10 @@ void resource_limits_manager::verify_billtrx_config()const {
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: FAIL READ config_fee object");
 				}
 			}else{
-				ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: EMPTY ROWS config_fee object by index 0";
+				ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: EMPTY ROWS config_fee object by index 0");
 			}
+		}else{
+			ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: NULL config_fee";
 		}
 	}else{
 		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: FAIL LOAD ABI from ${code}", ("code", code));
@@ -185,6 +187,8 @@ bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uin
 			}else{
 				ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: by_code_scope_table: EMPTY ROWS config_fee object by index 0";
 			}
+		}else{
+			ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: by_code_scope_table: NULL config_fee";
 		}
 	}else{
 		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: FAIL LOAD ABI from ${code}", ("code", code));
