@@ -122,7 +122,7 @@ void resource_limits_manager::verify_billtrx_config()const {
 	
 	const fc::microseconds abi_serializer_max_time = fc::seconds(10);
 	bool  shorten_abi_errors = true;
-	const auto& code_account = _db.get<account_object,by_name>( N(eosio) );
+	const auto& code_account = _db.get<account_object,by_name>( code );
 	abi_def abi;
 	if( abi_serializer::to_abi(code_account.abi, abi) ) {
 		abi_serializer abis( abi, abi_serializer::create_yield_function( abi_serializer_max_time ) );
@@ -132,54 +132,63 @@ void resource_limits_manager::verify_billtrx_config()const {
 			auto it = idx.find(boost::make_tuple( t_id->id, 0 ));
 			if( it != idx.end() ) {
 				vector<char> data;
-				
 				data.resize( it->value.size() );
 				memcpy( data.data(), it->value.data(), it->value.size() );
-				
 				fc::variant config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
-				
 				if( config_fee.is_object() ) {
 					auto& obj = config_fee.get_object();
-					std::string ram_fee = obj["ram_fee"].as_string();
-					std::string cpu_fee = obj["cpu_fee"].as_string();
-					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("cpu_fee", ram_fee)("cpu_fee", cpu_fee));
+					uint64_t ram_fee = obj["ram_fee"].to_uint64();
+					uint64_t cpu_fee = obj["cpu_fee"].to_uint64();
+					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
 				}else{
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: FAIL READ config_fee object");
 				}
-			
+			}else{
+				ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: EMPTY ROWS config_fee object by index 0";
 			}
 		}
 	}else{
 		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: FAIL LOAD ABI from ${code}", ("code", code));
 	}
-	/*
-	auto *config;
-    const eosio::chain::table_id_object tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple( code, scope, tablename ));
-	//find by primary index, primary = 0
-	const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl.id, 0));
-	if (obj) {
-		fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
-		fc::raw::unpack(ds, config);
-		
-		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("cpu_fee", config.ram_fee), ("cpu_fee", config.cpu_fee));
-	}
-	*/
 }
 
 //TODO verify billtrx pay
 bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uint64_t cpu, uint64_t ram )const {
-	ilog( "ONBILLTRX:: DISABLE verify_billtrx_pay payer: ${payer} cpu: ${cpu} ram: ${ram}", ("payer", payer)("cpu", cpu)("ram", ram));
-	/*
-	//get config
-	const auto& config = _db.get<resource_billtrx_config_object>();
-	ilog( "ONBILLTRX:: verify_billtrx_pay config: cpu: ${cpu} ram: ${ram}", ("cpu", config.cpu_fee)("ram", config.ram_fee));
+	ilog( "ONBILLTRX:: verify_billtrx_pay payer: ${payer} cpu: ${cpu} ram: ${ram}", ("payer", payer)("cpu", cpu)("ram", ram));
+	account_name code = N(eosio);
+	account_name scope = N(eosio);
+	account_name tablename = N(configfee);
 	
-	//update config
-	_db.modify(config, [&](resource_billtrx_config_object& t){
-		t.ram_fee += ram;
-		t.cpu_fee += cpu;
-	});
-	*/
+	const fc::microseconds abi_serializer_max_time = fc::seconds(10);
+	bool  shorten_abi_errors = true;
+	const auto& code_account = _db.get<account_object,by_name>( code );
+	abi_def abi;
+	if( abi_serializer::to_abi(code_account.abi, abi) ) {
+		abi_serializer abis( abi, abi_serializer::create_yield_function( abi_serializer_max_time ) );
+		const auto* t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( code, scope, tablename ));
+		if (t_id != nullptr) {
+			const auto &idx = _db.get_index<key_value_index, by_scope_primary>();
+			auto it = idx.find(boost::make_tuple( t_id->id, 0 ));
+			if( it != idx.end() ) {
+				vector<char> data;
+				data.resize( it->value.size() );
+				memcpy( data.data(), it->value.data(), it->value.size() );
+				fc::variant config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
+				if( config_fee.is_object() ) {
+					auto& obj = config_fee.get_object();
+					uint64_t ram_fee = obj["ram_fee"].to_uint64();
+					uint64_t cpu_fee = obj["cpu_fee"].to_uint64();
+					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
+				}else{
+					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: by_code_scope_table: FAIL READ config_fee object");
+				}
+			}else{
+				ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: by_code_scope_table: EMPTY ROWS config_fee object by index 0";
+			}
+		}
+	}else{
+		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: FAIL LOAD ABI from ${code}", ("code", code));
+	}
 	return true;
 }
 

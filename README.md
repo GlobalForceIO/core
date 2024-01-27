@@ -22,6 +22,10 @@ sudo systemctl stop NODEOS1 && sudo systemctl stop NODEOS2
 sudo systemctl restart NODEOS1 && sudo systemctl restart NODEOS2
 journalctl -f -u NODEOS1
 
+############TEST commands
+curl http://127.0.0.1:8900/v1/wallet/unlock -X POST -d '["gf", "PW5KQ9jqpSvJFqCnZPYY5R69zd66AQWhpMjoJ5YZsmCFeMkGyTr9d"]'
+cleos -u http://127.0.0.1:18881 system regproducer testtestbpd5 EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz "http://" 0
+
 
 ##### Install BP
 
