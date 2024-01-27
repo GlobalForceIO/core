@@ -137,8 +137,8 @@ void resource_limits_manager::verify_billtrx_config()const {
 				fc::variant config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
 				if( config_fee.is_object() ) {
 					auto& obj = config_fee.get_object();
-					uint64_t ram_fee = obj["ram_fee"].to_uint64();
-					uint64_t cpu_fee = obj["cpu_fee"].to_uint64();
+					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].to_string());
+					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].to_string());
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
 				}else{
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: FAIL READ config_fee object");
@@ -178,8 +178,8 @@ bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uin
 				fc::variant config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
 				if( config_fee.is_object() ) {
 					auto& obj = config_fee.get_object();
-					uint64_t ram_fee = obj["ram_fee"].to_uint64();
-					uint64_t cpu_fee = obj["cpu_fee"].to_uint64();
+					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].to_string());
+					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].to_string());
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
 				}else{
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: by_code_scope_table: FAIL READ config_fee object");
