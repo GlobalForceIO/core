@@ -122,6 +122,8 @@ void resource_limits_manager::verify_billtrx_config()const {
 	
 	fc::variant config_fee;
 	
+	const fc::microseconds abi_serializer_max_time = fc::seconds(10);
+	bool  shorten_abi_errors = true;
 	const auto& code_account = _db.get<account_object,by_name>( code );
 	abi_def abi;
 	if( abi_serializer::to_abi(code_account.abi, abi) ) {
@@ -133,19 +135,25 @@ void resource_limits_manager::verify_billtrx_config()const {
 			if( it != idx.end() ) {
 				vector<char> data;
 				copy_inline_row(*it, data);
+				
+				data.resize( it.value.size() );
+				memcpy( data.data(), it.value.data(), it.value.size() );
+				/*
+				static void copy_inline_row(const chain::key_value_object& obj, vector<char>& data) {
+					data.resize( obj.value.size() );
+					memcpy( data.data(), obj.value.data(), obj.value.size() );
+				}
+				*/
+   
+   
 				config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
 				
 				/*
 				if( config_fee.is_object() ) {
 				 auto& obj = config_fee.get_object();
-				 asset vote_stake = asset::from_string( obj["vote_stake"].as_string() );
-				 asset rex_balance = asset::from_string( obj["rex_balance"].as_string() );
-				 std::cout << rex_balance.get_symbol().name() << " balances: " << std::endl;
-				 std::cout << indent << std::left << std::setw(11)
-						   << "balance:" << std::right << std::setw(18) << rex_balance << std::endl;
-				 std::cout << indent << std::left << std::setw(11)
-						   << "staked:" << std::right << std::setw(18) << vote_stake << std::endl;
-				 std::cout << std::endl;
+				 uint64_t ram_fee = atoi( obj["ram_fee"].as_string() );
+				 uint64_t cpu_fee = atoi( obj["cpu_fee"].as_string() );
+				 ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("cpu_fee", ram_fee), ("cpu_fee", cpu_fee));
 			  }
 				*/
 			}
