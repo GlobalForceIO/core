@@ -140,8 +140,8 @@ void resource_limits_manager::verify_billtrx_config()const {
 				
 				if( config_fee.is_object() ) {
 					auto& obj = config_fee.get_object();
-					uint64_t ram_fee = atoi( obj["ram_fee"].as_string() );
-					uint64_t cpu_fee = atoi( obj["cpu_fee"].as_string() );
+					std::string ram_fee = obj["ram_fee"].as_string();
+					std::string cpu_fee = obj["cpu_fee"].as_string();
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("cpu_fee", ram_fee), ("cpu_fee", cpu_fee));
 				}else{
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: FAIL READ config_fee object");
