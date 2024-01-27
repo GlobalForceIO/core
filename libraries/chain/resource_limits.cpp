@@ -116,6 +116,26 @@ void resource_limits_manager::read_from_snapshot( const snapshot_reader_ptr& sna
 //TODO check existing config table
 void resource_limits_manager::verify_billtrx_config()const {
 	ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config");
+	
+	account_name code = N(eosio);
+	account_name scope = N(eosio);
+	account_name tablename = N(configfee);
+	
+	share_type config;
+    const eosio::chain::table_id_object tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple( code, scope, tablename ));
+	//find by primary index, primary = 0
+	const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl.id, 0));
+	if (obj) {
+		fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
+		fc::raw::unpack(ds, config);
+		
+		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("cpu_fee", config.ram_fee), ("cpu_fee", config.cpu_fee));
+	}
+	
+	
+
+	
+	/*
 	const auto& config = _db.get<resource_billtrx_config_object>();
 	if(config.cpu_fee <= 0){
 		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config CREATE");
@@ -124,6 +144,7 @@ void resource_limits_manager::verify_billtrx_config()const {
 		  t.cpu_fee = 10;
 		});
 	}
+	*/
 }
 
 //TODO verify billtrx pay

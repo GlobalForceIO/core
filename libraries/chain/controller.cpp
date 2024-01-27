@@ -1483,12 +1483,6 @@ struct controller_impl {
 					
 					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance} "+TokenName+", payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", user_balance)("user_payment", user_payment)("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
 				}
-				
-				//send payment trx
-				//account = my->user_name;
-				//trx_id = trx->id();
-				//cpu_us = my->user_trx_cpu;
-				//ram_bytes = my->user_trx_ram;/
 			}
 			
             auto restore = make_block_restore_point();
