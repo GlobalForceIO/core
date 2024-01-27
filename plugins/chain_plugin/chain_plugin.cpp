@@ -2440,9 +2440,8 @@ read_only::get_account_results read_only::get_account( const get_account_params&
    result.net_limit = rm.get_account_net_limit_ex( result.account_name, greylist_limit).first;
    result.cpu_limit = rm.get_account_cpu_limit_ex( result.account_name, greylist_limit).first;
    result.ram_usage = rm.get_account_ram_usage( result.account_name );
-
-   result.fee_config_cpu = rm.get_fee_cpu();
-   result.fee_config_ram = rm.get_fee_ram();
+   
+   result.quota_billtrx = rm.get_quota_billtrx();
    
    if ( producer_plug ) {  // producer_plug is null when called from chain_plugin_tests.cpp and get_table_tests.cpp
       account_resource_limit subjective_cpu_bill_limit;

@@ -2758,10 +2758,10 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 			//GET balance
 			my->user_name = _payer;
 			my->user_action = _action;
-			my->user_balance = my->resource_limits.check_payment_balance( _payer, token );
+			my->user_balance = my->resource_limits.get_payment_balance( _payer, token );
 			user_check = true;
 			
-			ilog( "ONBILLTRX:: user_name: ${user_name} user_action: ${user_action} user_balance: ${user_balance} user_check: ${user_check} ", ("user_name",my->user_name)("user_action",my->user_action)("user_balance",my->user_balance)("user_check",user_check) );
+			ilog( "ONBILLTRX:: payer: ${user_name} action: ${user_action} balance: ${user_balance} check: ${user_check} ", ("user_name",my->user_name)("user_action",my->user_action)("user_balance",my->user_balance)("user_check",user_check) );
 			break;
 		}
 	}
@@ -2769,9 +2769,9 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	
 	if(user_check && !user_trace->error_code){
 		
-		my->resource_limits.verify_billtrx_pay( my->user_name, my->user_trx_cpu, my->user_trx_ram );
+		my->resource_limits.verify_billtrx_pay( my->user_name, my->user_balance, my->user_trx_cpu, my->user_trx_ram );
 		
-		transaction_metadata_ptr onbilltrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
+		//transaction_metadata_ptr onbilltrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
 		//my->push_transaction( onbilltrx, deadline, 100, true, 0, false );
 	}
 	

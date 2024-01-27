@@ -113,9 +113,7 @@ void resource_limits_manager::read_from_snapshot( const snapshot_reader_ptr& sna
 }
 
 //TODO check existing config table
-void resource_limits_manager::verify_billtrx_config()const {
-	ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config");
-	
+void resource_limits_manager::verify_billtrx_config()const {	
 	account_name code = N(eosio);
 	account_name scope = N(eosio);
 	account_name tablename = N(configfee);
@@ -139,24 +137,24 @@ void resource_limits_manager::verify_billtrx_config()const {
 					auto& obj = config_fee.get_object();
 					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
 					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
-					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
+					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
 				}else{
-					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: FAIL READ config_fee object");
+					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: READ CONFIG FEE: FAIL READ config_fee object");
 				}
 			}else{
-				ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: EMPTY ROWS config_fee object by index 0");
+				ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: READ CONFIG FEE: EMPTY ROWS config_fee object by index 0");
 			}
 		}else{
-			ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: by_code_scope_table: NULL config_fee");
+			ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: READ CONFIG FEE: NULL config_fee");
 		}
 	}else{
-		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: FAIL LOAD ABI from ${code}", ("code", code));
+		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: READ CONFIG FEE: FAIL LOAD ABI from ${code}", ("code", code));
 	}
 }
 
 //TODO verify billtrx pay
-bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uint64_t cpu, uint64_t ram )const {
-	ilog( "ONBILLTRX:: verify_billtrx_pay payer: ${payer} cpu: ${cpu} ram: ${ram}", ("payer", payer)("cpu", cpu)("ram", ram));
+bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uint64_t user_balance, uint64_t cpu, uint64_t ram )const {
+	ilog( "ONBILLTRX:: verify_billtrx_pay payer: ${payer} balance: ${user_balance} cpu: ${cpu} ram: ${ram}", ("user_balance", user_balance)("payer", payer)("cpu", cpu)("ram", ram));
 	account_name code = N(eosio);
 	account_name scope = N(eosio);
 	account_name tablename = N(configfee);
@@ -180,18 +178,18 @@ bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uin
 					auto& obj = config_fee.get_object();
 					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
 					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
-					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: by_code_scope_table: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
+					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
 				}else{
-					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: by_code_scope_table: FAIL READ config_fee object");
+					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: FAIL READ config_fee object");
 				}
 			}else{
-				ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: by_code_scope_table: EMPTY ROWS config_fee object by index 0");
+				ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: EMPTY ROWS config_fee object by index 0");
 			}
 		}else{
-			ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: by_code_scope_table: NULL config_fee");
+			ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: NULL config_fee");
 		}
 	}else{
-		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: FAIL LOAD ABI from ${code}", ("code", code));
+		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: FAIL LOAD ABI from ${code}", ("code", code));
 	}
 	return true;
 }
@@ -339,7 +337,7 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
 }
 
 //TODO remove get balance for account
-uint64_t resource_limits_manager::check_payment_balance( const account_name account, chain::symbol token )const {
+uint64_t resource_limits_manager::get_payment_balance( const account_name account, chain::symbol token )const {
 	share_type balance = 0;
     const eosio::chain::table_id_object tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
 	const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl.id, token.to_symbol_code().value));
@@ -354,12 +352,11 @@ int64_t resource_limits_manager::get_account_ram_usage( const account_name& name
    return _db.get<resource_usage_object,by_owner>( name ).ram_usage;
 }
 
-int64_t resource_limits_manager::get_fee_cpu()const {
-   return 22;
-}
-
-int64_t resource_limits_manager::get_fee_ram()const {
-   return 21;
+asset resource_limits_manager::get_quota_billtrx()const {
+   auto core_symbol = extract_core_symbol();
+   asset quota;
+   quota.symbol = core_symbol;
+   return quota;
 }
 
 bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {
