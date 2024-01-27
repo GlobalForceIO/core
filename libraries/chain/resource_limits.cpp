@@ -37,8 +37,7 @@ using resource_index_set = index_set<
    resource_limits_index,
    resource_usage_index,
    resource_limits_state_index,
-   resource_limits_config_index,
-   resource_billtrx_config_index
+   resource_limits_config_index
 >;
 
 static_assert( config::rate_limiting_precision > 0, "config::rate_limiting_precision must be positive" );
@@ -121,7 +120,7 @@ void resource_limits_manager::verify_billtrx_config()const {
 	account_name scope = N(eosio);
 	account_name tablename = N(configfee);
 	
-	share_type config;
+	auto *config;
     const eosio::chain::table_id_object tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple( code, scope, tablename ));
 	//find by primary index, primary = 0
 	const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl.id, 0));
