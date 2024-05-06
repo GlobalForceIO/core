@@ -197,7 +197,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					};
 					auto& limits = find_or_create_pending_limits();
 					ram_bytes = limits.ram_bytes;
-					cpu_weight = limits.cpu_weight.amount;
+					cpu_weight = limits.cpu_weight;
 					/*
 					_db.modify( limits, [&]( resource_limits_object& pending_limits ){
 					  pending_limits.ram_bytes = ram_bytes;
@@ -262,7 +262,7 @@ void resource_limits_manager::agree_billtrx_pay( const account_name& payer, cons
 					const auto& usage = _db.get<resource_limits_object,by_owner>( boost::make_tuple(false, payer) );
 					_db.modify( usage, [&]( resource_limits_object& t ){
 						t.ram_bytes -= cost_ram;
-						t.cpu_weight.amount -= cost_cpu;
+						t.cpu_weight -= cost_cpu;
 					});
 					
 				}else{
