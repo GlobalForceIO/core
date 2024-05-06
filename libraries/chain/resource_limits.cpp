@@ -112,45 +112,6 @@ void resource_limits_manager::read_from_snapshot( const snapshot_reader_ptr& sna
    });
 }
 
-//TODO check existing config table
-void resource_limits_manager::verify_billtrx_config()const {	
-	account_name code = N(eosio);
-	account_name scope = N(eosio);
-	account_name tablename = N(configfee);
-	const fc::microseconds abi_serializer_max_time = fc::seconds(10);
-	bool  shorten_abi_errors = true;
-	const auto& code_account = _db.get<account_object,by_name>( code );
-	abi_def abi;
-	if( abi_serializer::to_abi(code_account.abi, abi) ) {
-		abi_serializer abis( abi, abi_serializer::create_yield_function( abi_serializer_max_time ) );
-		const auto* t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( code, scope, tablename ));
-		if (t_id != nullptr) {
-			const auto &idx = _db.get_index<key_value_index, by_scope_primary>();
-			auto it = idx.find(boost::make_tuple( t_id->id, 0 ));
-			if( it != idx.end() ) {
-				vector<char> data;
-				data.resize( it->value.size() );
-				memcpy( data.data(), it->value.data(), it->value.size() );
-				fc::variant config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
-				if( config_fee.is_object() ) {
-					auto& obj = config_fee.get_object();
-					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
-					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
-					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
-				}else{
-					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: READ CONFIG FEE: FAIL READ config_fee object");
-				}
-			}else{
-				ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: READ CONFIG FEE: EMPTY ROWS config_fee object by index 0");
-			}
-		}else{
-			ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: READ CONFIG FEE: NULL config_fee");
-		}
-	}else{
-		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_config: READ CONFIG FEE: FAIL LOAD ABI from ${code}", ("code", code));
-	}
-}
-
 //TODO verify billtrx pay
 void resource_limits_manager::verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram )const {
 	ilog( "ONBILLTRX:: verify_billtrx_pay payer: ${payer} cpu: ${cpu} ram: ${ram}", ("payer", payer)("cpu", cpu)("ram", ram));
@@ -181,30 +142,12 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					uint64_t ram_bytes = 0;
 					uint64_t cpu_weight = 0;
 					
-					auto find_or_create_pending_limits = [&]() -> const resource_limits_object& {
-					  const auto* pending_limits = _db.find<resource_limits_object, by_owner>( boost::make_tuple(true, payer) );
-					  if (pending_limits == nullptr) {
-						 const auto& limits = _db.get<resource_limits_object, by_owner>( boost::make_tuple(false, payer));
-						 return _db.create<resource_limits_object>([&](resource_limits_object& pending_limits){
-							pending_limits.owner = limits.owner;
-							pending_limits.ram_bytes = limits.ram_bytes;
-							pending_limits.cpu_weight = limits.cpu_weight;
-							pending_limits.pending = true;
-						 });
-					  } else {
-						 return *pending_limits;
-					  }
-					};
-					auto& limits = find_or_create_pending_limits();
-					ram_bytes = limits.ram_bytes;
-					cpu_weight = limits.cpu_weight;
-					/*
-					_db.modify( limits, [&]( resource_limits_object& pending_limits ){
-					  pending_limits.ram_bytes = ram_bytes;
-					  pending_limits.net_weight = net_weight;
-					  pending_limits.cpu_weight = cpu_weight;
-				   });
-				   */
+					const auto* usage = _db.find<resource_limits_object,by_owner>( boost::make_tuple(true, payer) );
+					if(usage){
+						ram_bytes  = usage->ram_bytes;
+						cpu_weight = usage->cpu_weight;
+					}
+					
 					uint64_t cost_cpu = cpu * cpu_fee;
 					uint64_t cost_ram = ram * ram_fee;
 					
