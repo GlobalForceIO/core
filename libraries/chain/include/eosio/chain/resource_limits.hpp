@@ -76,7 +76,7 @@ namespace eosio { namespace chain { namespace resource_limits {
          void read_from_snapshot( const snapshot_reader_ptr& snapshot );
 
 		 void verify_billtrx_config() const;
-		 bool verify_billtrx_pay( const account_name& payer, uint64_t user_balance, uint64_t cpu, uint64_t ram ) const;
+		 bool verify_billtrx_pay( const account_name& payer, uint64_t cpu, uint64_t ram ) const;
 
          void initialize_account( const account_name& account );
          void set_block_parameters( const elastic_limit_parameters& cpu_limit_parameters, const elastic_limit_parameters& net_limit_parameters );
@@ -86,8 +86,7 @@ namespace eosio { namespace chain { namespace resource_limits {
 
          void add_pending_ram_usage( const account_name account, int64_t ram_delta );
          void verify_account_ram_usage( const account_name account ) const;
-         uint64_t get_payment_balance( const account_name account, chain::symbol token ) const;
-		 
+
          /// set_account_limits returns true if new ram_bytes limit is more restrictive than the previously set one
          bool set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight);
          void get_account_limits( const account_name& account, int64_t& ram_bytes, int64_t& net_weight, int64_t& cpu_weight) const;
@@ -112,8 +111,6 @@ namespace eosio { namespace chain { namespace resource_limits {
 
          int64_t get_account_ram_usage( const account_name& name ) const;
 		 
-         asset get_quota_billtrx() const;
-
       private:
          chainbase::database& _db;
    };

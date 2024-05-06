@@ -117,7 +117,6 @@ void resource_limits_manager::verify_billtrx_config()const {
 	account_name code = N(eosio);
 	account_name scope = N(eosio);
 	account_name tablename = N(configfee);
-	
 	const fc::microseconds abi_serializer_max_time = fc::seconds(10);
 	bool  shorten_abi_errors = true;
 	const auto& code_account = _db.get<account_object,by_name>( code );
@@ -154,7 +153,7 @@ void resource_limits_manager::verify_billtrx_config()const {
 
 //TODO verify billtrx pay
 bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uint64_t user_balance, uint64_t cpu, uint64_t ram )const {
-	ilog( "ONBILLTRX:: verify_billtrx_pay payer: ${payer} balance: ${user_balance} cpu: ${cpu} ram: ${ram}", ("user_balance", user_balance)("payer", payer)("cpu", cpu)("ram", ram));
+	ilog( "ONBILLTRX:: verify_billtrx_pay payer: ${payer} cpu: ${cpu} ram: ${ram}", ("payer", payer)("cpu", cpu)("ram", ram));
 	account_name code = N(eosio);
 	account_name scope = N(eosio);
 	account_name tablename = N(configfee);
@@ -179,6 +178,24 @@ bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uin
 					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
 					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
+					uint64_t ram_bytes = 0;
+					uint64_t cpu_weight = 0;
+					const auto* pending_buo = _db.find<resource_limits_object,by_owner>( boost::make_tuple(true, payer) );
+					if (pending_buo) {
+						ram_bytes  = pending_buo->ram_bytes;
+						cpu_weight = pending_buo->cpu_weight;
+					} else {
+						const auto& buo = _db.get<resource_limits_object,by_owner>( boost::make_tuple( false, payer ) );
+						ram_bytes  = buo.ram_bytes;
+						cpu_weight = buo.cpu_weight;
+					}
+					uint64_t cost_cpu = cpu * cpu_fee;
+					uint64_t cost_ram = ram * ram_fee;
+					
+					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: COST FEE: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("cost_ram", cost_ram)("cost_cpu", cost_cpu)("ram_bytes", ram_bytes)("cpu_weight", cpu_weight));
+					
+					if(cost_ram > ram_bytes){ return false; }
+					if(cost_cpu > cpu_weight){ return false; }
 				}else{
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: FAIL READ config_fee object");
 				}
@@ -304,7 +321,6 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
    if (ram_delta == 0) {
       return;
    }
-
    const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
 
    EOS_ASSERT( ram_delta <= 0 || UINT64_MAX - usage.ram_usage >= (uint64_t)ram_delta, transaction_exception,
@@ -319,44 +335,11 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
 
 //TODO remove limit resources for account
 void resource_limits_manager::verify_account_ram_usage( const account_name account )const {
-	/*
-	int64_t ram_bytes; int64_t net_weight; int64_t cpu_weight;
-   get_account_limits( account, ram_bytes, net_weight, cpu_weight );
-   const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
-
-   if( ram_bytes >= 0 ) {
-      EOS_ASSERT( usage.ram_usage <= static_cast<uint64_t>(ram_bytes), ram_usage_exceeded,
-                  "account ${account} has insufficient ram; needs ${needs} bytes has ${available} bytes!",
-                  ("account", account)("needs",usage.ram_usage)("available",ram_bytes)              );
-   }
-   */
-   //TEST RAM CALC
-   //payment for RAM resources
-   //const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
-   //EOS_ASSERT( false, ram_usage_exceeded, "RAM ${ramb} bytes", ("ramb",usage.ram_usage));
-}
-
-//TODO remove get balance for account
-uint64_t resource_limits_manager::get_payment_balance( const account_name account, chain::symbol token )const {
-	share_type balance = 0;
-    const eosio::chain::table_id_object tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
-	const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl.id, token.to_symbol_code().value));
-	if (obj) {
-		fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
-		fc::raw::unpack(ds, balance);
-	}
-	return balance;
+	
 }
 
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
    return _db.get<resource_usage_object,by_owner>( name ).ram_usage;
-}
-
-asset resource_limits_manager::get_quota_billtrx()const {
-   auto core_symbol = extract_core_symbol();
-   asset quota;
-   quota.symbol = core_symbol;
-   return quota;
 }
 
 bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {

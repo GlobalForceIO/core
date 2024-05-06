@@ -1201,12 +1201,10 @@ struct controller_impl {
 
    /* store loaded user balance before push transaction */
    bool      user_check;
-   uint64_t  user_balance;
    uint64_t  user_trx_cpu;
    uint64_t  user_trx_ram;
    name      user_name;
    name      user_action;
-   string TokenName = "4,GFT";
 
    transaction_trace_ptr push_scheduled_transaction( const transaction_id_type& trxid, fc::time_point deadline, uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time = false ) {
       const auto& idx = db.get_index<generated_transaction_multi_index,by_trx_id>();
@@ -1475,14 +1473,9 @@ struct controller_impl {
 			if(user_check){
 				user_trx_cpu = trx_context.billed_cpu_time_us;
 				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
-				//Increase mul
-				uint64_t user_payment = (user_trx_cpu + user_trx_ram) * 10;
-				
-				if(user_balance < user_payment){
-					elog( "ONBILLTRX:: LOW BALANCE ${user_name} user_action: ${user_action} user_payment: ${user_payment} user_balance:  ${user_balance} "+TokenName,("user_name",user_name)("user_action",user_action)("user_payment",user_payment)("user_balance",user_balance) );
-					
-					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance} "+TokenName+", payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", user_balance)("user_payment", user_payment)("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
-				}
+				//TODO use here verify_billtrx_pay
+				bool agree = verify_billtrx_pay( user_name, user_trx_cpu, user_trx_ram );
+				EOS_ASSERT( agree, abort_called, "low balance for pay resources fee. ACTION: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
 			}
 			
             auto restore = make_block_restore_point();
@@ -2729,14 +2722,12 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
    
 	transaction_trace_ptr user_trace;
 	
-	my->user_balance = 0;
 	my->user_trx_cpu = 0;
 	my->user_trx_ram = 0;
 	my->user_name = N(1);
 	my->user_action = N(1);
 			
 	bool user_check = false;
-	chain::symbol token = chain::symbol::from_string(my->TokenName);
 	//GET payer & action name
 	const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	for(uint32_t i = 0; i< trn.actions.size(); i++){
@@ -2758,21 +2749,17 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 			//GET balance
 			my->user_name = _payer;
 			my->user_action = _action;
-			my->user_balance = my->resource_limits.get_payment_balance( _payer, token );
 			user_check = true;
 			
-			ilog( "ONBILLTRX:: payer: ${user_name} action: ${user_action} balance: ${user_balance} check: ${user_check} ", ("user_name",my->user_name)("user_action",my->user_action)("user_balance",my->user_balance)("user_check",user_check) );
+			ilog( "ONBILLTRX:: payer: ${user_name} action: ${user_action} check: ${user_check} ", ("user_name",my->user_name)("user_action",my->user_action)("user_check",user_check) );
 			break;
 		}
 	}
 	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
 	
 	if(user_check && !user_trace->error_code){
-		
-		my->resource_limits.verify_billtrx_pay( my->user_name, my->user_balance, my->user_trx_cpu, my->user_trx_ram );
-		
-		//transaction_metadata_ptr onbilltrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
-		//my->push_transaction( onbilltrx, deadline, 100, true, 0, false );
+		//TODO use agree_billtrx_pay here
+		//my->resource_limits.agree_billtrx_pay( my->user_name, my->user_trx_cpu, my->user_trx_ram );
 	}
 	
 	return user_trace;

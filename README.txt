@@ -5,10 +5,10 @@ git clone git@github.com:coffeio/eosio.core.git --branch testnet /var/server/eos
 cd /var/server/eosio.core && git checkout testnet && git submodule update --init --recursive
 
 ##### Update changes on Ubuntu
-cd /var/server/eosio.core && git commit -a "Test build" && git push
+cd /var/server/eosio.core && git commit -am "build" && git push
 
 ##### Receive changes on Ubuntu
-git pull origin testnet --recurse-submodules
+git pull origin mainnet --recurse-submodules
 git checkout testnet && git submodule update --init --recursive
 
 chmod +x /var/server/eosio.core/scripts/eosio_build.sh
@@ -21,16 +21,18 @@ cp -rf /var/server/eosio.core/build/programs/nodeos/nodeos /var/server/bp/nodeos
 
 sudo systemctl stop NODEOS1 && sudo systemctl stop NODEOS2
 sudo systemctl restart NODEOS1 && sudo systemctl restart NODEOS2
-journalctl -f -u NODEOS1
+sudo journalctl -f -u NODEOS1
 
-############TEST commands
+############ TEST commands
 curl http://127.0.0.1:8900/v1/wallet/unlock -X POST -d '["gf", "PW5KQ9jqpSvJFqCnZPYY5R69zd66AQWhpMjoJ5YZsmCFeMkGyTr9d"]'
 
+	### TEST FEE
 cleos -u http://127.0.0.1:18881 push action eosio configfee '[14, 24]' -p eosio@active
 cleos -u http://127.0.0.1:18881 get table eosio eosio configfee -l 100
-cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpd5", "gf", "1.0010 GFT", "test" ]' -p testtestbpd5@active
-cleos -u http://127.0.0.1:18881 get account testtestbpd5 --json
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpa1", "gf", "1.0000 GFT", "test fee" ]' -p testtestbpa1@active
+cleos -u http://127.0.0.1:18881 get account testtestbpa1 --json
 
+############ END TEST commands
 
 ##### Install BP
 
@@ -117,6 +119,19 @@ journalctl -f -u NODEOS1
 journalctl -f -u NODEOS2
 
 
+sudo cp -rf /var/server/bp/blocks /var/server/bp/test1
+sudo cp -rf /var/server/bp/datadir /var/server/bp/test1
+sudo cp -rf /var/server/bp/snapshots /var/server/bp/test1
+sudo cp -rf /var/server/bp/state-history /var/server/bp/test1
+sudo cp -rf /var/server/bp/traces /var/server/bp/test1
+
+sudo cp -rf /var/server/bp/test1/blocks /var/server/bp/test2
+sudo cp -rf /var/server/bp/test1/datadir /var/server/bp/test2
+sudo cp -rf /var/server/bp/test1/snapshots /var/server/bp/test2
+sudo cp -rf /var/server/bp/test1/state-history /var/server/bp/test2
+sudo cp -rf /var/server/bp/test1/traces /var/server/bp/test2
+
+
 ##### START
 ###create wallet
 
@@ -127,8 +142,12 @@ EOS5TxTLYuUgwUniwjTNke1BebcGRv5KBVqWiucwWB4Lb7ftHTaV4
 #create PK for BPs 
 5J8e9EbC12TuAMggvceqhqpesdBCXCLxeiQo9qZiHVjZn4gre8t
 EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3
+
 5JySFsD6q5d8uNbkhGodSbeFPg9kPLntrA5Msuzz2KvtqapkcX9
 EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz
+
+5K6umNvViVUNARxPj3ToouoCQw9btf2F352YBLAmCJ5iDbACnhQ
+EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt
 
 #create PK for Dapps
 5J28BQR7smwRH5gyjcEMVkPhFWCEuFn2ukBZv7NaWvqbbxERHgF
@@ -148,11 +167,13 @@ curl http://127.0.0.1:8900/v1/wallet/import_key -X POST -d '["gf","5Hr2BvKGQxXs8
 curl http://127.0.0.1:8900/v1/wallet/import_key -X POST -d '["gf","5J8e9EbC12TuAMggvceqhqpesdBCXCLxeiQo9qZiHVjZn4gre8t"]'
 curl http://127.0.0.1:8900/v1/wallet/import_key -X POST -d '["gf","5JySFsD6q5d8uNbkhGodSbeFPg9kPLntrA5Msuzz2KvtqapkcX9"]'
 curl http://127.0.0.1:8900/v1/wallet/import_key -X POST -d '["gf","5J28BQR7smwRH5gyjcEMVkPhFWCEuFn2ukBZv7NaWvqbbxERHgF"]'
+curl http://127.0.0.1:8900/v1/wallet/import_key -X POST -d '["gf","5K6umNvViVUNARxPj3ToouoCQw9btf2F352YBLAmCJ5iDbACnhQ"]'
+
 ###Start node with eosio producer
 	#####EMPTY START
-./nodeos --config /var/server/bp/test/test1.ini --verbose-http-errors --disable-replay-opts --delete-all-blocks
+./nodeos --config /var/server/bp/test/test1.ini --verbose-http-errors --delete-all-blocks
 	#####SECOND RESTART
-./nodeos --config /var/server/bp/test/test1.ini --verbose-http-errors --disable-replay-opts
+./nodeos --config /var/server/bp/test/test1.ini --verbose-http-errors
 
 curl http://127.0.0.1:18881/v1/chain/get_info | jq
 curl http://127.0.0.1:18882/v1/chain/get_info | jq
@@ -261,7 +282,7 @@ cleos -u http://127.0.0.1:18881 get table gf.types gf.types types
 # create token 
 cleos -u http://127.0.0.1:18881 push action eosio.token create '[ "eosio", "10000000000.0000 GFT" ]' -p eosio.token@active
 
-cleos -u http://127.0.0.1:18881 push action eosio.token configs '["4,GFT",[{"network":"GF","transfer":0,"swapout":0}], 1, 1,1,  20,0, 180,0]' -p gf@active
+cleos -u http://127.0.0.1:18881 push action eosio.token configs '["4,GFT",[{"network":"GF","transfer":0,"swapout":0}], 0, 0,0,  20,0, 180,0]' -p gf@active
 
 cleos -u http://127.0.0.1:18881 push action eosio.token issue '[ "eosio", "700000000.0000 GFT", "" ]' -p eosio@active
 cleos -u http://127.0.0.1:18881 set account permission --add-code eosio.token active
@@ -284,10 +305,12 @@ cleos -u http://127.0.0.1:18881 create account gf testtestbpa1 EOS76LEsyLS7ReSei
 cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpa1", "1000.0000 GFT", "init" ]' -p gf@active
 
 ###FIRST UPDATE PRODUCERS LIST
-cleos -u http://127.0.0.1:18881 push action eosio setprods '{"schedule": [{"producer_name": "testtestbpa1", "authority": ["block_signing_authority_v0",{"threshold": 1,"keys":[{"key":"EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3","weight": 1}]}]}]}' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio setprods '{"schedule": [{"producer_name": "gf", "authority": ["block_signing_authority_v0",{"threshold": 1,"keys":[{"key":"EOS69MsMSD6X745uLskmva7GXvAvXNpoXApRvRvQG819H9GEpa4Eu","weight": 1}]}]}]}' -p eosio@active
 
 ##### deploy system contract
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
+
+cleos -u http://127.0.0.1:18881 push action eosio configround '[120, 14, 12, 5]' -p eosio
 
 cleos -u http://127.0.0.1:18881 push action eosio configfee '[16, 26]' -p eosio@active
 cleos -u http://127.0.0.1:18881 get table eosio eosio configfee -l 100
@@ -302,8 +325,6 @@ cleos -u http://127.0.0.1:18881 get table eosio eosio approvebp -l 100
 
 # init system
 cleos -u http://127.0.0.1:18881 push action eosio init '[0, "4,GFT"]' -p eosio@active
-
-cleos -u http://127.0.0.1:18881 get account eosio
 
 # Resign
 cleos -u http://127.0.0.1:18881 push action eosio updateauth '{"account": "eosio", "permission": "owner", "parent": "", "auth": {"threshold": 1, "keys": [], "waits": [], "accounts": [{"weight": 1, "permission": {"actor": "eosio.prods", "permission": "active"}}]}}' -p eosio@owner
@@ -337,7 +358,7 @@ cleos -u http://127.0.0.1:18881 push action eosio updateauth '{"account": "eosio
 cleos -u http://127.0.0.1:18881 push action eosio updateauth '{"account": "eosio.vpay", "permission": "active", "parent": "owner", "auth": {"threshold": 1, "keys": [], "waits": [], "accounts": [{"weight": 1, "permission": {"actor": "eosio", "permission": "active"}}]}}' -p eosio.vpay@active
 
 /************************************************************************************************/
-/************************************      BP       *********************************************/
+/************************************  BP   *********************************************/
 /************************************************************************************************/
 
 #####Create BPs accounts
@@ -362,6 +383,18 @@ cleos -u http://127.0.0.1:18881 create account gf testtestbpd2 EOS69nZsgth8C3kwq
 cleos -u http://127.0.0.1:18881 create account gf testtestbpd3 EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz
 cleos -u http://127.0.0.1:18881 create account gf testtestbpd4 EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz
 cleos -u http://127.0.0.1:18881 create account gf testtestbpd5 EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz
+
+
+cleos -u http://127.0.0.1:18881 create account gf testtestbpe1 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt
+cleos -u http://127.0.0.1:18881 create account gf testtestbpe2 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt
+cleos -u http://127.0.0.1:18881 create account gf testtestbpe3 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt
+cleos -u http://127.0.0.1:18881 create account gf testtestbpe4 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt
+cleos -u http://127.0.0.1:18881 create account gf testtestbpe5 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt
+cleos -u http://127.0.0.1:18881 create account gf testtestbpf1 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt
+cleos -u http://127.0.0.1:18881 create account gf testtestbpf2 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt
+cleos -u http://127.0.0.1:18881 create account gf testtestbpf3 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt
+cleos -u http://127.0.0.1:18881 create account gf testtestbpf4 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt
+cleos -u http://127.0.0.1:18881 create account gf testtestbpf5 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt
 
 cleos -u http://127.0.0.1:18881 get account testtestbpd5
 
@@ -396,6 +429,16 @@ cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testt
 cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpd3", "100000.0000 GFT", "init" ]' -p gf@active
 cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpd4", "100000.0000 GFT", "init" ]' -p gf@active
 cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpd5", "100000.0000 GFT", "init" ]' -p gf@active
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpe1", "100000.0000 GFT", "init" ]' -p gf@active
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpe2", "100000.0000 GFT", "init" ]' -p gf@active
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpe3", "100000.0000 GFT", "init" ]' -p gf@active
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpe4", "100000.0000 GFT", "init" ]' -p gf@active
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpe5", "100000.0000 GFT", "init" ]' -p gf@active
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpf1", "100000.0000 GFT", "init" ]' -p gf@active
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpf2", "100000.0000 GFT", "init" ]' -p gf@active
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpf3", "100000.0000 GFT", "init" ]' -p gf@active
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpf4", "100000.0000 GFT", "init" ]' -p gf@active
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpf5", "100000.0000 GFT", "init" ]' -p gf@active
 
 cleos -u http://127.0.0.1:18881 system regproducer testtestbpa1 EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3 "http://" 0
 cleos -u http://127.0.0.1:18881 system regproducer testtestbpa2 EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3 "http://" 0
@@ -407,7 +450,6 @@ cleos -u http://127.0.0.1:18881 system regproducer testtestbpb2 EOS76LEsyLS7ReSe
 cleos -u http://127.0.0.1:18881 system regproducer testtestbpb3 EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3 "http://" 0
 cleos -u http://127.0.0.1:18881 system regproducer testtestbpb4 EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3 "http://" 0
 cleos -u http://127.0.0.1:18881 system regproducer testtestbpb5 EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3 "http://" 0
-
 cleos -u http://127.0.0.1:18881 system regproducer testtestbpc1 EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz "http://" 0
 cleos -u http://127.0.0.1:18881 system regproducer testtestbpc2 EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz "http://" 0
 cleos -u http://127.0.0.1:18881 system regproducer testtestbpc3 EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz "http://" 0
@@ -418,8 +460,19 @@ cleos -u http://127.0.0.1:18881 system regproducer testtestbpd2 EOS69nZsgth8C3kw
 cleos -u http://127.0.0.1:18881 system regproducer testtestbpd3 EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz "http://" 0
 cleos -u http://127.0.0.1:18881 system regproducer testtestbpd4 EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz "http://" 0
 cleos -u http://127.0.0.1:18881 system regproducer testtestbpd5 EOS69nZsgth8C3kwqWXPtH9pMLU4evnJD3bfj3JgDNpxa8Kkq6bvz "http://" 0
+cleos -u http://127.0.0.1:18881 system regproducer testtestbpe1 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt "http://" 0
+cleos -u http://127.0.0.1:18881 system regproducer testtestbpe2 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt "http://" 0
+cleos -u http://127.0.0.1:18881 system regproducer testtestbpe3 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt "http://" 0
+cleos -u http://127.0.0.1:18881 system regproducer testtestbpe4 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt "http://" 0
+cleos -u http://127.0.0.1:18881 system regproducer testtestbpe5 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt "http://" 0
+cleos -u http://127.0.0.1:18881 system regproducer testtestbpf1 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt "http://" 0
+cleos -u http://127.0.0.1:18881 system regproducer testtestbpf2 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt "http://" 0
+cleos -u http://127.0.0.1:18881 system regproducer testtestbpf3 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt "http://" 0
+cleos -u http://127.0.0.1:18881 system regproducer testtestbpf4 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt "http://" 0
+cleos -u http://127.0.0.1:18881 system regproducer testtestbpf5 EOS6DNZLJMPodmssGhUTSknxc8kA1sVBbnENywJctHNKWdeP786xt "http://" 0
 
-cleos -u http://127.0.0.1:18881 get account testtestbpa1
+
+cleos -u http://127.0.0.1:18881 get account testtestbpf5
 
 ### New register BP with deposit
 cleos -u http://127.0.0.1:18881 push action eosio configbp '["20000000.0000 GFT", "19.3022 GFT", 12251182, 5184000]' -p eosio@active
@@ -442,7 +495,6 @@ cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpb2"]' -p 
 cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpb3"]' -p testtestbpb3@active
 cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpb4"]' -p testtestbpb4@active
 cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpb5"]' -p testtestbpb5@active
-
 cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpc1"]' -p testtestbpc1@active
 cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpc2"]' -p testtestbpc2@active
 cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpc3"]' -p testtestbpc3@active
@@ -453,19 +505,35 @@ cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpd2"]' -p 
 cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpd3"]' -p testtestbpd3@active
 cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpd4"]' -p testtestbpd4@active
 cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpd5"]' -p testtestbpd5@active
+cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpe1"]' -p testtestbpe1@active
+cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpe2"]' -p testtestbpe2@active
+cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpe3"]' -p testtestbpe3@active
+cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpe4"]' -p testtestbpe4@active
+cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpe5"]' -p testtestbpe5@active
+cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpf1"]' -p testtestbpf1@active
+cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpf2"]' -p testtestbpf2@active
+cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpf3"]' -p testtestbpf3@active
+cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpf4"]' -p testtestbpf4@active
+cleos -u http://127.0.0.1:18881 push action eosio bpstake '["testtestbpf5"]' -p testtestbpf5@active
 
-#check global config
+cleos -u http://127.0.0.1:18881 get table eosio eosio randombp -l 20
+cleos -u http://127.0.0.1:18881 get table eosio eosio randombp -l 20 --index 3 --key-type i64 -L 5061 -U 5061
+cleos -u http://127.0.0.1:18881 get table eosio eosio randombp -l 20 --index 2 --key-type i64 -L testtestbpa3
+
+cleos -u http://127.0.0.1:18881 get table eosio eosio historyround -l 10 -L 5061 -U 5061
+cleos -u http://127.0.0.1:18881 get table eosio eosio historyround -l 100
+cleos -u http://127.0.0.1:18881 get table eosio eosio roundsbp -l 100
+
 cleos -u http://127.0.0.1:18881 get table eosio eosio global -l 100
+cleos -u http://127.0.0.1:18881 get table eosio eosio producers -l 10
+
 
 
 
 cleos -u http://127.0.0.1:18881 push action eosio claimrewards '["globalforce1"]' -p globalforce1@active
-
 cleos -u http://127.0.0.1:18881 push action gf.hold stake '[ "globalforce1", "2500000.0000 GFT", ""]' -p globalforce1@active
 cleos -u http://127.0.0.1:18881 push action gf.hold unstake '[ "gf", "200010.0000 GFT", ""]' -p gf@active
 cleos -u http://127.0.0.1:18881 push action gf.hold claim '["gf"]' -p gf@active
-
-
 
 ### New unregister BP with withdraw. 
 	# FIRST - stop nodeos
