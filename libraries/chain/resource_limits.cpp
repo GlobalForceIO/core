@@ -259,7 +259,7 @@ void resource_limits_manager::agree_billtrx_pay( const account_name& payer, cons
 					uint64_t cost_cpu = cpu * cpu_fee;
 					uint64_t cost_ram = ram * ram_fee;
 					
-					const auto& usage = _db.get<resource_limits_object,by_owner>( payer );
+					const auto& usage = _db.get<resource_limits_object,by_owner>( boost::make_tuple(false, payer) );
 					_db.modify( usage, [&]( resource_limits_object& t ){
 						t.ram_bytes -= cost_ram;
 						t.cpu_weight.amount -= cost_cpu;
