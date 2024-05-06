@@ -180,15 +180,31 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
 					uint64_t ram_bytes = 0;
 					uint64_t cpu_weight = 0;
-					const auto* pending_buo = _db.find<resource_limits_object,by_owner>( boost::make_tuple(true, payer) );
-					if (pending_buo) {
-						ram_bytes  = pending_buo->ram_bytes;
-						cpu_weight = pending_buo->cpu_weight;
-					} else {
-						const auto& buo = _db.get<resource_limits_object,by_owner>( boost::make_tuple( false, payer ) );
-						ram_bytes  = buo.ram_bytes;
-						cpu_weight = buo.cpu_weight;
-					}
+					
+					auto find_or_create_pending_limits = [&]() -> const resource_limits_object& {
+					  const auto* pending_limits = _db.find<resource_limits_object, by_owner>( boost::make_tuple(true, payer) );
+					  if (pending_limits == nullptr) {
+						 const auto& limits = _db.get<resource_limits_object, by_owner>( boost::make_tuple(false, payer));
+						 return _db.create<resource_limits_object>([&](resource_limits_object& pending_limits){
+							pending_limits.owner = limits.owner;
+							pending_limits.ram_bytes = limits.ram_bytes;
+							pending_limits.cpu_weight = limits.cpu_weight;
+							pending_limits.pending = true;
+						 });
+					  } else {
+						 return *pending_limits;
+					  }
+					};
+					auto& limits = find_or_create_pending_limits();
+					ram_bytes = limits.ram_bytes;
+					cpu_weight = limits.cpu_weight.amount;
+					/*
+					_db.modify( limits, [&]( resource_limits_object& pending_limits ){
+					  pending_limits.ram_bytes = ram_bytes;
+					  pending_limits.net_weight = net_weight;
+					  pending_limits.cpu_weight = cpu_weight;
+				   });
+				   */
 					uint64_t cost_cpu = cpu * cpu_fee;
 					uint64_t cost_ram = ram * ram_fee;
 					
@@ -246,8 +262,9 @@ void resource_limits_manager::agree_billtrx_pay( const account_name& payer, cons
 					const auto& usage = _db.get<resource_limits_object,by_owner>( payer );
 					_db.modify( usage, [&]( resource_limits_object& t ){
 						t.ram_bytes -= cost_ram;
-						t.cpu_weight -= cost_cpu;
+						t.cpu_weight.amount -= cost_cpu;
 					});
+					
 				}else{
 					ilog( "ONBILLTRX:: resource_limits_manager: agree_billtrx_pay: READ CONFIG FEE: FAIL READ config_fee object");
 				}
