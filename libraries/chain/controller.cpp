@@ -1474,8 +1474,7 @@ struct controller_impl {
 				user_trx_cpu = trx_context.billed_cpu_time_us;
 				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//TODO use here verify_billtrx_pay
-				bool agree = resource_limits.verify_billtrx_pay( user_name, user_trx_cpu, user_trx_ram );
-				EOS_ASSERT( agree, abort_called, "low balance for pay resources fee. ACTION: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
+				resource_limits.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
 			}
 			
             auto restore = make_block_restore_point();
@@ -2759,7 +2758,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	
 	if(user_check && !user_trace->error_code){
 		//TODO use agree_billtrx_pay here
-		//my->resource_limits.agree_billtrx_pay( my->user_name, my->user_trx_cpu, my->user_trx_ram );
+		my->resource_limits.agree_billtrx_pay( my->user_name, my->user_action, my->user_trx_cpu, my->user_trx_ram );
 	}
 	
 	return user_trace;
