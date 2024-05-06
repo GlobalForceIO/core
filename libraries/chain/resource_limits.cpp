@@ -152,7 +152,7 @@ void resource_limits_manager::verify_billtrx_config()const {
 }
 
 //TODO verify billtrx pay
-bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uint64_t user_balance, uint64_t cpu, uint64_t ram )const {
+bool resource_limits_manager::verify_billtrx_pay( const account_name& payer, uint64_t cpu, uint64_t ram )const {
 	ilog( "ONBILLTRX:: verify_billtrx_pay payer: ${payer} cpu: ${cpu} ram: ${ram}", ("payer", payer)("cpu", cpu)("ram", ram));
 	account_name code = N(eosio);
 	account_name scope = N(eosio);

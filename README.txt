@@ -8,7 +8,7 @@ cd /var/server/eosio.core && git checkout testnet && git submodule update --init
 cd /var/server/eosio.core && git commit -am "build" && git push
 
 ##### Receive changes on Ubuntu
-git pull origin mainnet --recurse-submodules
+git pull origin testnet --recurse-submodules
 git checkout testnet && git submodule update --init --recursive
 
 chmod +x /var/server/eosio.core/scripts/eosio_build.sh
