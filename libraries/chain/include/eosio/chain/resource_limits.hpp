@@ -76,7 +76,7 @@ namespace eosio { namespace chain { namespace resource_limits {
          void read_from_snapshot( const snapshot_reader_ptr& snapshot );
 
 		 void verify_billtrx_config() const;
-		 bool verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram ) const;
+		 void verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram ) const;
 		 void agree_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram ) const;
 
          void initialize_account( const account_name& account );

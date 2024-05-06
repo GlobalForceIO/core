@@ -211,10 +211,9 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	}else{
 		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: FAIL LOAD ABI from ${code}", ("code", code));
 	}
-	return true;
 }
 
-bool resource_limits_manager::agree_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram )const {
+void resource_limits_manager::agree_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram )const {
 	ilog( "ONBILLTRX:: agree_billtrx_pay payer: ${payer} action: ${user_action} cpu: ${cpu} ram: ${ram}", ("payer", payer)("user_action", user_action)("cpu", cpu)("ram", ram));
 	account_name code = N(eosio);
 	account_name scope = N(eosio);
@@ -261,7 +260,6 @@ bool resource_limits_manager::agree_billtrx_pay( const account_name& payer, cons
 	}else{
 		ilog( "ONBILLTRX:: resource_limits_manager: agree_billtrx_pay: READ CONFIG FEE: FAIL LOAD ABI from ${code}", ("code", code));
 	}
-	return true;
 }
 
 void resource_limits_manager::initialize_account(const account_name& account) {

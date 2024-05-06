@@ -31,6 +31,7 @@ cleos -u http://127.0.0.1:18881 push action eosio configfee '[14, 24]' -p eosio@
 cleos -u http://127.0.0.1:18881 get table eosio eosio configfee -l 100
 cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpa1", "gf", "1.0000 GFT", "test fee" ]' -p testtestbpa1@active
 cleos -u http://127.0.0.1:18881 get account testtestbpa1 --json
+cleos -u http://127.0.0.1:18881 get table eosio testtestbpa1 userres
 
 ############ END TEST commands
 
