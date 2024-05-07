@@ -142,12 +142,20 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					uint64_t ram_bytes = 0;
 					uint64_t cpu_weight = 0;
 					
+					const auto& usage = _db.get<resource_usage_object,by_owner>( a );
+					if(usage){
+						_db.modify( usage, [&]( auto& bu ){
+								bu.net_usage.add( 0, time_slot, config.account_net_usage_average_window );
+								bu.cpu_usage.add( 0, time_slot, config.account_cpu_usage_average_window );
+						});
+					}
+					/*
 					const auto* usage = _db.find<resource_limits_object,by_owner>( boost::make_tuple(true, payer) );
 					if(usage){
 						ram_bytes  = usage->ram_bytes;
 						cpu_weight = usage->cpu_weight;
 					}
-					
+					*/
 					uint64_t cost_cpu = cpu * cpu_fee;
 					uint64_t cost_ram = ram * ram_fee;
 					
@@ -514,7 +522,7 @@ std::pair<int64_t, bool> resource_limits_manager::get_account_cpu_limit( const a
 
 std::pair<account_resource_limit, bool> resource_limits_manager::get_account_cpu_limit_ex( const account_name& name, uint32_t greylist_limit ) const {
 	//TODO remove limit CPU resources for account
-	return {{ -1, -1, -1 }, false};
+	//return {{ -1, -1, -1 }, false};
 
    const auto& state = _db.get<resource_limits_state_object>();
    const auto& usage = _db.get<resource_usage_object, by_owner>(name);
@@ -568,7 +576,7 @@ std::pair<int64_t, bool> resource_limits_manager::get_account_net_limit( const a
 
 std::pair<account_resource_limit, bool> resource_limits_manager::get_account_net_limit_ex( const account_name& name, uint32_t greylist_limit ) const {
 	//TODO remove limit NET resources for account
-	return {{ -1, -1, -1 }, false};
+	//return {{ -1, -1, -1 }, false};
 	
    const auto& config = _db.get<resource_limits_config_object>();
    const auto& state  = _db.get<resource_limits_state_object>();
