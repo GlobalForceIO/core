@@ -214,7 +214,7 @@ void resource_limits_manager::agree_billtrx_pay( const account_name& payer, cons
 
 					_db.modify( usage, [&]( auto& bu ){
 						bu.ram_usage += cost_ram;
-						bu.cpu_usage += cost_cpu;
+						//bu.cpu_usage += cost_cpu;
 					});
 					
 				}else{
