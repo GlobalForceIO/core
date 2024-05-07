@@ -139,18 +139,18 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
 					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
-					uint64_t ram_bytes = 0;
-					uint64_t cpu_weight = 0;
+					uint64_t ram_bytes = 1000000000000;
+					uint64_t cpu_weight = 1000000000000;
 					
-					const auto& usage = _db.get<resource_usage_object,by_owner>( a );
-					if(usage){
-						_db.modify( usage, [&]( auto& bu ){
-								bu.net_usage.add( 0, time_slot, config.account_net_usage_average_window );
-								bu.cpu_usage.add( 0, time_slot, config.account_cpu_usage_average_window );
+					const auto& limits = _db.get<resource_limits_object,by_owner>( boost::make_tuple(false, payer) );
+					if(limits){
+						_db.modify( limits, [&]( auto& bu ){
+							bu.net_usage.add( 0, 0, 100 );
+							bu.cpu_usage.add( cpu, 0, 100 );
 						});
 					}
 					/*
-					const auto* usage = _db.find<resource_limits_object,by_owner>( boost::make_tuple(true, payer) );
+					const auto* usage = _db.find<resource_limits_object,by_owner>( boost::make_tuple(false, payer) );
 					if(usage){
 						ram_bytes  = usage->ram_bytes;
 						cpu_weight = usage->cpu_weight;
