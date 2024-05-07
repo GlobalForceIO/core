@@ -143,7 +143,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					uint64_t cpu_weight = 1000000000000;
 					
 					const auto& limits = _db.get<resource_limits_object,by_owner>( boost::make_tuple(false, payer) );
-					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay resource_limits_object: ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("ram_bytes", limits->ram_bytes)("cpu_weight", limits->cpu_weight));
+					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay resource_limits_object: ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("ram_bytes", limits.ram_bytes)("cpu_weight", limits.cpu_weight));
 					_db.modify( limits, [&]( resource_limits_object& t ){
 						t.ram_bytes += ram;
 						t.cpu_weight += cpu;
