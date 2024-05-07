@@ -213,8 +213,8 @@ void resource_limits_manager::agree_billtrx_pay( const account_name& payer, cons
 					ilog( "ONBILLTRX:: agree_billtrx_pay: resource_usage_object: ram_usage = ${ram_usage} cpu_usage = ${cpu_usage}", ("ram_usage", usage.ram_usage)("cpu_usage", usage.cpu_usage));
 
 					_db.modify( usage, [&]( auto& bu ){
-						bu.ram_usage.add( cost_ram, 0, 10001000 );
-						bu.cpu_usage.add( cost_cpu, 0, 20002000 );
+						bu.ram_usage += cost_ram;
+						bu.cpu_usage += cost_cpu;
 					});
 					
 				}else{
