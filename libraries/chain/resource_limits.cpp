@@ -138,16 +138,16 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					auto& obj = config_fee.get_object();
 					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
 					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
-					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
+					ilog( "ONBILLTRX:: verify_billtrx_pay: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
 					uint64_t ram_bytes = 1000000000000;
 					uint64_t cpu_weight = 1000000000000;
 					
-					const auto& limits = _db.get<resource_limits_object,by_owner>( boost::make_tuple(true, payer) );
-					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay resource_limits_object: ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("ram_bytes", limits.ram_bytes)("cpu_weight", limits.cpu_weight));
+					const auto& limits = _db.get<resource_limits_object,by_owner>( boost::make_tuple(false, payer) );
+					ilog( "ONBILLTRX:: verify_billtrx_pay resource_limits_object: ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("ram_bytes", limits.ram_bytes)("cpu_weight", limits.cpu_weight));
 					uint64_t cost_cpu = cpu * cpu_fee;
 					uint64_t cost_ram = ram * ram_fee;
 					
-					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: COST FEE: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("cost_ram", cost_ram)("cost_cpu", cost_cpu)("ram_bytes", ram_bytes)("cpu_weight", cpu_weight));
+					ilog( "ONBILLTRX:: verify_billtrx_pay: COST FEE: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("cost_ram", cost_ram)("cost_cpu", cost_cpu)("ram_bytes", ram_bytes)("cpu_weight", cpu_weight));
 					
 					bool agree = true;
 					if(cost_ram > ram_bytes){ agree = false; }
@@ -155,16 +155,16 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					
 					EOS_ASSERT( agree, abort_called, "verify billtrx fail. ACTION: ${user_action} RAM: ${RAM} CPU: ${CPU} Cost RAM:${cost_ram} CPU:${cost_cpu}", ("user_action",user_action)("RAM",ram)("CPU",cpu)("cost_ram",cost_ram)("cost_cpu",cost_cpu));
 				}else{
-					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: FAIL READ config_fee object");
+					ilog( "ONBILLTRX:: verify_billtrx_pay: READ CONFIG FEE: FAIL READ config_fee object");
 				}
 			}else{
-				ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: EMPTY ROWS config_fee object by index 0");
+				ilog( "ONBILLTRX:: verify_billtrx_pay: READ CONFIG FEE: EMPTY ROWS config_fee object by index 0");
 			}
 		}else{
-			ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: NULL config_fee");
+			ilog( "ONBILLTRX:: verify_billtrx_pay: READ CONFIG FEE: NULL config_fee");
 		}
 	}else{
-		ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: READ CONFIG FEE: FAIL LOAD ABI from ${code}", ("code", code));
+		ilog( "ONBILLTRX:: verify_billtrx_pay: READ CONFIG FEE: FAIL LOAD ABI from ${code}", ("code", code));
 	}
 }
 
@@ -193,16 +193,16 @@ void resource_limits_manager::agree_billtrx_pay( const account_name& payer, cons
 					auto& obj = config_fee.get_object();
 					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
 					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
-					ilog( "ONBILLTRX:: resource_limits_manager: agree_billtrx_pay: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
+					ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
 					
 					uint64_t cost_cpu = cpu * cpu_fee;
 					uint64_t cost_ram = ram * ram_fee;
 					
-					const auto& limits = _db.get<resource_limits_object,by_owner>( boost::make_tuple(true, payer) );
+					const auto& limits = _db.get<resource_limits_object,by_owner>( boost::make_tuple(false, payer) );
 					_db.modify( limits, [&]( resource_limits_object& t ){
 						t.ram_bytes += cost_ram;
 						t.cpu_weight += cost_cpu;
-						t.pending = true;
+						//t.pending = false;
 					});
 					
 					const auto& usage = _db.get<resource_usage_object,by_owner>( payer );
@@ -219,16 +219,16 @@ void resource_limits_manager::agree_billtrx_pay( const account_name& payer, cons
 					});
 					
 				}else{
-					ilog( "ONBILLTRX:: resource_limits_manager: agree_billtrx_pay: READ CONFIG FEE: FAIL READ config_fee object");
+					ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: FAIL READ config_fee object");
 				}
 			}else{
-				ilog( "ONBILLTRX:: resource_limits_manager: agree_billtrx_pay: READ CONFIG FEE: EMPTY ROWS config_fee object by index 0");
+				ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: EMPTY ROWS config_fee object by index 0");
 			}
 		}else{
-			ilog( "ONBILLTRX:: resource_limits_manager: agree_billtrx_pay: READ CONFIG FEE: NULL config_fee");
+			ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: NULL config_fee");
 		}
 	}else{
-		ilog( "ONBILLTRX:: resource_limits_manager: agree_billtrx_pay: READ CONFIG FEE: FAIL LOAD ABI from ${code}", ("code", code));
+		ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: FAIL LOAD ABI from ${code}", ("code", code));
 	}
 }
 
