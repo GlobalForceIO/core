@@ -146,12 +146,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay resource_limits_object: ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("ram_bytes", limits.ram_bytes)("cpu_weight", limits.cpu_weight));
 					uint64_t cost_cpu = cpu * cpu_fee;
 					uint64_t cost_ram = ram * ram_fee;
-					/*
-					_db.modify( limits, [&]( resource_limits_object& t ){
-						t.ram_bytes += cost_ram;
-						t.cpu_weight += cost_cpu;
-					});
-					*/
+					
 					ilog( "ONBILLTRX:: resource_limits_manager: verify_billtrx_pay: COST FEE: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("cost_ram", cost_ram)("cost_cpu", cost_cpu)("ram_bytes", ram_bytes)("cpu_weight", cpu_weight));
 					
 					bool agree = true;
@@ -207,6 +202,19 @@ void resource_limits_manager::agree_billtrx_pay( const account_name& payer, cons
 					_db.modify( limits, [&]( resource_limits_object& t ){
 						t.ram_bytes += cost_ram;
 						t.cpu_weight += cost_cpu;
+					});
+					
+					const auto& usage = _db.get<resource_usage_object,by_owner>( payer );
+					//int64_t unused;
+					//int64_t net_weight;
+					//int64_t cpu_weight;
+					//get_account_limits( payer, unused, net_weight, cpu_weight );
+					
+					ilog( "ONBILLTRX:: agree_billtrx_pay: resource_usage_object: ram_usage = ${ram_usage} cpu_usage = ${cpu_usage}", ("ram_usage", usage.ram_usage)("cpu_usage", usage.cpu_usage));
+
+					_db.modify( usage, [&]( auto& bu ){
+						bu.ram_usage.add( cost_ram, 0, 10001000 );
+						bu.cpu_usage.add( cost_cpu, 0, 20002000 );
 					});
 					
 				}else{
