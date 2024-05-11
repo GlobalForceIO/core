@@ -277,20 +277,24 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
    const auto& config = _db.get<resource_limits_config_object>();
 	
 	for( const auto& a : accounts ) {
-		const auto& billtrx = _db.get<resource_billtrx_object,by_owner>( a );
-		if (billtrx == nullptr) {
-			 _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
+		auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+		  const auto* t = _db.find<resource_billtrx_object,by_owner>( a );
+		  if (t == nullptr) {
+			 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
 				t.owner = a;
-				t.net = net_usage;
+				t.net = -1;
 				t.ram = -1;
-				t.cpu = cpu_usage;
+				t.cpu = -1;
 			 });
-		} else {
-			_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-				t.net += net_usage;
-				t.cpu += cpu_usage;
-			});
-		}    
+		  } else {
+			 return *t;
+		  }
+		};
+		auto& billtrx = find_or_create_billtrx();
+		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
+			t.net += net_usage;
+			t.cpu += cpu_usage;
+		});
 	}
 	//TODO remove limit resources for account
 	/*
