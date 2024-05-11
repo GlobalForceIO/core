@@ -161,10 +161,6 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					uint64_t cost_cpu = cpu * cpu_fee;
 					uint64_t cost_ram = ram * ram_fee;
 					
-					/*
-					ram_bytes = 83949 cpu_weight = 52672
-					am_bytes = 89929 cpu_weight = 56662
-					*/
 					ilog( "ONBILLTRX:: verify_billtrx_pay: COST FEE: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("cost_ram", cost_ram)("cost_cpu", cost_cpu)("ram_bytes", ram_bytes)("cpu_weight", cpu_weight));
 					
 					bool agree = true;
@@ -211,16 +207,17 @@ void resource_limits_manager::agree_billtrx_pay( const account_name& payer, cons
 					auto& obj = config_fee.get_object();
 					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
 					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
-					ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
-					
 					uint64_t cost_cpu = cpu * cpu_fee;
 					uint64_t cost_ram = ram * ram_fee;
 					
-					const auto& limits = _db.get<resource_billtrx_object,by_owner>( payer );
-					_db.modify( limits, [&]( resource_billtrx_object& t ){
+					const auto& billtrx = _db.get<resource_billtrx_object,by_owner>( payer );
+					_db.modify( billtrx, [&]( resource_billtrx_object& t ){
 						t.ram += cost_ram;
 						t.cpu += cost_cpu;
 					});
+					
+					ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee} billtrx: ram = ${ram} cpu = ${cpu}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee)("ram", billtrx.ram)("cpu", billtrx.cpu));
+					
 				}else{
 					ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: FAIL READ config_fee object");
 				}
@@ -279,6 +276,23 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
    const auto& state = _db.get<resource_limits_state_object>();
    const auto& config = _db.get<resource_limits_config_object>();
 	
+	for( const auto& a : accounts ) {
+		const auto* billtrx = _db.find<resource_billtrx_object,by_owner>( a );
+		if (billtrx == nullptr) {
+			 _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
+				t.owner = a;
+				t.net = net_usage;
+				t.ram = -1;
+				t.cpu = cpu_usage;
+			 });
+		} else {
+			_db.modify( billtrx, [&]( auto& t ){
+				  t.net += net_usage;
+				  //t.ram += ram;
+				  t.cpu += cpu_usage;
+			});
+		}      
+	}
 	//TODO remove limit resources for account
 	/*
    for( const auto& a : accounts ) {
