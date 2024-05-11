@@ -144,9 +144,9 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					uint64_t cpu_weight = 1000000000000;
 					
 					auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
-					  const auto* t = _db.find<resource_billtrx_object, by_owner>( boost::make_tuple(payer) );
+					  const auto* t = _db.find<resource_billtrx_object,by_owner>( payer );
 					  if (t == nullptr) {
-						 const auto& _usage = _db.get<resource_billtrx_object, by_owner>( boost::make_tuple(payer));
+						 const auto& _usage = _db.get<resource_billtrx_object,by_owner>( payer );
 						 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
 							t.owner = _usage.owner;
 							t.net = _usage.net;
@@ -217,7 +217,7 @@ void resource_limits_manager::agree_billtrx_pay( const account_name& payer, cons
 					uint64_t cost_cpu = cpu * cpu_fee;
 					uint64_t cost_ram = ram * ram_fee;
 					
-					const auto& limits = _db.get<resource_billtrx_object,by_owner>( boost::make_tuple(payer) );
+					const auto& limits = _db.get<resource_billtrx_object,by_owner>( payer );
 					_db.modify( limits, [&]( resource_billtrx_object& t ){
 						t.ram += cost_ram;
 						t.cpu += cost_cpu;
