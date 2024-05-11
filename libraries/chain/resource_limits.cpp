@@ -277,7 +277,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
    const auto& config = _db.get<resource_limits_config_object>();
 	
 	for( const auto& a : accounts ) {
-		const auto& billtrx = _db.find<resource_billtrx_object,by_owner>( a );
+		const auto& billtrx = _db.get<resource_billtrx_object,by_owner>( a );
 		if (billtrx == nullptr) {
 			 _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
 				t.owner = a;
@@ -286,10 +286,9 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 				t.cpu = cpu_usage;
 			 });
 		} else {
-			_db.modify( billtrx, [&]( auto& t ){
-				  t.net += net_usage;
-				  //t.ram += ram;
-				  t.cpu += cpu_usage;
+			_db.modify( billtrx, [&]( resource_billtrx_object& t ){
+				t.ram += cost_ram;
+				t.cpu += cost_cpu;
 			});
 		}    
 	}
