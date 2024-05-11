@@ -273,16 +273,17 @@ cleos -u http://127.0.0.1:18881 set account permission --add-code gf.price activ
 cleos -u http://127.0.0.1:18881 set contract gf.types /var/server/dapps/gf.types -p gf.types@active
 cleos -u http://127.0.0.1:18881 set account permission --add-code gf.types active
 
-cleos -u http://127.0.0.1:18881 push action gf.types create '[ "GF", "GF", "https://dev.globalforce.io/transaction/" ]' -p gf.types@active
-cleos -u http://127.0.0.1:18881 push action gf.types create '[ "BITCOIN", "BTC", "https://www.blockchain.com/btc/tx/" ]' -p gf.types@active
-cleos -u http://127.0.0.1:18881 push action gf.types create '[ "BINANCE", "BEP20", "https://bscscan.com/tx/" ]' -p gf.types@active
-cleos -u http://127.0.0.1:18881 push action gf.types create '[ "ETHEREUM", "ETH", "https://etherscan.io/tx/" ]' -p gf.types@active
-cleos -u http://127.0.0.1:18881 push action gf.types create '[ "ETHEREUM", "ERC20", "https://etherscan.io/tx/" ]' -p gf.types@active
-cleos -u http://127.0.0.1:18881 push action gf.types create '[ "TRON", "TRX", "https://tronscan.org/#/transaction/" ]' -p gf.types@active
-cleos -u http://127.0.0.1:18881 push action gf.types create '[ "TRON", "TRC10", "https://tronscan.org/#/transaction/" ]' -p gf.types@active
-cleos -u http://127.0.0.1:18881 push action gf.types create '[ "TRON", "TRC20", "https://tronscan.org/#/transaction/" ]' -p gf.types@active
-cleos -u http://127.0.0.1:18881 push action gf.types create '[ "POLYGON", "MATIC", "https://polygonscan.com/tx/" ]' -p gf.types@active
-cleos -u http://127.0.0.1:18881 push action gf.types create '[ "POLYGON", "MATIC20", "https://polygonscan.com/tx/" ]' -p gf.types@active
+cleos -u http://127.0.0.1:18881 push action gf.types create '[ "GF", "GF", "https://dev.globalforce.io/transaction/","https://dev.globalforce.io/account/" ]' -p gf.types@active
+cleos -u http://127.0.0.1:18881 push action gf.types create '[ "BITCOIN", "BTC", "https://www.blockchain.com/btc/tx/","https://www.blockchain.com/explorer/addresses/btc/" ]' -p gf.types@active
+cleos -u http://127.0.0.1:18881 push action gf.types create '[ "BINANCE", "BEP20", "https://bscscan.com/tx/","https://bscscan.com/address/" ]' -p gf.types@active
+cleos -u http://127.0.0.1:18881 push action gf.types create '[ "ETHEREUM", "ETH", "https://etherscan.io/tx/","https://etherscan.io/address/" ]' -p gf.types@active
+cleos -u http://127.0.0.1:18881 push action gf.types create '[ "ETHEREUM", "ERC20", "https://etherscan.io/tx/","https://etherscan.io/address/" ]' -p gf.types@active
+cleos -u http://127.0.0.1:18881 push action gf.types create '[ "TRON", "TRX", "https://tronscan.org/#/transaction/","https://tronscan.org/#/address/" ]' -p gf.types@active
+cleos -u http://127.0.0.1:18881 push action gf.types create '[ "TRON", "TRC10", "https://tronscan.org/#/transaction/","https://tronscan.org/#/address/" ]' -p gf.types@active
+cleos -u http://127.0.0.1:18881 push action gf.types create '[ "TRON", "TRC20", "https://tronscan.org/#/transaction/","https://tronscan.org/#/address/" ]' -p gf.types@active
+cleos -u http://127.0.0.1:18881 push action gf.types create '[ "POLYGON", "MATIC", "https://polygonscan.com/tx/","https://polygonscan.com/address/" ]' -p gf.types@active
+cleos -u http://127.0.0.1:18881 push action gf.types create '[ "POLYGON", "MATIC20", "https://polygonscan.com/tx/","https://polygonscan.com/address/" ]' -p gf.types@active
+
 
 cleos -u http://127.0.0.1:18881 get table gf.types gf.types types
 
