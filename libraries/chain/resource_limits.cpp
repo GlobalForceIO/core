@@ -146,12 +146,11 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 					  const auto* t = _db.find<resource_billtrx_object,by_owner>( payer );
 					  if (t == nullptr) {
-						 const auto& _usage = _db.get<resource_billtrx_object,by_owner>( payer );
 						 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
-							t.owner = _usage.owner;
-							t.net = _usage.net;
-							t.ram = _usage.ram;
-							t.cpu = _usage.cpu;
+							t.owner = payer;
+							t.net = -1;
+							t.ram = -1;
+							t.cpu = -1;
 						 });
 					  } else {
 						 return *t;
