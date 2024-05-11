@@ -287,8 +287,8 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			 });
 		} else {
 			_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-				t.ram += cost_ram;
-				t.cpu += cost_cpu;
+				t.net += net_usage;
+				t.cpu += cpu_usage;
 			});
 		}    
 	}
