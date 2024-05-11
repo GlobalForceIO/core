@@ -34,6 +34,7 @@ namespace eosio { namespace chain { namespace resource_limits {
    abi_serializer token_abi_ser;
    
 using resource_index_set = index_set<
+   resource_billtrx_index,
    resource_limits_index,
    resource_usage_index,
    resource_limits_state_index,
@@ -142,11 +143,29 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					uint64_t ram_bytes = 1000000000000;
 					uint64_t cpu_weight = 1000000000000;
 					
-					const auto& limits = _db.get<resource_limits_object,by_owner>( boost::make_tuple(false, payer) );
-					ilog( "ONBILLTRX:: verify_billtrx_pay resource_limits_object: ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("ram_bytes", limits.ram_bytes)("cpu_weight", limits.cpu_weight));
+					auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+					  const auto* t = _db.find<resource_billtrx_object, by_owner>( boost::make_tuple(payer) );
+					  if (t == nullptr) {
+						 const auto& _usage = _db.get<resource_billtrx_object, by_owner>( boost::make_tuple(payer));
+						 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
+							t.owner = _usage.owner;
+							t.net = _usage.net;
+							t.ram = _usage.ram;
+							t.cpu = _usage.cpu;
+						 });
+					  } else {
+						 return *t;
+					  }
+					};
+					auto& billtrx = find_or_create_billtrx();
+					ilog( "ONBILLTRX:: verify_billtrx_pay resource_billtrx_object: ram = ${ram} cpu = ${cpu}", ("ram", billtrx.ram)("cpu", billtrx.cpu));
 					uint64_t cost_cpu = cpu * cpu_fee;
 					uint64_t cost_ram = ram * ram_fee;
 					
+					/*
+					ram_bytes = 83949 cpu_weight = 52672
+					am_bytes = 89929 cpu_weight = 56662
+					*/
 					ilog( "ONBILLTRX:: verify_billtrx_pay: COST FEE: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("cost_ram", cost_ram)("cost_cpu", cost_cpu)("ram_bytes", ram_bytes)("cpu_weight", cpu_weight));
 					
 					bool agree = true;
@@ -198,26 +217,11 @@ void resource_limits_manager::agree_billtrx_pay( const account_name& payer, cons
 					uint64_t cost_cpu = cpu * cpu_fee;
 					uint64_t cost_ram = ram * ram_fee;
 					
-					const auto& limits = _db.get<resource_limits_object,by_owner>( boost::make_tuple(false, payer) );
-					_db.modify( limits, [&]( resource_limits_object& t ){
-						t.ram_bytes += cost_ram;
-						t.cpu_weight += cost_cpu;
-						//t.pending = false;
+					const auto& limits = _db.get<resource_billtrx_object,by_owner>( boost::make_tuple(payer) );
+					_db.modify( limits, [&]( resource_billtrx_object& t ){
+						t.ram += cost_ram;
+						t.cpu += cost_cpu;
 					});
-					
-					const auto& usage = _db.get<resource_usage_object,by_owner>( payer );
-					//int64_t unused;
-					//int64_t net_weight;
-					//int64_t cpu_weight;
-					//get_account_limits( payer, unused, net_weight, cpu_weight );
-					
-					ilog( "ONBILLTRX:: agree_billtrx_pay: resource_usage_object: ram_usage = ${ram_usage} cpu_usage = ${cpu_usage}", ("ram_usage", usage.ram_usage)("cpu_usage", usage.cpu_usage));
-
-					_db.modify( usage, [&]( auto& bu ){
-						bu.ram_usage += cost_ram;
-						//bu.cpu_usage += cost_cpu;
-					});
-					
 				}else{
 					ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: FAIL READ config_fee object");
 				}
@@ -239,6 +243,10 @@ void resource_limits_manager::initialize_account(const account_name& account) {
 
    _db.create<resource_usage_object>([&]( resource_usage_object& bu ) {
       bu.owner = account;
+   });
+   
+   _db.create<resource_billtrx_object>([&]( resource_billtrx_object& t ) {
+      t.owner = account;
    });
 }
 

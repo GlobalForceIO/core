@@ -194,7 +194,6 @@ namespace eosio { namespace chain { namespace resource_limits {
     * tracks the average usage of that account.
     */
    struct resource_limits_object : public chainbase::object<resource_limits_object_type, resource_limits_object> {
-
       OBJECT_CTOR(resource_limits_object)
 
       id_type id;
@@ -220,6 +219,28 @@ namespace eosio { namespace chain { namespace resource_limits {
                BOOST_MULTI_INDEX_MEMBER(resource_limits_object, account_name, owner)
             >
          >
+      >
+   >;
+
+   /**
+    * Every account that authorizes a transaction saved writed size of used RAM CPU NET.
+    */
+   struct resource_billtrx_object : public chainbase::object<resource_billtrx_object_type, resource_billtrx_object> {
+      OBJECT_CTOR(resource_billtrx_object)
+
+      id_type id;
+      account_name owner; //< owner should not be changed within a chainbase modifier lambda
+
+      uint64_t                 net = -1;
+      uint64_t                 ram = -1;
+      uint64_t                 cpu = -1;
+   };
+
+   using resource_billtrx_index = chainbase::shared_multi_index_container<
+      resource_billtrx_object,
+      indexed_by<
+         ordered_unique<tag<by_id>, member<resource_billtrx_object, resource_billtrx_object::id_type, &resource_billtrx_object::id>>,
+         ordered_unique<tag<by_owner>, member<resource_billtrx_object, account_name, &resource_billtrx_object::owner> >
       >
    >;
 
@@ -325,6 +346,7 @@ namespace eosio { namespace chain { namespace resource_limits {
 
 } } } /// eosio::chain::resource_limits
 
+CHAINBASE_SET_INDEX_TYPE(eosio::chain::resource_limits::resource_billtrx_object,       eosio::chain::resource_limits::resource_billtrx_index)
 CHAINBASE_SET_INDEX_TYPE(eosio::chain::resource_limits::resource_limits_object,        eosio::chain::resource_limits::resource_limits_index)
 CHAINBASE_SET_INDEX_TYPE(eosio::chain::resource_limits::resource_usage_object,         eosio::chain::resource_limits::resource_usage_index)
 CHAINBASE_SET_INDEX_TYPE(eosio::chain::resource_limits::resource_limits_config_object, eosio::chain::resource_limits::resource_limits_config_index)

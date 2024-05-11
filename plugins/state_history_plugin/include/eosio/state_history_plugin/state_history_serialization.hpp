@@ -429,6 +429,19 @@ datastream<ST>& operator<<(datastream<ST>&                                      
 
 template <typename ST>
 datastream<ST>& operator<<(datastream<ST>&                                                                      ds,
+                           const history_serial_wrapper<eosio::chain::resource_limits::resource_billtrx_object>& obj) {
+   EOS_ASSERT(!obj.obj.pending, eosio::chain::plugin_exception,
+              "accepted_block sent while resource_billtrx_object in pending state");
+   fc::raw::pack(ds, fc::unsigned_int(0));
+   fc::raw::pack(ds, as_type<uint64_t>(obj.obj.owner.to_uint64_t()));
+   fc::raw::pack(ds, as_type<int64_t>(obj.obj.net));
+   fc::raw::pack(ds, as_type<int64_t>(obj.obj.ram));
+   fc::raw::pack(ds, as_type<int64_t>(obj.obj.cpu));
+   return ds;
+}
+
+template <typename ST>
+datastream<ST>& operator<<(datastream<ST>&                                                                      ds,
                            const history_serial_wrapper<eosio::chain::resource_limits::resource_limits_object>& obj) {
    EOS_ASSERT(!obj.obj.pending, eosio::chain::plugin_exception,
               "accepted_block sent while resource_limits_object in pending state");
