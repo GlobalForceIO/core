@@ -434,9 +434,9 @@ datastream<ST>& operator<<(datastream<ST>&                                      
               "accepted_block sent while resource_billtrx_object in pending state");
    fc::raw::pack(ds, fc::unsigned_int(0));
    fc::raw::pack(ds, as_type<uint64_t>(obj.obj.owner.to_uint64_t()));
-   fc::raw::pack(ds, as_type<int64_t>(obj.obj.net));
-   fc::raw::pack(ds, as_type<int64_t>(obj.obj.ram));
-   fc::raw::pack(ds, as_type<int64_t>(obj.obj.cpu));
+   fc::raw::pack(ds, as_type<uint64_t>(obj.obj.net));
+   fc::raw::pack(ds, as_type<uint64_t>(obj.obj.ram));
+   fc::raw::pack(ds, as_type<uint64_t>(obj.obj.cpu));
    return ds;
 }
 
