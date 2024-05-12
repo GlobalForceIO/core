@@ -144,25 +144,30 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					uint64_t cost_cpu = cpu * cpu_fee;
 					
 					auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
-					  const auto* t = _db.find<resource_billtrx_object,by_owner>( payer );
+					  //find account with pending state true
+					  const auto* t = _db.find<resource_billtrx_object,by_owner>( boost::make_tuple(true, payer) );
 					  if (t == nullptr) {
+					     //create new row account with pending state true
+						 const auto& limits = _db.get<resource_billtrx_object, by_owner>( boost::make_tuple(false, payer));
 						 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
-							t.owner = payer;
-							t.net = 0;
-							t.ram = 0;
-							t.cpu = 0;
+							t.owner = limits.owner;
+							t.net = limits.net;
+							t.ram = limits.ram;
+							t.cpu = limits.cpu;
+							t.pending = true;
 						 });
 					  } else {
 						 return *t;
 					  }
 					};
 					auto& billtrx = find_or_create_billtrx();
-					const auto& billtrx_ = _db.get<resource_billtrx_object,by_owner>( payer );
+					const auto& billtrx_ = _db.get<resource_billtrx_object,by_owner>( boost::make_tuple(true, payer) );
 					_db.modify( billtrx_, [&]( resource_billtrx_object& t ){
-						t.ram = billtrx.ram > 30000 ? cost_ram : billtrx_.ram + cost_ram;
-						t.cpu = billtrx.cpu > 30000 ? cost_cpu : billtrx_.cpu + cost_cpu;
+						t.ram = billtrx.ram > 30000 ? cost_ram : billtrx.ram + cost_ram;
+						t.cpu = billtrx.cpu > 30000 ? cost_cpu : billtrx.cpu + cost_cpu;
 					});
-					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} TRX: ram = ${ram} cpu = ${cpu} COST: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} FIND: ram = ${billtrx_ram} cpu = ${billtrx_cpu}",("payer", payer)("user_action", user_action)("ram", billtrx.ram)("cpu", billtrx.cpu) ("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx_.ram)("billtrx_cpu", billtrx_.cpu));
+					
+					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} FIND: ram = ${billtrx_ram} cpu = ${billtrx_cpu}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu));
 					
 					/*
 					uint64_t ram_bytes = 1000000000000;
@@ -185,56 +190,6 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 		}
 	}else{
 		ilog( "ONBILLTRX:: verify_billtrx_pay: READ CONFIG FEE: FAIL LOAD ABI from ${code}", ("code", code));
-	}
-}
-
-void resource_limits_manager::agree_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram )const {
-	ilog( "ONBILLTRX:: agree_billtrx_pay payer: ${payer} action: ${user_action} cpu: ${cpu} ram: ${ram}", ("payer", payer)("user_action", user_action)("cpu", cpu)("ram", ram));
-	account_name code = N(eosio);
-	account_name scope = N(eosio);
-	account_name tablename = N(configfee);
-	
-	const fc::microseconds abi_serializer_max_time = fc::seconds(10);
-	bool  shorten_abi_errors = true;
-	const auto& code_account = _db.get<account_object,by_name>( code );
-	abi_def abi;
-	if( abi_serializer::to_abi(code_account.abi, abi) ) {
-		abi_serializer abis( abi, abi_serializer::create_yield_function( abi_serializer_max_time ) );
-		const auto* t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( code, scope, tablename ));
-		if (t_id != nullptr) {
-			const auto &idx = _db.get_index<key_value_index, by_scope_primary>();
-			auto it = idx.find(boost::make_tuple( t_id->id, 0 ));
-			if( it != idx.end() ) {
-				vector<char> data;
-				data.resize( it->value.size() );
-				memcpy( data.data(), it->value.data(), it->value.size() );
-				fc::variant config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
-				if( config_fee.is_object() ) {
-					auto& obj = config_fee.get_object();
-					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
-					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
-					uint64_t cost_cpu = cpu * cpu_fee;
-					uint64_t cost_ram = ram * ram_fee;
-					
-					const auto& billtrx = _db.get<resource_billtrx_object,by_owner>( payer );
-					_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-						t.ram += cost_ram;
-						t.cpu += cost_cpu;
-					});
-					
-					ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee} billtrx: ram = ${ram} cpu = ${cpu}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee)("ram", billtrx.ram)("cpu", billtrx.cpu));
-					
-				}else{
-					ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: FAIL READ config_fee object");
-				}
-			}else{
-				ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: EMPTY ROWS config_fee object by index 0");
-			}
-		}else{
-			ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: NULL config_fee");
-		}
-	}else{
-		ilog( "ONBILLTRX:: agree_billtrx_pay: READ CONFIG FEE: FAIL LOAD ABI from ${code}", ("code", code));
 	}
 }
 
@@ -268,15 +223,16 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 	const auto& state = _db.get<resource_limits_state_object>();
 	const auto& config = _db.get<resource_limits_config_object>();
 	//обновление потраченных CPU и NET
+	/*
 	for( const auto& a : accounts ) {
 		auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 		  const auto* t = _db.find<resource_billtrx_object,by_owner>( a );
 		  if (t == nullptr) {
 			 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
 				t.owner = a;
-				t.net = -1;
-				t.ram = -1;
-				t.cpu = -1;
+				t.net = 0;
+				t.ram = 0;
+				t.cpu = 0;
 			 });
 		  } else {
 			 return *t;
@@ -288,7 +244,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			t.cpu += cpu_usage;
 		});
 	}
-	
+	*/
    //TODO leave total used resources bot block
    // account for this transaction in the block and do not exceed those limits either
    _db.modify(state, [&](resource_limits_state_object& rls){
@@ -401,6 +357,53 @@ bool resource_limits_manager::is_unlimited_cpu( const account_name& account ) co
 }
 
 void resource_limits_manager::process_account_limit_updates() {
+   //update accounts resources
+    
+	auto& multi_bill_index = _db.get_mutable_index<resource_billtrx_index>();
+	auto& by_owner_bill_index = multi_bill_index.indices().get<by_owner>();
+	while(!by_owner_bill_index.empty()) {
+       const auto& itr = by_owner_bill_index.lower_bound(boost::make_tuple(true));
+       if (itr == by_owner_bill_index.end() || itr->pending != true) {
+          break;
+       }
+
+       const auto& actual_bill = _db.get<resource_billtrx_object, by_owner>(boost::make_tuple(false, itr->owner));
+       _db.modify(actual_bill, [&](resource_billtrx_object& t){
+          t.ram += itr->ram;
+          t.cpu += itr->cpu;
+          t.net += itr->net;
+       });
+
+       multi_bill_index.remove(*itr);
+    }
+	/*
+	auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+	  //find account with pending state true
+	  const auto* t = _db.find<resource_billtrx_object,by_owner>( boost::make_tuple(true, payer) );
+	  if (t == nullptr) {
+	     //create new row account with pending state true
+		 const auto& limits = _db.get<resource_billtrx_object, by_owner>( boost::make_tuple(false, payer));
+		 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
+			t.owner = limits.owner;
+			t.net = limits.net;
+			t.ram = limits.ram;
+			t.cpu = limits.cpu;
+			t.pending = true;
+		 });
+	  } else {
+		 return *t;
+	  }
+	};
+	auto& billtrx = find_or_create_billtrx();
+	const auto& billtrx_ = _db.get<resource_billtrx_object,by_owner>( boost::make_tuple(true, payer) );
+	_db.modify( billtrx_, [&]( resource_billtrx_object& t ){
+		t.ram = billtrx.ram > 30000 ? cost_ram : billtrx.ram + cost_ram;
+		t.cpu = billtrx.cpu > 30000 ? cost_cpu : billtrx.cpu + cost_cpu;
+	});
+	*/
+   
+
+   //update system limits
    auto& multi_index = _db.get_mutable_index<resource_limits_index>();
    auto& by_owner_index = multi_index.indices().get<by_owner>();
 
