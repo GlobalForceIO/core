@@ -231,9 +231,9 @@ namespace eosio { namespace chain { namespace resource_limits {
       id_type id;
       account_name owner; //< owner should not be changed within a chainbase modifier lambda
 
-      uint64_t                 net = -1;
-      uint64_t                 ram = -1;
-      uint64_t                 cpu = -1;
+      uint64_t                 net = 0;
+      uint64_t                 ram = 0;
+      uint64_t                 cpu = 0;
    };
 
    using resource_billtrx_index = chainbase::shared_multi_index_container<

@@ -159,8 +159,8 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					auto& billtrx = find_or_create_billtrx();
 					const auto& billtrx_ = _db.get<resource_billtrx_object,by_owner>( payer );
 					_db.modify( billtrx_, [&]( resource_billtrx_object& t ){
-						t.ram = billtrx_.ram > 0 ? cost_ram : billtrx_.ram + cost_ram;
-						t.cpu = billtrx_.cpu > 0 ? cost_cpu : billtrx_.cpu + cost_cpu;
+						t.ram = billtrx_.ram > 30000 ? cost_ram : billtrx_.ram + cost_ram;
+						t.cpu = billtrx_.cpu > 30000 ? cost_cpu : billtrx_.cpu + cost_cpu;
 					});
 					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} TRX: ram = ${ram} cpu = ${cpu} COST: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} FIND: ram = ${billtrx_ram} cpu = ${billtrx_cpu}",("payer", payer)("user_action", user_action)("ram", billtrx.ram)("cpu", billtrx.cpu) ("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx_.ram)("billtrx_cpu", billtrx_.cpu));
 					
