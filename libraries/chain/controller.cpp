@@ -1356,7 +1356,7 @@ struct controller_impl {
 
          if( !validating ) {
             auto& rl = self.get_mutable_resource_limits_manager();
-            rl.update_account_usage( trx_context.bill_to_accounts, block_timestamp_type(self.pending_block_time()).slot );
+            //rl.update_account_usage( trx_context.bill_to_accounts, block_timestamp_type(self.pending_block_time()).slot );
             int64_t account_cpu_limit = 0;
             std::tie( std::ignore, account_cpu_limit, std::ignore, std::ignore ) = trx_context.max_bandwidth_billed_accounts_can_pay( true );
 
@@ -1720,20 +1720,6 @@ struct controller_impl {
 
       // Update TaPoS table:
       create_block_summary( id );
-
-      /*
-      ilog( "finalized block ${n} (${id}) at ${t} by ${p} (${signing_key}); schedule_version: ${v} lib: ${lib} #dtrxs: ${ndtrxs} ${np}",
-            ("n",pbhs.block_num)
-            ("id",id)
-            ("t",pbhs.timestamp)
-            ("p",pbhs.producer)
-            ("signing_key", pbhs.block_signing_key)
-            ("v",pbhs.active_schedule_version)
-            ("lib",pbhs.dpos_irreversible_blocknum)
-            ("ndtrxs",db.get_index<generated_transaction_multi_index,by_trx_id>().size())
-            ("np",block_ptr->new_producers)
-      );
-      */
 
       pending->_block_stage = assembled_block{
                                  id,
