@@ -458,16 +458,16 @@ namespace eosio { namespace chain {
                /*EOS_ASSERT( billed_us <= account_cpu_limit,
                            greylist_cpu_usage_exceeded,
                            "billed CPU time (${billed} us) is greater than the maximum greylisted billable CPU time for the transaction (${billable} us)",
-                           ("billed", billed_us)( "billable", account_cpu_limit )*/
-               );
+                           ("billed", billed_us)( "billable", account_cpu_limit )
+               );*/
             } else {
                // exceeds trx.max_cpu_usage_ms or cfg.max_transaction_cpu_usage if objective_duration_limit is greater
                const int64_t cpu_limit = (cpu_limited_by_account ? account_cpu_limit : objective_duration_limit.count());
                /*EOS_ASSERT( billed_us <= cpu_limit,
                            tx_cpu_usage_exceeded,
                            "billed CPU time (${billed} us) is greater than the maximum billable CPU time for the transaction (${billable} us)",
-                           ("billed", billed_us)( "billable", cpu_limit )*/
-               );
+                           ("billed", billed_us)( "billable", cpu_limit )
+               );*/
             }
          }
       }
