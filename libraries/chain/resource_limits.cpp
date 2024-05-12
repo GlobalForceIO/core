@@ -175,15 +175,20 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 						const auto &idxb = _db.get_index<key_value_index, by_scope_primary>();
 						auto itb = idxb.find(boost::make_tuple( tbl_id->id, 0 ));
 						if( itb != idxb.end() ) {
-						
+							ilog( "ONBILLTRX:: billedres: exist ${value}", ("value", itb->value));
+							_db.modify( itb, [&]( auto& t ) {
+							  t.value.assign( "charlie's info", strlen("charlies's info") );
+							  t.payer = payer;
+							});
 						}
 					}else{
-						db.create<table_id_object>([&](table_id_object &t_id){
-						  t_id.code = code;
-						  t_id.scope = scope;
-						  t_id.table = tablebill;
-						  t_id.payer = payer;
+						_db.create<chain::table_id_object>([&](chain::table_id_object &t){
+						  t.code = code;
+						  t.scope = scope;
+						  t.table = tablebill;
+						  t.payer = payer;
 						});
+						ilog( "ONBILLTRX:: billedres: create");
 					}
 					
 					
