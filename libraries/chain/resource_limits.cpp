@@ -144,16 +144,17 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					uint64_t cost_cpu = cpu * cpu_fee;
 					
 					auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
-					  //find account with pending state true
+					  //find row with pending state
 					  const auto* t = _db.find<resource_billtrx_object,by_owner>( boost::make_tuple(true, payer) );
 					  if (t == nullptr) {
-					     //create new row account with pending state true
-						 const auto& limits = _db.get<resource_billtrx_object, by_owner>( boost::make_tuple(false, payer));
+					     //get actual row
+						 const auto& actual = _db.get<resource_billtrx_object, by_owner>( boost::make_tuple(false, payer));
+					     //create new row with pending state
 						 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
-							t.owner = limits.owner;
-							t.net = limits.net;
-							t.ram = limits.ram;
-							t.cpu = limits.cpu;
+							t.owner = actual.owner;
+							t.net = actual.net;
+							t.ram = actual.ram;
+							t.cpu = actual.cpu;
 							t.pending = true;
 						 });
 					  } else {
@@ -161,10 +162,11 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					  }
 					};
 					auto& billtrx = find_or_create_billtrx();
+					//update row with pending state
 					const auto& billtrx_ = _db.get<resource_billtrx_object,by_owner>( boost::make_tuple(true, payer) );
 					_db.modify( billtrx_, [&]( resource_billtrx_object& t ){
-						t.ram = billtrx.ram > 30000 ? cost_ram : billtrx.ram + cost_ram;
-						t.cpu = billtrx.cpu > 30000 ? cost_cpu : billtrx.cpu + cost_cpu;
+						t.ram += cost_ram;
+						t.cpu += cost_cpu;
 					});
 					
 					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} FIND: ram = ${billtrx_ram} cpu = ${billtrx_cpu}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu));
@@ -358,7 +360,6 @@ bool resource_limits_manager::is_unlimited_cpu( const account_name& account ) co
 
 void resource_limits_manager::process_account_limit_updates() {
    //update accounts resources
-    
 	auto& multi_bill_index = _db.get_mutable_index<resource_billtrx_index>();
 	auto& by_owner_bill_index = multi_bill_index.indices().get<by_owner>();
 	while(!by_owner_bill_index.empty()) {
@@ -366,14 +367,13 @@ void resource_limits_manager::process_account_limit_updates() {
        if (itr == by_owner_bill_index.end() || itr->pending != true) {
           break;
        }
-
+	   //update row with actual state
        const auto& actual_bill = _db.get<resource_billtrx_object, by_owner>(boost::make_tuple(false, itr->owner));
        _db.modify(actual_bill, [&](resource_billtrx_object& t){
           t.ram += itr->ram;
           t.cpu += itr->cpu;
           t.net += itr->net;
        });
-
        multi_bill_index.remove(*itr);
     }
 	/*
