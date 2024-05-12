@@ -359,11 +359,13 @@ bool resource_limits_manager::is_unlimited_cpu( const account_name& account ) co
 }
 
 void resource_limits_manager::process_account_limit_updates() {
+	ilog( "ONBILLTRX:: limit_updates");
 	//update accounts resources billed
 	auto& multi_bill_index = _db.get_mutable_index<resource_billtrx_index>();
 	auto& by_owner_bill_index = multi_bill_index.indices().get<by_owner>();
 	while(!by_owner_bill_index.empty()) {
        const auto& itr = by_owner_bill_index.lower_bound(boost::make_tuple(true));
+	   ilog( "ONBILLTRX:: by_owner_bill_index: ${data}", ("data", itr));
        if (itr == by_owner_bill_index.end() || itr->pending != true) {
           break;
        }
