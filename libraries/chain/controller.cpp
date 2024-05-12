@@ -2755,7 +2755,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	
 	if(user_check && !user_trace->error_code){
 		//TODO use agree_billtrx_pay here
-		my->resource_limits.agree_billtrx_pay( my->user_name, my->user_action, my->user_trx_cpu, my->user_trx_ram );
+		//my->resource_limits.agree_billtrx_pay( my->user_name, my->user_action, my->user_trx_cpu, my->user_trx_ram );
 	}
 	
 	return user_trace;

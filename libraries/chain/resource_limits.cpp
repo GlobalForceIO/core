@@ -143,6 +143,9 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					uint64_t ram_bytes = 1000000000000;
 					uint64_t cpu_weight = 1000000000000;
 					
+					uint64_t cost_cpu = cpu * cpu_fee;
+					uint64_t cost_ram = ram * ram_fee;
+					
 					auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 					  const auto* t = _db.find<resource_billtrx_object,by_owner>( payer );
 					  if (t == nullptr) {
@@ -158,16 +161,21 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					};
 					auto& billtrx = find_or_create_billtrx();
 					ilog( "ONBILLTRX:: verify_billtrx_pay resource_billtrx_object: ram = ${ram} cpu = ${cpu}", ("ram", billtrx.ram)("cpu", billtrx.cpu));
-					uint64_t cost_cpu = cpu * cpu_fee;
-					uint64_t cost_ram = ram * ram_fee;
 					
+					const auto& billtrx_ = _db.get<resource_billtrx_object,by_owner>( payer );
+					_db.modify( billtrx_, [&]( resource_billtrx_object& t ){
+						t.ram += cost_ram;
+						t.cpu += cost_cpu;
+					});
 					ilog( "ONBILLTRX:: verify_billtrx_pay: COST FEE: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} ram_bytes = ${ram_bytes} cpu_weight = ${cpu_weight}", ("cost_ram", cost_ram)("cost_cpu", cost_cpu)("ram_bytes", ram_bytes)("cpu_weight", cpu_weight));
 					
+					/*
 					bool agree = true;
 					if(cost_ram > ram_bytes){ agree = false; }
 					if(cost_cpu > cpu_weight){ agree = false; }
 					
 					EOS_ASSERT( agree, abort_called, "verify billtrx fail. ACTION: ${user_action} RAM: ${RAM} CPU: ${CPU} Cost RAM:${cost_ram} CPU:${cost_cpu}", ("user_action",user_action)("RAM",ram)("CPU",cpu)("cost_ram",cost_ram)("cost_cpu",cost_cpu));
+					*/
 				}else{
 					ilog( "ONBILLTRX:: verify_billtrx_pay: READ CONFIG FEE: FAIL READ config_fee object");
 				}
@@ -258,24 +266,10 @@ void resource_limits_manager::set_block_parameters(const elastic_limit_parameter
    });
 }
 
-void resource_limits_manager::update_account_usage(const flat_set<account_name>& accounts, uint32_t time_slot ) {
-   //TODO remove limit resources for account
-   /*
-   const auto& config = _db.get<resource_limits_config_object>();
-   for( const auto& a : accounts ) {
-      const auto& usage = _db.get<resource_usage_object,by_owner>( a );
-      _db.modify( usage, [&]( auto& bu ){
-          bu.net_usage.add( 0, time_slot, config.account_net_usage_average_window );
-          bu.cpu_usage.add( 0, time_slot, config.account_cpu_usage_average_window );
-      });
-   }
-   */
-}
-
 void resource_limits_manager::add_transaction_usage(const flat_set<account_name>& accounts, uint64_t cpu_usage, uint64_t net_usage, uint32_t time_slot ) {
-   const auto& state = _db.get<resource_limits_state_object>();
-   const auto& config = _db.get<resource_limits_config_object>();
-	
+	const auto& state = _db.get<resource_limits_state_object>();
+	const auto& config = _db.get<resource_limits_config_object>();
+	//обновление потраченных CPU и NET
 	for( const auto& a : accounts ) {
 		auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 		  const auto* t = _db.find<resource_billtrx_object,by_owner>( a );
@@ -296,60 +290,6 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			t.cpu += cpu_usage;
 		});
 	}
-	//TODO remove limit resources for account
-	/*
-   for( const auto& a : accounts ) {
-
-      const auto& usage = _db.get<resource_usage_object,by_owner>( a );
-      int64_t unused;
-      int64_t net_weight;
-      int64_t cpu_weight;
-      get_account_limits( a, unused, net_weight, cpu_weight );
-
-      _db.modify( usage, [&]( auto& bu ){
-          bu.net_usage.add( net_usage, time_slot, config.account_net_usage_average_window );
-          bu.cpu_usage.add( cpu_usage, time_slot, config.account_cpu_usage_average_window );
-      });
-
-      if( cpu_weight >= 0 && state.total_cpu_weight > 0 ) {
-         uint128_t window_size = config.account_cpu_usage_average_window;
-         auto virtual_network_capacity_in_window = (uint128_t)state.virtual_cpu_limit * window_size;
-         auto cpu_used_in_window                 = ((uint128_t)usage.cpu_usage.value_ex * window_size) / (uint128_t)config::rate_limiting_precision;
-
-         uint128_t user_weight     = (uint128_t)cpu_weight;
-         uint128_t all_user_weight = state.total_cpu_weight;
-
-         auto max_user_use_in_window = (virtual_network_capacity_in_window * user_weight) / all_user_weight;
-
-         EOS_ASSERT( cpu_used_in_window <= max_user_use_in_window,
-                     tx_cpu_usage_exceeded,
-                     "authorizing account '${n}' has insufficient cpu resources for this transaction",
-                     ("n", name(a))
-                     ("cpu_used_in_window",cpu_used_in_window)
-                     ("max_user_use_in_window",max_user_use_in_window) );
-      }
-
-      if( net_weight >= 0 && state.total_net_weight > 0) {
-
-         uint128_t window_size = config.account_net_usage_average_window;
-         auto virtual_network_capacity_in_window = (uint128_t)state.virtual_net_limit * window_size;
-         auto net_used_in_window                 = ((uint128_t)usage.net_usage.value_ex * window_size) / (uint128_t)config::rate_limiting_precision;
-
-         uint128_t user_weight     = (uint128_t)net_weight;
-         uint128_t all_user_weight = state.total_net_weight;
-
-         auto max_user_use_in_window = (virtual_network_capacity_in_window * user_weight) / all_user_weight;
-
-         EOS_ASSERT( net_used_in_window <= max_user_use_in_window,
-                     tx_net_usage_exceeded,
-                     "authorizing account '${n}' has insufficient net resources for this transaction",
-                     ("n", name(a))
-                     ("net_used_in_window",net_used_in_window)
-                     ("max_user_use_in_window",max_user_use_in_window) );
-
-      }
-   }
-	*/
 	
    //TODO leave total used resources bot block
    // account for this transaction in the block and do not exceed those limits either
@@ -389,7 +329,7 @@ int64_t resource_limits_manager::get_account_ram_usage( const account_name& name
 
 bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {
 	//TODO remove limit resources for account
-	return false;
+	//return false;
    
    //const auto& usage = _db.get<resource_usage_object,by_owner>( account );
    /*
