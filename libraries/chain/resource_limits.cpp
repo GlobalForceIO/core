@@ -144,18 +144,14 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					uint64_t cost_cpu = cpu * cpu_fee;
 					
 					auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
-					  //find row with pending state
-					  const auto* t = _db.find<resource_billtrx_object,by_owner>( boost::make_tuple(true, payer) );
+					  const auto* t = _db.find<resource_billtrx_object,by_owner>( payer );
 					  if (t == nullptr) {
-					     //get actual row
-						 const auto& actual = _db.get<resource_billtrx_object, by_owner>( boost::make_tuple(false, payer));
-					     //create new row with pending state
+						 const auto& actual = _db.get<resource_billtrx_object, by_owner>( payer );
 						 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
 							t.owner = actual.owner;
 							t.net = actual.net;
 							t.ram = actual.ram;
 							t.cpu = actual.cpu;
-							t.pending = true;
 						 });
 					  } else {
 						 return *t;
@@ -163,13 +159,34 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					};
 					auto& billtrx = find_or_create_billtrx();
 					//update row with pending state
-					const auto& billtrx_ = _db.get<resource_billtrx_object,by_owner>( boost::make_tuple(true, payer) );
+					const auto& billtrx_ = _db.get<resource_billtrx_object,by_owner>( payer );
 					_db.modify( billtrx_, [&]( resource_billtrx_object& t ){
 						t.ram += cost_ram;
 						t.cpu += cost_cpu;
 					});
 					
 					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} FIND: ram = ${billtrx_ram} cpu = ${billtrx_cpu}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu));
+					
+					uint64_t value_to_store = cost_cpu;
+					int size_value = sizeof(value_to_store);
+					account_name tablebill = N(billedres);
+					const auto* tbl_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( code, scope, tablebill ));
+					if (tbl_id != nullptr) {
+						const auto &idxb = _db.get_index<key_value_index, by_scope_primary>();
+						auto itb = idxb.find(boost::make_tuple( tbl_id->id, 0 ));
+						if( itb != idxb.end() ) {
+						
+						}
+					}else{
+						db.create<table_id_object>([&](table_id_object &t_id){
+						  t_id.code = code;
+						  t_id.scope = scope;
+						  t_id.table = tablebill;
+						  t_id.payer = payer;
+						});
+					}
+					
+					
 					
 					/*
 					uint64_t ram_bytes = 1000000000000;
@@ -359,26 +376,6 @@ bool resource_limits_manager::is_unlimited_cpu( const account_name& account ) co
 }
 
 void resource_limits_manager::process_account_limit_updates() {
-	ilog( "ONBILLTRX:: limit_updates");
-	//update accounts resources billed
-	auto& multi_bill_index = _db.get_mutable_index<resource_billtrx_index>();
-	auto& by_owner_bill_index = multi_bill_index.indices().get<by_owner>();
-	while(!by_owner_bill_index.empty()) {
-       const auto& itr = by_owner_bill_index.lower_bound(boost::make_tuple(true));
-	   ilog( "ONBILLTRX:: by_owner_bill_index: ${owner} ${cpu} ${ram}", ("owner", itr->owner)("cpu", itr->cpu)("ram", itr->ram));
-       if (itr == by_owner_bill_index.end() || itr->pending != true) {
-          break;
-       }
-	   //update row with actual state
-       const auto& actual_bill = _db.get<resource_billtrx_object, by_owner>(boost::make_tuple(false, itr->owner));
-       _db.modify(actual_bill, [&](resource_billtrx_object& t){
-          t.ram = itr->ram;
-          t.cpu = itr->cpu;
-          t.net = itr->net;
-       });
-       multi_bill_index.remove(*itr);
-    }
-   //update accounts resources limits
    auto& multi_index = _db.get_mutable_index<resource_limits_index>();
    auto& by_owner_index = multi_index.indices().get<by_owner>();
 

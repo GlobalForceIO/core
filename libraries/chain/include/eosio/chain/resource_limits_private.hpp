@@ -230,31 +230,17 @@ namespace eosio { namespace chain { namespace resource_limits {
 
       id_type id;
       account_name owner; //< owner should not be changed within a chainbase modifier lambda
-      bool pending = false; //< pending should not be changed within a chainbase modifier lambda
 
       uint64_t                 net = 0;
       uint64_t                 ram = 0;
       uint64_t                 cpu = 0;
    };
-   /*
+   
    using resource_billtrx_index = chainbase::shared_multi_index_container<
       resource_billtrx_object,
       indexed_by<
          ordered_unique<tag<by_id>, member<resource_billtrx_object, resource_billtrx_object::id_type, &resource_billtrx_object::id>>,
          ordered_unique<tag<by_owner>, member<resource_billtrx_object, account_name, &resource_billtrx_object::owner> >
-      >
-   >;
-   */
-   using resource_billtrx_index = chainbase::shared_multi_index_container<
-      resource_billtrx_object,
-      indexed_by<
-         ordered_unique<tag<by_id>, member<resource_billtrx_object, resource_billtrx_object::id_type, &resource_billtrx_object::id>>,
-         ordered_unique<tag<by_owner>,
-            composite_key<resource_billtrx_object,
-               BOOST_MULTI_INDEX_MEMBER(resource_billtrx_object, bool, pending),
-               BOOST_MULTI_INDEX_MEMBER(resource_billtrx_object, account_name, owner)
-            >
-         >
       >
    >;
 
