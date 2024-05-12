@@ -365,7 +365,7 @@ void resource_limits_manager::process_account_limit_updates() {
 	auto& by_owner_bill_index = multi_bill_index.indices().get<by_owner>();
 	while(!by_owner_bill_index.empty()) {
        const auto& itr = by_owner_bill_index.lower_bound(boost::make_tuple(true));
-	   ilog( "ONBILLTRX:: by_owner_bill_index: ${data}", ("data", itr));
+	   ilog( "ONBILLTRX:: by_owner_bill_index: ${owner} ${cpu} ${ram}", ("owner", itr->owner)("cpu", itr->cpu)("ram", itr->ram));
        if (itr == by_owner_bill_index.end() || itr->pending != true) {
           break;
        }
