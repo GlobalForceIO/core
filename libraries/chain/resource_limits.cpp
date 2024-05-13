@@ -175,7 +175,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 						auto itb = idxb.find(boost::make_tuple( tbl_id->id, 0 ));
 						if( itb != idxb.end() ) {
 							ilog( "ONBILLTRX:: billedres: exist ${value}", ("value", itb->value));
-							_db.modify( idxb, [&]( auto& t ) {
+							_db.modify( itb, [&]( auto& t ) {
 							  t.value.assign( "test value string", strlen("test value string") );
 							  t.payer = payer;
 							});
