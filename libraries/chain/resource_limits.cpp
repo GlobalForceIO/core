@@ -166,32 +166,6 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					
 					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} FIND: ram = ${billtrx_ram} cpu = ${billtrx_cpu}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu));
 					
-					uint64_t value_to_store = cost_cpu;
-					int size_value = sizeof(value_to_store);
-					account_name tablebill = N(billedres);
-					const auto* tbl_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( code, scope, tablebill ));
-					if (tbl_id != nullptr) {
-						const auto &idxb = _db.get_index<key_value_index, by_scope_primary>();
-						auto itb = idxb.find(boost::make_tuple( tbl_id->id, 0 ));
-						if( itb != idxb.end() ) {
-							ilog( "ONBILLTRX:: billedres: exist ${value}", ("value", itb->value));
-							/*_db.modify( itb, [&]( auto& t ) {
-							  t.value.assign( "test value string", strlen("test value string") );
-							  t.payer = payer;
-							});*/
-						}
-					}else{
-						_db.create<chain::table_id_object>([&](chain::table_id_object &t){
-						  t.code = code;
-						  t.scope = scope;
-						  t.table = tablebill;
-						  t.payer = payer;
-						});
-						ilog( "ONBILLTRX:: billedres: create");
-					}
-					
-					
-					
 					/*
 					uint64_t ram_bytes = 1000000000000;
 					uint64_t cpu_weight = 1000000000000;
