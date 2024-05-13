@@ -307,8 +307,8 @@ namespace eosio { namespace chain {
 
       auto prev_bh = self.get_block_header( n->header.previous );
 
-      //EOS_ASSERT( prev_bh, unlinkable_block_exception,
-                  "unlinkable block", ("id", n->id)("previous", n->header.previous) );
+      /*EOS_ASSERT( prev_bh, unlinkable_block_exception,
+                  "unlinkable block", ("id", n->id)("previous", n->header.previous) );*/
 
       if( validate ) {
          try {
