@@ -1976,8 +1976,8 @@ struct controller_impl {
       EOS_ASSERT( !existing, fork_database_exception, "we already know about this block: ${id}", ("id", id) );
 
       auto prev = fork_db.get_block_header( b->previous );
-      EOS_ASSERT( prev, unlinkable_block_exception,
-                  "unlinkable block ${id}", ("id", id)("previous", b->previous) );
+      /*EOS_ASSERT( prev, unlinkable_block_exception,
+                  "unlinkable block ${id}", ("id", id)("previous", b->previous) );*/
 
       return async_thread_pool( thread_pool.get_executor(), [b, prev, control=this]() {
          const bool skip_validate_signee = false;
