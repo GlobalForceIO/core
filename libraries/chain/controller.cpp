@@ -2416,6 +2416,30 @@ struct controller_impl {
       }
       return trx;
    }
+   
+   signed_transaction get_on_billtrx_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
+   {
+	  action on_billtrx_act;
+      on_billtrx_act.account = config::system_account_name;
+      on_billtrx_act.name = N(onbilltrx);
+      on_billtrx_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
+	  onbilltrx_data.account = payer;
+	  onbilltrx_data.trx_id = trx_id;
+	  onbilltrx_data.cpu = billed_cpu;
+	  onbilltrx_data.ram = trx_size;
+      on_billtrx_act.data = fc::raw::pack(onbilltrx_data);
+      signed_transaction trx;
+      trx.actions.emplace_back(std::move(on_billtrx_act));
+      if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
+         trx.expiration = time_point_sec();
+         trx.ref_block_num = 0;
+         trx.ref_block_prefix = 0;
+      } else {
+         trx.expiration = self.pending_block_time() + fc::microseconds(999'999);
+         trx.set_reference_block( self.head_block_id() );
+      }
+      return trx;
+   }
 }; /// controller_impl
 
 const resource_limits_manager&   controller::get_resource_limits_manager()const
@@ -2741,7 +2765,8 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	
 	if(user_check && !user_trace->error_code){
 		//TODO use agree_billtrx_pay here
-		//my->resource_limits.agree_billtrx_pay( my->user_name, my->user_action, my->user_trx_cpu, my->user_trx_ram );
+		transaction_metadata_ptr onbilltrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
+		my->push_transaction( onbilltrx, deadline, 100, true, 0, false );
 	}
 	
 	return user_trace;
