@@ -2401,8 +2401,8 @@ struct controller_impl {
       on_billtrx_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
 	  onbilltrx_data.account = payer;
 	  onbilltrx_data.trx_id = trx_id;
-	  onbilltrx_data.cpu_us = billed_cpu;
-	  onbilltrx_data.ram_bytes = trx_size;
+	  onbilltrx_data.cpu = billed_cpu;
+	  onbilltrx_data.ram = trx_size;
       on_billtrx_act.data = fc::raw::pack(onbilltrx_data);
       signed_transaction trx;
       trx.actions.emplace_back(std::move(on_billtrx_act));
