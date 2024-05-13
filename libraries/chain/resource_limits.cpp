@@ -113,6 +113,11 @@ void resource_limits_manager::read_from_snapshot( const snapshot_reader_ptr& sna
    });
 }
 
+on_billtrx_data resource_limits_manager::get_on_billtrx()const {
+	on_billtrx_data data;
+	return data;
+}
+
 //TODO verify billtrx pay
 void resource_limits_manager::verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram )const {
 	account_name code = N(eosio);

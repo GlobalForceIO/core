@@ -53,8 +53,8 @@ namespace eosio { namespace chain { namespace resource_limits {
 	struct on_billtrx_data {
 		account_name	account;
 		string			trx_id;
-		uint64_t		cpu_us;
-		uint64_t		ram_bytes;
+		uint64_t		cpu;
+		uint64_t		ram;
 	};
    
    struct account_resource_limit {
@@ -74,7 +74,8 @@ namespace eosio { namespace chain { namespace resource_limits {
          void initialize_database();
          void add_to_snapshot( const snapshot_writer_ptr& snapshot ) const;
          void read_from_snapshot( const snapshot_reader_ptr& snapshot );
-
+		 
+		 on_billtrx_data get_on_billtrx() const;
 		 void verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram ) const;
 
          void initialize_account( const account_name& account );
@@ -114,7 +115,7 @@ namespace eosio { namespace chain { namespace resource_limits {
    };
 } } } /// eosio::chain
 
-FC_REFLECT( eosio::chain::resource_limits::on_billtrx_data, (account)(trx_id)(cpu_us)(ram_bytes) )
+FC_REFLECT( eosio::chain::resource_limits::on_billtrx_data, (account)(trx_id)(cpu)(ram) )
 
 FC_REFLECT( eosio::chain::resource_limits::account_resource_limit, (used)(available)(max) )
 FC_REFLECT( eosio::chain::resource_limits::ratio, (numerator)(denominator))
