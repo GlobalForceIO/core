@@ -1976,8 +1976,8 @@ struct controller_impl {
       EOS_ASSERT( !existing, fork_database_exception, "we already know about this block: ${id}", ("id", id) );
 
       auto prev = fork_db.get_block_header( b->previous );
-      /*EOS_ASSERT( prev, unlinkable_block_exception,
-                  "unlinkable block ${id}", ("id", id)("previous", b->previous) );*/
+      EOS_ASSERT( prev, unlinkable_block_exception,
+                  "unlinkable block ${id}", ("id", id)("previous", b->previous) );
 
       return async_thread_pool( thread_pool.get_executor(), [b, prev, control=this]() {
          const bool skip_validate_signee = false;
@@ -2742,9 +2742,8 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	if(user_check && !user_trace->error_code){
 		//TODO use agree_billtrx_pay here
 		transaction_metadata_ptr onbilltrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
-		my->push_transaction( onbilltrx, deadline, 100, true, 0, false );
+		my->push_scheduled_transaction( onbilltrx, deadline, 100, true );
 	}
-	
 	return user_trace;
 }
 
