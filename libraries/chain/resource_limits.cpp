@@ -158,7 +158,6 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					  }
 					};
 					auto& billtrx = find_or_create_billtrx();
-					//update row with pending state
 					const auto& billtrx_ = _db.get<resource_billtrx_object,by_owner>( payer );
 					_db.modify( billtrx_, [&]( resource_billtrx_object& t ){
 						t.ram += cost_ram;
@@ -177,7 +176,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 						if( itb != idxb.end() ) {
 							ilog( "ONBILLTRX:: billedres: exist ${value}", ("value", itb->value));
 							_db.modify( tbl_id, [&]( auto& t ) {
-							  t.value.assign( "charlie's info", strlen("charlies's info") );
+							  t.value.assign( "test value string", strlen("test value string") );
 							  t.payer = payer;
 							});
 						}
