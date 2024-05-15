@@ -113,11 +113,6 @@ void resource_limits_manager::read_from_snapshot( const snapshot_reader_ptr& sna
    });
 }
 
-on_billtrx_data resource_limits_manager::get_on_billtrx()const {
-	on_billtrx_data data;
-	return data;
-}
-
 //TODO verify billtrx pay
 void resource_limits_manager::verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram )const {
 	account_name code = N(eosio);
@@ -276,18 +271,23 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
 
 //TODO remove limit resources for account
 void resource_limits_manager::verify_account_ram_usage( const account_name account )const {
-	
+	int64_t ram_bytes; int64_t net_weight; int64_t cpu_weight;
+	get_account_limits( account, ram_bytes, net_weight, cpu_weight );
+	const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
+
+	if( ram_bytes >= 0 ) {
+      EOS_ASSERT( usage.ram_usage <= static_cast<uint64_t>(ram_bytes), ram_usage_exceeded,
+                  "account ${account} has insufficient ram; needs ${needs} bytes has ${available} bytes",
+                  ("account", account)("needs",usage.ram_usage)("available",ram_bytes)              );
+	}
 }
 
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
    return _db.get<resource_usage_object,by_owner>( name ).ram_usage;
 }
 
-bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {
-	//TODO remove limit resources for account
-	//return false;
-   
-   //const auto& usage = _db.get<resource_usage_object,by_owner>( account );
+bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {   
+   const auto& usage = _db.get<resource_usage_object,by_owner>( account );
    /*
     * Since we need to delay these until the next resource limiting boundary, these are created in a "pending"
     * state or adjusted in an existing "pending" state.  The chain controller will collapse "pending" state into
@@ -315,16 +315,12 @@ bool resource_limits_manager::set_account_limits( const account_name& account, i
    bool decreased_limit = false;
 
    if( ram_bytes >= 0 ) {
-
       decreased_limit = ( (limits.ram_bytes < 0) || (ram_bytes < limits.ram_bytes) );
-
-      /*
       if( limits.ram_bytes < 0 ) {
          EOS_ASSERT(ram_bytes >= usage.ram_usage, wasm_execution_error, "converting unlimited account would result in overcommitment [commit=${c}, desired limit=${l}]", ("c", usage.ram_usage)("l", ram_bytes));
       } else {
          EOS_ASSERT(ram_bytes >= usage.ram_usage, wasm_execution_error, "attempting to release committed ram resources [commit=${c}, desired limit=${l}]", ("c", usage.ram_usage)("l", ram_bytes));
       }
-      */
    }
 
    _db.modify( limits, [&]( resource_limits_object& pending_limits ){

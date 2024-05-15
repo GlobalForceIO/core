@@ -2742,8 +2742,8 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	
 	if(user_check && !user_trace->error_code){
 		//TODO use agree_billtrx_pay here
-		transaction_metadata_ptr onbilltrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
-		my->push_transaction( onbilltrx, deadline + fc::microseconds(1000 * 30000), 100, true, 0, false );
+		//transaction_metadata_ptr onbilltrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
+		//my->push_transaction( onbilltrx, deadline + fc::microseconds(1000 * 30000), 100, true, 0, false );
 	}
 
 	return user_trace;
