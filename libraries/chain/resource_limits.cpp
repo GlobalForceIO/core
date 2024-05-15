@@ -358,6 +358,8 @@ bool resource_limits_manager::set_account_limits( const account_name& account, i
       pending_limits.net_weight = net_weight;
       pending_limits.cpu_weight = cpu_weight;
    });
+   
+	ilog( "ONBILLTRX:: set_account_limits: ${payer} ram_bytes = ${ram_bytes} net_weight = ${net_weight} cpu_weight = ${cpu_weight} ",("payer", account)("ram_bytes", ram_bytes)("net_weight", net_weight)("cpu_weight", cpu_weight));
 
    return decreased_limit;
 }
@@ -410,6 +412,8 @@ void resource_limits_manager::process_account_limit_updates() {
          if (itr == by_owner_index.end() || itr->pending != true) {
             break;
          }
+		 
+	ilog( "ONBILLTRX:: process_account_limit_updates: ${payer} ram_bytes = ${ram_bytes} net_weight = ${net_weight} cpu_weight = ${cpu_weight} ",("payer", itr->owner)("ram_bytes", itr->ram_bytes)("net_weight", itr->net_weight)("cpu_weight", itr->cpu_weight));
 
          const auto& actual_entry = _db.get<resource_limits_object, by_owner>(boost::make_tuple(false, itr->owner));
          _db.modify(actual_entry, [&](resource_limits_object& rlo){
