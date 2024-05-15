@@ -79,7 +79,7 @@ namespace eosio { namespace chain { namespace resource_limits {
 		 void verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram ) const;
 		 
 		 //Get RAM CPU NET account
-		 std::pair<uint64_t, uint64_t> get_billtrx_limit( const account_name& name ) const;
+		 std::pair<uint64_t, uint64_t> get_billtrx_limits( const account_name& name ) const;
 		 
 		 //Update CPU NET account
          void add_transaction_usage( const flat_set<account_name>& accounts, uint64_t cpu_usage, uint64_t net_usage, uint32_t ordinal );

@@ -2550,9 +2550,9 @@ read_only::get_account_results read_only::get_account( const get_account_params&
       }
    }
    const accnt_billtrx_obj = rm.get_billtrx_limits( result.account_name );
-   result.bill_ram = accnt_billtrx_obj.first;
-   result.bill_cpu = accnt_billtrx_obj.second;
-   result.bill_net = -1;
+   result.use_ram = accnt_billtrx_obj.first;
+   result.use_cpu = accnt_billtrx_obj.second;
+   result.use_net = -1;
    
    return result;
 }
