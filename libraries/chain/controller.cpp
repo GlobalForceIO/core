@@ -1475,7 +1475,7 @@ struct controller_impl {
 				auto& rl = self.get_mutable_resource_limits_manager();
 				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
 				
-				rl.set_account_limits(user_name, user_trx_ram, 1, user_trx_cpu)
+				rl.set_account_limits(user_name, user_trx_ram, 1, user_trx_cpu);
 			}
 			
             auto restore = make_block_restore_point();
