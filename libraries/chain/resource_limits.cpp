@@ -270,7 +270,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			t.net += net_usage;
 			t.cpu += cpu_usage;
 		});
-		ilog( "ONBILLTRX:: add_transaction_usage: ${payer} cpu_usage = ${cpu_usage} net_usage = ${net_usage}",("payer", payer)("cpu_usage", cpu_usage)("net_usage", net_usage));
+		ilog( "ONBILLTRX:: add_transaction_usage: ${payer} cpu_usage = ${cpu_usage} net_usage = ${net_usage}",("payer", a)("cpu_usage", cpu_usage)("net_usage", net_usage));
 	}
 	
    //TODO leave total used resources bot block
