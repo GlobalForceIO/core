@@ -55,6 +55,12 @@ namespace eosio { namespace chain { namespace resource_limits {
       int64_t max = 0; ///< max per window under current congestion
    };
 
+   struct account_billtrx_limit {
+      int64_t ram = 0;
+      int64_t net = 0;
+      int64_t cpu = 0;
+   };
+
    class resource_limits_manager {
       public:
          explicit resource_limits_manager(chainbase::database& db)
@@ -72,12 +78,16 @@ namespace eosio { namespace chain { namespace resource_limits {
 		 
 		 void verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram ) const;
 		 
+		 //Get RAM CPU NET account
+		 std::pair<account_billtrx_limit, bool> get_billtrx_limit( const account_name& name ) const;
+		 
 		 //Update CPU NET account
          void add_transaction_usage( const flat_set<account_name>& accounts, uint64_t cpu_usage, uint64_t net_usage, uint32_t ordinal );
 
 		 //Update RAM account
          void add_pending_ram_usage( const account_name account, int64_t ram_delta );
          void verify_account_ram_usage( const account_name account ) const;
+         void add_pending_ram_usage( const account_name account, int64_t ram_delta );
 
          /// set_account_limits returns true if new ram_bytes limit is more restrictive than the previously set one
          bool set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight);
@@ -108,6 +118,7 @@ namespace eosio { namespace chain { namespace resource_limits {
    };
 } } } /// eosio::chain
 
+FC_REFLECT( eosio::chain::resource_limits::account_billtrx_limit, (ram)(net)(cpu) )
 FC_REFLECT( eosio::chain::resource_limits::account_resource_limit, (used)(available)(max) )
 FC_REFLECT( eosio::chain::resource_limits::ratio, (numerator)(denominator))
 FC_REFLECT( eosio::chain::resource_limits::elastic_limit_parameters, (target)(max)(periods)(max_multiplier)(contract_rate)(expand_rate))

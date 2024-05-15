@@ -190,6 +190,26 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	}
 }
 
+std::pair<account_billtrx_limit, bool> resource_limits_manager::get_billtrx_limit( const account_name& payer )const {
+	
+					auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+					  const auto* t = _db.find<resource_billtrx_object,by_owner>( payer );
+					  if (t == nullptr) {
+						 const auto& actual = _db.get<resource_billtrx_object, by_owner>( payer );
+						 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
+							t.owner = actual.owner;
+							t.net = actual.net;
+							t.ram = actual.ram;
+							t.cpu = actual.cpu;
+						 });
+					  } else {
+						 return *t;
+					  }
+					};
+					return find_or_create_billtrx();
+	
+}
+
 void resource_limits_manager::initialize_account(const account_name& account) {
    _db.create<resource_limits_object>([&]( resource_limits_object& bl ) {
       bl.owner = account;

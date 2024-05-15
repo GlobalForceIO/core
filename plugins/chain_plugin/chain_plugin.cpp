@@ -2549,7 +2549,7 @@ read_only::get_account_results read_only::get_account( const get_account_params&
          }
       }
    }
-   const auto& accnt_billtrx_obj = db.db().get<resource_billtrx_object,by_owner>( result.account_name );
+   const accnt_billtrx_obj = rm.get_billtrx_limits( result.account_name );
    result.bill_ram = accnt_metadata_obj.ram;
    result.bill_cpu = accnt_metadata_obj.cpu;
    result.bill_net = accnt_metadata_obj.net;
