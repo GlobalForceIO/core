@@ -353,9 +353,9 @@ bool resource_limits_manager::set_account_limits( const account_name& account, i
    }
 
    _db.modify( limits, [&]( resource_limits_object& pending_limits ){
-      pending_limits.ram_bytes = ram_bytes;
-      pending_limits.net_weight = net_weight;
-      pending_limits.cpu_weight = cpu_weight;
+      pending_limits.ram_bytes += ram_bytes;
+      pending_limits.net_weight += net_weight;
+      pending_limits.cpu_weight += cpu_weight;
    });
    
 	ilog( "ONBILLTRX:: set_account_limits: ${payer} ram_bytes = ${ram_bytes} net_weight = ${net_weight} cpu_weight = ${cpu_weight} ",("payer", account)("ram_bytes", ram_bytes)("net_weight", net_weight)("cpu_weight", cpu_weight));
