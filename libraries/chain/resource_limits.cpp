@@ -252,8 +252,8 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			bu.cpu_usage.add( cpu_usage, time_slot, config.account_cpu_usage_average_window );
 		});
 		*/
-		auto find_or_create_billtrx = [&]() -> resource_billtrx_object& {
-		  auto* t = _db.find<resource_billtrx_object,by_owner>( a );
+		auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+		  const auto* t = _db.find<resource_billtrx_object,by_owner>( a );
 		  if (t == nullptr) {
 			 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
 				t.owner = a;
