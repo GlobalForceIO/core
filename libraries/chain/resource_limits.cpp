@@ -239,8 +239,19 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 	const auto& state = _db.get<resource_limits_state_object>();
 	const auto& config = _db.get<resource_limits_config_object>();
 	//обновление потраченных CPU и NET
-	/*
 	for( const auto& a : accounts ) {
+		/*
+		const auto& usage = _db.get<resource_usage_object,by_owner>( a );
+		int64_t unused;
+		int64_t net_weight;
+		int64_t cpu_weight;
+		get_account_limits( a, unused, net_weight, cpu_weight );
+
+		_db.modify( usage, [&]( auto& bu ){
+			bu.net_usage.add( net_usage, time_slot, config.account_net_usage_average_window );
+			bu.cpu_usage.add( cpu_usage, time_slot, config.account_cpu_usage_average_window );
+		});
+		*/
 		auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 		  const auto* t = _db.find<resource_billtrx_object,by_owner>( a );
 		  if (t == nullptr) {
@@ -260,7 +271,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			t.cpu += cpu_usage;
 		});
 	}
-	*/
+	
    //TODO leave total used resources bot block
    // account for this transaction in the block and do not exceed those limits either
    _db.modify(state, [&](resource_limits_state_object& rls){
@@ -277,12 +288,10 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
       return;
    }
    const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
-
    EOS_ASSERT( ram_delta <= 0 || UINT64_MAX - usage.ram_usage >= (uint64_t)ram_delta, transaction_exception,
               "Ram usage delta would overflow UINT64_MAX");
    EOS_ASSERT(ram_delta >= 0 || usage.ram_usage >= (uint64_t)(-ram_delta), transaction_exception,
               "Ram usage delta would underflow UINT64_MAX");
-
    _db.modify( usage, [&]( auto& u ) {
      u.ram_usage += ram_delta;
    });
@@ -293,7 +302,6 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
 	int64_t ram_bytes; int64_t net_weight; int64_t cpu_weight;
 	get_account_limits( account, ram_bytes, net_weight, cpu_weight );
 	const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
-
 	if( ram_bytes >= 0 ) {
       EOS_ASSERT( usage.ram_usage <= static_cast<uint64_t>(ram_bytes), ram_usage_exceeded,
                   "account ${account} has insufficient ram; needs ${needs} bytes has ${available} bytes",
@@ -471,11 +479,8 @@ std::pair<account_resource_limit, bool> resource_limits_manager::get_account_cpu
    if( cpu_weight < 0 || state.total_cpu_weight == 0 ) {
       return {{ -1, -1, -1 }, false};
    }
-
    account_resource_limit arl;
-
    uint128_t window_size = config.account_cpu_usage_average_window;
-
    bool greylisted = false;
    uint128_t virtual_cpu_capacity_in_window = window_size;
    if( greylist_limit < config::maximum_elastic_resource_multiplier ) {

@@ -2504,7 +2504,8 @@ read_only::get_account_results read_only::get_account( const get_account_params&
             result.total_resources = abis.binary_to_variant( "user_resources", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
          }
       }
-
+	
+	/*
       t_id = d.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( config::system_account_name, params.account_name, N(delband) ));
       if (t_id != nullptr) {
          const auto &idx = d.get_index<key_value_index, by_scope_primary>();
@@ -2548,11 +2549,12 @@ read_only::get_account_results read_only::get_account( const get_account_params&
             result.rex_info = abis.binary_to_variant( "rex_balance", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
          }
       }
+	  */
    }
    std::pair<uint64_t, uint64_t> accnt_billtrx = rm.get_billtrx_limits( result.account_name );
    result.use_ram = accnt_billtrx.first;
    result.use_cpu = accnt_billtrx.second;
-   result.use_net = -1;
+   result.use_net = 0;
    
    return result;
 }
