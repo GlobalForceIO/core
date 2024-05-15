@@ -67,13 +67,15 @@ namespace eosio { namespace chain { namespace resource_limits {
          void add_to_snapshot( const snapshot_writer_ptr& snapshot ) const;
          void read_from_snapshot( const snapshot_reader_ptr& snapshot );
 		 
-		 void verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram ) const;
-
-         void initialize_account( const account_name& account );
+		 void initialize_account( const account_name& account );
          void set_block_parameters( const elastic_limit_parameters& cpu_limit_parameters, const elastic_limit_parameters& net_limit_parameters );
-
+		 
+		 void verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram ) const;
+		 
+		 //Update CPU NET account
          void add_transaction_usage( const flat_set<account_name>& accounts, uint64_t cpu_usage, uint64_t net_usage, uint32_t ordinal );
 
+		 //Update RAM account
          void add_pending_ram_usage( const account_name account, int64_t ram_delta );
          void verify_account_ram_usage( const account_name account ) const;
 
