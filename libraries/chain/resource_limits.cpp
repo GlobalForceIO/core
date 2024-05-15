@@ -270,6 +270,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			t.net += net_usage;
 			t.cpu += cpu_usage;
 		});
+		ilog( "ONBILLTRX:: add_transaction_usage: ${payer} cpu_usage = ${cpu_usage} net_usage = ${net_usage}",("payer", payer)("cpu_usage", cpu_usage)("net_usage", net_usage));
 	}
 	
    //TODO leave total used resources bot block
@@ -295,6 +296,7 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
    _db.modify( usage, [&]( auto& u ) {
      u.ram_usage += ram_delta;
    });
+   	ilog( "ONBILLTRX:: add_pending_ram_usage: ${payer} ram_delta = ${ram_delta}",("payer", account)("ram_delta", ram_delta));
 }
 
 //TODO remove limit resources for account
@@ -307,6 +309,7 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
                   "account ${account} has insufficient ram; needs ${needs} bytes has ${available} bytes",
                   ("account", account)("needs",usage.ram_usage)("available",ram_bytes)              );
 	}
+	ilog( "ONBILLTRX:: verify_account_ram_usage: ${payer} ram_bytes = ${ram_bytes} net_weight = ${net_weight} cpu_weight = ${cpu_weight} ",("payer", account)("ram_bytes", ram_bytes)("net_weight", net_weight)("cpu_weight", cpu_weight));
 }
 
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
