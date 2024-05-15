@@ -36,7 +36,7 @@ cleos -u http://127.0.0.1:18881 get account testtestbpa2 --json
 cd /var/server/contracts && git pull origin testnet && ./build.sh
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
 
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 100, 104 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 104 ]' -p eosio@active
 cleos -u http://127.0.0.1:18881 get table eosio testtestbpa1 userres
 
 

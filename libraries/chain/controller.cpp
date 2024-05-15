@@ -1472,7 +1472,8 @@ struct controller_impl {
 				user_trx_cpu = trx_context.billed_cpu_time_us;
 				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//TODO use here verify_billtrx_pay
-				resource_limits.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
+				auto& rl = self.get_mutable_resource_limits_manager();
+				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
 			}
 			
             auto restore = make_block_restore_point();
