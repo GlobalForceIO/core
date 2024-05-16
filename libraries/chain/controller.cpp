@@ -1466,7 +1466,6 @@ struct controller_impl {
                );
             }
             trx_context.exec();
-            trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 						
 			if(user_check){
 				user_trx_cpu = trx_context.billed_cpu_time_us;
@@ -1474,9 +1473,11 @@ struct controller_impl {
 				//TODO use here verify_billtrx_pay
 				auto& rl = self.get_mutable_resource_limits_manager();
 				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
-				
 				rl.set_account_limits(user_name, user_trx_ram, 1, user_trx_cpu);
 			}
+			
+			
+            trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 			
             auto restore = make_block_restore_point();
 
@@ -1883,38 +1884,6 @@ struct controller_impl {
                   if( trx_meta_ptr && *trx_meta_ptr->packed_trx() != pt ) trx_meta_ptr = nullptr;
                   if( trx_meta_ptr && ( skip_auth_checks || !trx_meta_ptr->recovered_keys().empty() ) ) {
                      trx_metas.emplace_back( std::move( trx_meta_ptr ), recover_keys_future{} );
-					 
-					 
-				ilog( "ONBILLTRX:: apply_block:");
-				//auto& rl = self.get_mutable_resource_limits_manager();
-			
-			
-				/*
-				//const transaction_metadata_ptr trx_meta_ptr = pt->trx_meta;
-				auto first_auth = trx_meta_ptr->packed_trx()->get_transaction().first_authorizer();
-				
-				trx_meta_ptr->packed_trx()->get_transaction().max_net_usage_words
-				trx_meta_ptr->packed_trx()->get_transaction().max_cpu_usage_ms
-				*/
-			
-	  try {	
-				//const transaction_metadata_ptr& trx,
-				uint64_t user_trx_cpu = trx_meta_ptr->billed_cpu_time_us;
-				uint64_t user_trx_ram = trx_meta_ptr->packed_trx()->get_unprunable_size() + trx_meta_ptr->packed_trx()->get_prunable_size() + sizeof( *trx_meta_ptr );
-				account_name user_name = trx_meta_ptr->packed_trx()->get_transaction().first_authorizer();
-				//rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
-				//rl.set_account_limits(user_name, user_trx_ram, 1, user_trx_cpu);
-				//rl.process_account_limit_updates();
-				
-				
-				resource_limits.set_account_limits(user_name, user_trx_ram, 1, user_trx_cpu);
-				resource_limits.process_account_limit_updates();
-				
-	  } catch ( const fc::exception& e ) {
-         edump((e.to_detail_string()));
-         throw;
-      }
-	  
                   } else if( skip_auth_checks ) {
                      trx_metas.emplace_back(
                            transaction_metadata::create_no_recover_keys( pt, transaction_metadata::trx_type::input ),
