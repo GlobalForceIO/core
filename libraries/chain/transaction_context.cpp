@@ -291,6 +291,7 @@ namespace eosio { namespace chain {
    }
 
    void transaction_context::finalize() {
+	  //TODO ONBILLTRX use change resources RAM CPU NET here
       EOS_ASSERT( is_initialized, transaction_exception, "must first initialize" );
 
       if( is_input ) {
