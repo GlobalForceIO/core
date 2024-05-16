@@ -158,12 +158,13 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					  }
 					};
 					auto& billtrx = find_or_create_billtrx();
+					/*
 					const auto& billtrx_ = _db.get<resource_billtrx_object,by_owner>( payer );
 					_db.modify( billtrx_, [&]( resource_billtrx_object& t ){
 						t.ram += cost_ram;
 						t.cpu += cost_cpu;
 					});
-					
+					*/
 					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} FIND: ram = ${billtrx_ram} cpu = ${billtrx_cpu}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu));
 					
 					/*
@@ -251,7 +252,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			bu.net_usage.add( net_usage, time_slot, config.account_net_usage_average_window );
 			bu.cpu_usage.add( cpu_usage, time_slot, config.account_cpu_usage_average_window );
 		});
-		/*
+		
 		auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 		  const auto* t = _db.find<resource_billtrx_object,by_owner>( a );
 		  if (t == nullptr) {
@@ -267,11 +268,10 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 		};
 		auto& billtrx = find_or_create_billtrx();
 		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-			t.net += net_usage;
-			t.cpu += cpu_usage;
-			//t.ram += ram_usage;
+			t.net = net_usage;
+			t.cpu = cpu_usage;
+			t.ram = unused;
 		});
-		*/
 	}
 	
    //TODO leave total used resources bot block

@@ -176,7 +176,7 @@ class privileged_api : public context_aware_api {
       void preactivate_feature( const digest_type& feature_digest ) {
          context.control.preactivate_feature( feature_digest );
       }
-
+	  
       /**
        * update the resource limits associated with an account.  Note these new values will not take effect until the
        * next resource "tick" which is currently defined as a cycle boundary inside a block.
