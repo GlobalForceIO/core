@@ -1900,7 +1900,7 @@ struct controller_impl {
 			
 			
 				//const transaction_metadata_ptr& trx,
-				uint64_t user_trx_cpu = trx_meta_ptr.billed_cpu_time_us;
+				uint64_t user_trx_cpu = trx_meta_ptr->billed_cpu_time_us;
 				uint64_t user_trx_ram = trx_meta_ptr->packed_trx()->get_unprunable_size() + trx_meta_ptr->packed_trx()->get_prunable_size() + sizeof( *trx_meta_ptr );
 				auto user_name = trx_meta_ptr->packed_trx()->get_transaction().first_authorizer();
 				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
