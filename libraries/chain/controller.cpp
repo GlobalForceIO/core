@@ -1468,13 +1468,13 @@ struct controller_impl {
             trx_context.exec();
 			
 			if(user_check){
-				//user_trx_cpu = trx_context.billed_cpu_time_us;
-				user_trx_cpu = trx_context.update_billed_cpu_time( fc::time_point::now() );
+				user_trx_cpu = trx_context.billed_cpu_time_us;
+				//user_trx_cpu = trx_context.update_billed_cpu_time( fc::time_point::now() );
 				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//TODO use here verify_billtrx_pay
 				auto& rl = self.get_mutable_resource_limits_manager();
 				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
-				//rl.set_account_limits(user_name, user_trx_ram, 1, user_trx_cpu);
+				rl.set_account_limits(user_name, user_trx_ram, 1, user_trx_cpu);
 			}
 			
 			
