@@ -1898,7 +1898,7 @@ struct controller_impl {
 				trx_meta_ptr->packed_trx()->get_transaction().max_cpu_usage_ms
 				*/
 			
-			
+	  try {	
 				//const transaction_metadata_ptr& trx,
 				uint64_t user_trx_cpu = trx_meta_ptr->billed_cpu_time_us;
 				uint64_t user_trx_ram = trx_meta_ptr->packed_trx()->get_unprunable_size() + trx_meta_ptr->packed_trx()->get_prunable_size() + sizeof( *trx_meta_ptr );
@@ -1906,7 +1906,11 @@ struct controller_impl {
 				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
 				rl.set_account_limits(user_name, user_trx_ram, 1, user_trx_cpu);
 				rl.process_account_limit_updates();
-			 
+	  } catch ( const fc::exception& e ) {
+         edump((e.to_detail_string()));
+         throw;
+      }
+	  
                   } else if( skip_auth_checks ) {
                      trx_metas.emplace_back(
                            transaction_metadata::create_no_recover_keys( pt, transaction_metadata::trx_type::input ),
