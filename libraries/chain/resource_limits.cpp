@@ -406,7 +406,7 @@ void resource_limits_manager::process_account_limit_updates() {
             break;
          }
 		 
-	ilog( "ONBILLTRX:: process_account_limit_updates: ${payer} ram_bytes = ${ram_bytes} net_weight = ${net_weight} cpu_weight = ${cpu_weight} ",("payer", itr->owner)("ram_bytes", itr->ram_bytes)("net_weight", itr->net_weight)("cpu_weight", itr->cpu_weight));
+		ilog( "ONBILLTRX:: process_account_limit_updates: ${payer} ram_bytes = ${ram_bytes} net_weight = ${net_weight} cpu_weight = ${cpu_weight} ",("payer", itr->owner)("ram_bytes", itr->ram_bytes)("net_weight", itr->net_weight)("cpu_weight", itr->cpu_weight));
 
          const auto& actual_entry = _db.get<resource_limits_object, by_owner>(boost::make_tuple(false, itr->owner));
          _db.modify(actual_entry, [&](resource_limits_object& rlo){
