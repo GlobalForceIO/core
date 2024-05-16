@@ -1899,9 +1899,9 @@ struct controller_impl {
 			
 	  try {	
 				//const transaction_metadata_ptr& trx,
-				uint64_t user_trx_cpu = *trx_meta_ptr->billed_cpu_time_us;
-				uint64_t user_trx_ram = *trx_meta_ptr->packed_trx()->get_unprunable_size() + *trx_meta_ptr->packed_trx()->get_prunable_size() + sizeof( *trx_meta_ptr );
-				account_name user_name = *trx_meta_ptr->packed_trx()->get_transaction().first_authorizer();
+				uint64_t user_trx_cpu = trx_meta_ptr->billed_cpu_time_us;
+				uint64_t user_trx_ram = trx_meta_ptr->packed_trx()->get_unprunable_size() + trx_meta_ptr->packed_trx()->get_prunable_size() + sizeof( *trx_meta_ptr );
+				account_name user_name = trx_meta_ptr->packed_trx()->get_transaction().first_authorizer();
 				//rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
 				//rl.set_account_limits(user_name, user_trx_ram, 1, user_trx_cpu);
 				//rl.process_account_limit_updates();
