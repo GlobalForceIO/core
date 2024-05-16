@@ -1897,7 +1897,6 @@ struct controller_impl {
             }
          }
 
-		 auto& rl = self.get_mutable_resource_limits_manager();
          transaction_trace_ptr trace;
 
          size_t packed_idx = 0;
@@ -1925,7 +1924,6 @@ struct controller_impl {
             }
 			
 			ilog( "ONBILLTRX:: apply_block:");
-			rl.process_account_limit_updates();
 			/*
 			//const transaction_metadata_ptr trx_meta_ptr = pt->trx_meta;
 			auto first_auth = trx_meta_ptr->packed_trx()->get_transaction().first_authorizer();
@@ -1948,9 +1946,12 @@ struct controller_impl {
                         ("producer_receipt", receipt)("validator_receipt", trx_receipts.back()) );
          }
 
+		 resource_limits.process_account_limit_updates();
+		 auto& rl = self.get_mutable_resource_limits_manager();
+		 rl.process_account_limit_updates();
          // validated in create_block_state_future()
          pending->_block_stage.get<building_block>()._transaction_mroot = b->transaction_mroot;
-
+		
          finalize_block();
 
          auto& ab = pending->_block_stage.get<assembled_block>();
