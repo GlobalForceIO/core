@@ -1879,10 +1879,6 @@ struct controller_impl {
             for( const auto& receipt : b->transactions ) {
                if( receipt.trx.contains<packed_transaction>()) {
                   const auto& pt = receipt.trx.get<packed_transaction>();
-				  
-				  //resource_limits.process_account_limit_updates();
-				  ilog( "ONBILLTRX:: apply_block:");
-				  
                   transaction_metadata_ptr trx_meta_ptr = trx_lookup ? trx_lookup( pt.id() ) : transaction_metadata_ptr{};
                   if( trx_meta_ptr && *trx_meta_ptr->packed_trx() != pt ) trx_meta_ptr = nullptr;
                   if( trx_meta_ptr && ( skip_auth_checks || !trx_meta_ptr->recovered_keys().empty() ) ) {
@@ -1901,6 +1897,7 @@ struct controller_impl {
             }
          }
 
+		 auto& rl = self.get_mutable_resource_limits_manager();
          transaction_trace_ptr trace;
 
          size_t packed_idx = 0;
@@ -1926,7 +1923,17 @@ struct controller_impl {
                edump((*trace));
                throw *trace->except;
             }
-
+			
+			ilog( "ONBILLTRX:: apply_block:");
+			rl.process_account_limit_updates();
+			/*
+			//const transaction_metadata_ptr trx_meta_ptr = pt->trx_meta;
+			auto first_auth = trx_meta_ptr->packed_trx()->get_transaction().first_authorizer();
+			
+			trx_meta_ptr->packed_trx()->get_transaction().max_net_usage_words
+			trx_meta_ptr->packed_trx()->get_transaction().max_cpu_usage_ms
+			*/
+			 
             EOS_ASSERT( trx_receipts.size() > 0,
                         block_validate_exception, "expected a receipt",
                         ("block", *b)("expected_receipt", receipt)
