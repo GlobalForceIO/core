@@ -1694,7 +1694,7 @@ struct controller_impl {
 
       auto& pbhs = pending->get_pending_block_header_state();
 
-      // Update resource limits:
+      // Update resource limits: for Producer
       resource_limits.process_account_limit_updates();
       const auto& chain_config = self.get_global_properties().configuration;
       uint64_t CPU_TARGET = EOS_PERCENT(chain_config.max_block_cpu_usage, chain_config.target_block_cpu_usage_pct);
@@ -1879,6 +1879,10 @@ struct controller_impl {
             for( const auto& receipt : b->transactions ) {
                if( receipt.trx.contains<packed_transaction>()) {
                   const auto& pt = receipt.trx.get<packed_transaction>();
+				  
+				  //resource_limits.process_account_limit_updates();
+				  ilog( "ONBILLTRX:: apply_block:");
+				  
                   transaction_metadata_ptr trx_meta_ptr = trx_lookup ? trx_lookup( pt.id() ) : transaction_metadata_ptr{};
                   if( trx_meta_ptr && *trx_meta_ptr->packed_trx() != pt ) trx_meta_ptr = nullptr;
                   if( trx_meta_ptr && ( skip_auth_checks || !trx_meta_ptr->recovered_keys().empty() ) ) {

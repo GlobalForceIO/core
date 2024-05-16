@@ -337,12 +337,9 @@ bool resource_limits_manager::set_account_limits( const account_name& account, i
          return *pending_limits;
       }
    };
-
    // update the users weights directly
    auto& limits = find_or_create_pending_limits();
-
    bool decreased_limit = false;
-
    if( ram_bytes >= 0 ) {
       decreased_limit = ( (limits.ram_bytes < 0) || (ram_bytes < limits.ram_bytes) );
       if( limits.ram_bytes < 0 ) {
@@ -357,9 +354,6 @@ bool resource_limits_manager::set_account_limits( const account_name& account, i
       pending_limits.net_weight += net_weight;
       pending_limits.cpu_weight += cpu_weight;
    });
-   
-	ilog( "ONBILLTRX:: set_account_limits: ${payer} ram_bytes = ${ram_bytes} net_weight = ${net_weight} cpu_weight = ${cpu_weight} ",("payer", account)("ram_bytes", ram_bytes)("net_weight", net_weight)("cpu_weight", cpu_weight));
-
    return decreased_limit;
 }
 
