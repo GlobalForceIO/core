@@ -1886,8 +1886,7 @@ struct controller_impl {
 					 
 					 
 				ilog( "ONBILLTRX:: apply_block:");
-				//resource_limits.process_account_limit_updates();
-				auto& rl = self.get_mutable_resource_limits_manager();
+				//auto& rl = self.get_mutable_resource_limits_manager();
 			
 			
 				/*
@@ -1900,12 +1899,17 @@ struct controller_impl {
 			
 	  try {	
 				//const transaction_metadata_ptr& trx,
-				uint64_t user_trx_cpu = trx_meta_ptr->billed_cpu_time_us;
-				uint64_t user_trx_ram = trx_meta_ptr->packed_trx()->get_unprunable_size() + trx_meta_ptr->packed_trx()->get_prunable_size() + sizeof( *trx_meta_ptr );
-				auto user_name = trx_meta_ptr->packed_trx()->get_transaction().first_authorizer();
-				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
-				rl.set_account_limits(user_name, user_trx_ram, 1, user_trx_cpu);
-				rl.process_account_limit_updates();
+				uint64_t user_trx_cpu = *trx_meta_ptr->billed_cpu_time_us;
+				uint64_t user_trx_ram = *trx_meta_ptr->packed_trx()->get_unprunable_size() + *trx_meta_ptr->packed_trx()->get_prunable_size() + sizeof( *trx_meta_ptr );
+				account_name user_name = *trx_meta_ptr->packed_trx()->get_transaction().first_authorizer();
+				//rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
+				//rl.set_account_limits(user_name, user_trx_ram, 1, user_trx_cpu);
+				//rl.process_account_limit_updates();
+				
+				
+				resource_limits.set_account_limits(user_name, user_trx_ram, 1, user_trx_cpu);
+				resource_limits.process_account_limit_updates();
+				
 	  } catch ( const fc::exception& e ) {
          edump((e.to_detail_string()));
          throw;
