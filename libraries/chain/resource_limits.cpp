@@ -268,8 +268,8 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 		};
 		auto& billtrx = find_or_create_billtrx();
 		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-			t.net = net_usage;
-			t.cpu = cpu_usage;
+			t.net += net_usage;
+			t.cpu += cpu_usage;
 			t.ram = unused;
 		});
 	}
