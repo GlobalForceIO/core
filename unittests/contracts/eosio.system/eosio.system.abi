@@ -1913,10 +1913,10 @@
         },
 		{
 		  "name": "configfee",
+		  "type": "config_fee",
 		  "index_type": "i64",
 		  "key_names": [],
-		  "key_types": [],
-		  "type": "config_fee"
+		  "key_types": []
 		}
     ],
     "ricardian_clauses": [],
