@@ -1028,7 +1028,7 @@ struct controller_impl {
       ram_delta += active_permission.auth.get_billable_size();
 
       resource_limits.add_pending_ram_usage(name, ram_delta);
-      resource_limits.verify_account_ram_usage(name);
+      //resource_limits.verify_account_ram_usage(name);
    }
 
    void initialize_database(const genesis_state& genesis) {
