@@ -270,9 +270,9 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
 			t.net += net_usage;
 			t.cpu += cpu_usage;
-			t.ram = unused;
+			t.ram += unused;
 		});
-		ilog( "ONBILLTRX:: add_transaction_usage: ${payer} ram = ${unused} cpu = ${cpu} net = ${net} ",("payer", a)("ram", unused)("cpu", cpu_usage)("net", net_usage));
+		ilog( "ONBILLTRX:: add_transaction_usage: ${payer} ram = ${ram} cpu = ${cpu} net = ${net} ",("payer", a)("ram", unused)("cpu", cpu_usage)("net", net_usage));
 	}
 	
    //TODO leave total used resources bot block
