@@ -1409,10 +1409,6 @@
 			{
 			  "name": "cpu",
 			  "type": "uint64"
-			},
-			{
-			  "name": "net",
-			  "type": "uint64"
 			}
 		  ]
 		},
