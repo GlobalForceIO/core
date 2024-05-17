@@ -1166,7 +1166,6 @@ struct controller_impl {
    int64_t remove_scheduled_transaction( const generated_transaction_object& gto ) {
       int64_t ram_delta = -(config::billable_size_v<generated_transaction_object> + gto.packed_trx.size());
       resource_limits.add_pending_ram_usage( gto.payer, ram_delta );
-      // No need to verify_account_ram_usage since we are only reducing memory
 
       db.remove( gto );
       return ram_delta;
@@ -1366,6 +1365,7 @@ struct controller_impl {
             cpu_time_to_bill_us = limited_cpu_time_to_bill_us;
          }
 
+	     ilog( "ONBILLTRX:: add_transaction_usage push_scheduled_transaction");
          resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0,
                                                 block_timestamp_type(self.pending_block_time()).slot ); // Should never fail
 												

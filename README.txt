@@ -72,8 +72,29 @@ process_account_limit_updates: pending ram = 47067 cpu = 21207 net = 25
   "use_cpu": 6827,               6827   - 392   = 6435
   "use_net": 0
   
-  
+esttestbpa1 transfer COST: ram 5980 cpu 0 FIND: ram 140511 cpu 6827
+transaction_usage: testtestbpa1 ram = 47297 cpu = 876 net = 136 LIMITS: ram 47297 cpu 21207 net 26
+process_account_limit_updates: pending ram = 47297 cpu = 21207 net = 26
 
+  "ram_quota": 47297,
+  "net_weight": 26,
+  "cpu_weight": 21207,
+  "net_limit": {
+    "used": 3384,
+    "available": "181193932796616",
+    "max": "181193932800000"
+  },
+  "cpu_limit": {
+    "used": 21842,
+    "available": "34559999978158",
+    "max": "34560000000000"
+  },
+  "ram_usage": 3236,
+    "use_ram": 187808,
+  "use_cpu": 7703,
+  "use_net": 0
+
+  
   *********************************
   ram_fee = 26 cpu_fee = 14
   *********************************
@@ -118,15 +139,36 @@ transaction_usage: testtestbpa1 ram = 43891 cpu = 702 net = 136
   "use_cpu": 6827,                   6827   - 392   = 6435
   "use_net": 0
 
-  
-  
+transfer COST: ram 5980 cpu 0 FIND: ram 130983 cpu 6827
+transaction_usage: testtestbpa1 ram = 43891 cpu = 1342 net = 136 LIMITS: ram 43891 cpu 21207 net 11
+transaction_usage: testtestbpa1 ram = 43661 cpu = 876 net = 136 LIMITS: ram 43661 cpu 21207 net 10
 
+  "ram_quota": 43661,
+  "net_weight": 10,
+  "cpu_weight": 21207,
+  "net_limit": {
+    "used": 3384,
+    "available": "181193932796616",
+    "max": "181193932800000"
+  },
+  "cpu_limit": {
+    "used": 21842,
+    "available": "34559999978158",
+    "max": "34560000000000"
+  },
+  "ram_usage": 3236,
+  "use_ram": 174644,  174644 - 130983 = 43661
+  "use_cpu": 7703,    7703   - 6827   = 876
+  "use_net": 0
+
+  
 cd /var/server/contracts && git pull origin testnet && ./build.sh
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
 
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 104 ]' -p eosio@active
-cleos -u http://127.0.0.1:18881 get table eosio testtestbpa1 userres
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 get table eosio testtestbpa1 billedfee
 
+cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
 
 ############ END TEST commands
 

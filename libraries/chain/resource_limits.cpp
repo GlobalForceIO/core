@@ -294,24 +294,36 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
    	ilog( "ONBILLTRX:: add_pending_ram_usage: ${payer} ram_delta = ${ram_delta}",("payer", account)("ram_delta", ram_delta));
 }
 
-//TODO remove limit resources for account
-void resource_limits_manager::verify_account_ram_usage( const account_name account )const {
-	int64_t ram_bytes; int64_t net_weight; int64_t cpu_weight;
-	get_account_limits( account, ram_bytes, net_weight, cpu_weight );
-	const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
-	if( ram_bytes >= 0 ) {
-      EOS_ASSERT( usage.ram_usage <= static_cast<uint64_t>(ram_bytes), ram_usage_exceeded,
-                  "account ${account} has insufficient ram; needs ${needs} bytes has ${available} bytes",
-                  ("account", account)("needs",usage.ram_usage)("available",ram_bytes)              );
-	}
-	ilog( "ONBILLTRX:: verify_account_ram_usage: ${payer} ram_bytes = ${ram_bytes} net_weight = ${net_weight} cpu_weight = ${cpu_weight} ",("payer", account)("ram_bytes", ram_bytes)("net_weight", net_weight)("cpu_weight", cpu_weight));
-}
-
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
    return _db.get<resource_usage_object,by_owner>( name ).ram_usage;
 }
 
 bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {   
+    auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+	  const auto* t = _db.find<resource_billtrx_object,by_owner>( account );
+	  if (t == nullptr) {
+		 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
+			t.owner = account;
+			t.net = 0;
+			t.ram = 0;
+			t.cpu = 0;
+		 });
+	  } else {
+		 return *t;
+	  }
+	};
+	auto& billtrx = find_or_create_billtrx();
+	
+	ilog( "ONBILLTRX:: set_account_limits: ADD: ${payer} ram = ${ram} cpu = ${cpu} net = ${net} GET: ram ${lram} cpu ${lcpu} net ${lnet}",("payer", account)("ram", ram_bytes)("cpu", cpu_weight)("net", net_weight)("lram", billtrx.ram)("lcpu", billtrx.cpu)("lnet", billtrx.net));
+   
+	_db.modify( billtrx, [&]( resource_billtrx_object& t ){
+		t.net += net_weight;
+		t.cpu += cpu_weight;
+		t.ram += ram_bytes;
+	});
+   return true;
+   
+   
    const auto& usage = _db.get<resource_usage_object,by_owner>( account );
    /*
     * Since we need to delay these until the next resource limiting boundary, these are created in a "pending"
@@ -407,7 +419,6 @@ void resource_limits_manager::process_account_limit_updates() {
          const auto& actual_entry = _db.get<resource_limits_object, by_owner>(boost::make_tuple(false, itr->owner));
          _db.modify(actual_entry, [&](resource_limits_object& rlo){
 		 
-		ilog( "ONBILLTRX:: process_account_limit_updates: actual ram = ${ram} cpu = ${cpu} net = ${net} ",("ram", rlo.ram_bytes)("net", rlo.net_weight)("cpu", rlo.cpu_weight));
 		ilog( "ONBILLTRX:: process_account_limit_updates: pending ram = ${ram} cpu = ${cpu} net = ${net} ",("ram", itr->ram_bytes)("net", itr->net_weight)("cpu", itr->cpu_weight));
 
             update_state_and_value(rso.total_ram_bytes,  rlo.ram_bytes,  itr->ram_bytes, "ram_bytes");
