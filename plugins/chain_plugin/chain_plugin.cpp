@@ -2427,8 +2427,6 @@ read_only::get_account_results read_only::get_account( const get_account_params&
    result.head_block_num  = db.head_block_num();
    result.head_block_time = db.head_block_time();
 
-   rm.get_account_limits( result.account_name, result.ram_quota, result.net_weight, result.cpu_weight );
-
    const auto& accnt_obj = db.get_account( result.account_name );
    const auto& accnt_metadata_obj = db.db().get<account_metadata_object,by_name>( result.account_name );
 
@@ -2436,11 +2434,6 @@ read_only::get_account_results read_only::get_account( const get_account_params&
    result.last_code_update = accnt_metadata_obj.last_code_update;
    result.created          = accnt_obj.creation_date;
    
-   uint32_t greylist_limit = db.is_resource_greylisted(result.account_name) ? 1 : config::maximum_elastic_resource_multiplier;
-   result.net_limit = rm.get_account_net_limit_ex( result.account_name, greylist_limit).first;
-   result.cpu_limit = rm.get_account_cpu_limit_ex( result.account_name, greylist_limit).first;
-   result.ram_usage = rm.get_account_ram_usage( result.account_name );
-      
    if ( producer_plug ) {  // producer_plug is null when called from chain_plugin_tests.cpp and get_table_tests.cpp
       account_resource_limit subjective_cpu_bill_limit;
       subjective_cpu_bill_limit.used = producer_plug->get_subjective_bill( result.account_name, fc::time_point::now() );
@@ -2466,6 +2459,13 @@ read_only::get_account_results read_only::get_account( const get_account_params&
       ++perm;
    }
    
+   rm.get_account_limits( result.account_name, result.ram_quota, result.net_weight, result.cpu_weight );
+
+   uint32_t greylist_limit = db.is_resource_greylisted(result.account_name) ? 1 : config::maximum_elastic_resource_multiplier;
+   result.net_limit = rm.get_account_net_limit_ex( result.account_name, greylist_limit).first;
+   result.cpu_limit = rm.get_account_cpu_limit_ex( result.account_name, greylist_limit).first;
+   result.ram_usage = rm.get_account_ram_usage( result.account_name );
+      
    const auto& code_account = db.db().get<account_object,by_name>( config::system_account_name );
 
    abi_def abi;
@@ -2494,6 +2494,17 @@ read_only::get_account_results read_only::get_account( const get_account_params&
          }
       }
 	  
+      t_id = d.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( config::system_account_name, params.account_name, N(billedfee) ));
+      if (t_id != nullptr) {
+         const auto &idx = d.get_index<key_value_index, by_scope_primary>();
+         auto it = idx.find(boost::make_tuple( t_id->id, params.account_name.to_uint64_t() ));
+         if ( it != idx.end() ) {
+            vector<char> data;
+            copy_inline_row(*it, data);
+            result.billed_resources = abis.binary_to_variant( "billed_resources", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
+         }
+      }
+	
 	/*
       t_id = d.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( config::system_account_name, params.account_name, N(userres) ));
       if (t_id != nullptr) {
@@ -2551,6 +2562,7 @@ read_only::get_account_results read_only::get_account( const get_account_params&
       }
 	  */
    }
+   
    std::pair<uint64_t, uint64_t> accnt_billtrx = rm.get_billtrx_limits( result.account_name );
    result.use_ram = accnt_billtrx.first;
    result.use_cpu = accnt_billtrx.second;

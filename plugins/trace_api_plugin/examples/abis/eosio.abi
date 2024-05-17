@@ -1579,6 +1579,28 @@
       ]
     },
     {
+      "name": "billed_resources",
+      "base": "",
+      "fields": [
+        {
+          "name": "account",
+          "type": "name"
+        },
+        {
+          "name": "ram",
+          "type": "uint64"
+        },
+        {
+          "name": "cpu",
+          "type": "uint64"
+        },
+        {
+          "name": "net",
+          "type": "uint64"
+        }
+      ]
+    },
+    {
       "name": "voteproducer",
       "base": "",
       "fields": [
@@ -2118,6 +2140,13 @@
       "key_names": [],
       "key_types": [],
       "type": "user_resources"
+    },
+    {
+      "name": "billedfee",
+      "index_type": "i64",
+      "key_names": [],
+      "key_types": [],
+      "type": "billed_resources"
     },
     {
       "name": "voters",

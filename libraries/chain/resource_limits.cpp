@@ -289,7 +289,7 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
    EOS_ASSERT(ram_delta >= 0 || usage.ram_usage >= (uint64_t)(-ram_delta), transaction_exception,
               "Ram usage delta would underflow UINT64_MAX");
    _db.modify( usage, [&]( auto& u ) {
-     u.ram_usage += ram_delta;
+       u.ram_usage += ram_delta;
    });
    	ilog( "ONBILLTRX:: add_pending_ram_usage: ${payer} ram_delta = ${ram_delta}",("payer", account)("ram_delta", ram_delta));
 }

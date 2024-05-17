@@ -1365,7 +1365,6 @@ struct controller_impl {
             cpu_time_to_bill_us = limited_cpu_time_to_bill_us;
          }
 
-	     ilog( "ONBILLTRX:: add_transaction_usage push_scheduled_transaction");
          resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0,
                                                 block_timestamp_type(self.pending_block_time()).slot ); // Should never fail
 												
