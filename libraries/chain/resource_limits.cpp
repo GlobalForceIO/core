@@ -165,7 +165,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 						t.cpu += cost_cpu;
 					});
 					*/
-					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: cost_ram = ${cost_ram} cost_cpu = ${cost_cpu} FIND: ram = ${billtrx_ram} cpu = ${billtrx_cpu}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu));
+					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: ram ${cost_ram} cpu ${cost_cpu} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu));
 					
 					/*
 					uint64_t ram_bytes = 1000000000000;
@@ -408,10 +408,14 @@ void resource_limits_manager::process_account_limit_updates() {
             break;
          }
 		 
-		ilog( "ONBILLTRX:: process_account_limit_updates: ${payer} ram_bytes = ${ram_bytes} net_weight = ${net_weight} cpu_weight = ${cpu_weight} ",("payer", itr->owner)("ram_bytes", itr->ram_bytes)("net_weight", itr->net_weight)("cpu_weight", itr->cpu_weight));
-
+		ilog( "ONBILLTRX:: process_account_limit_updates: ${payer}",("payer", itr->owner));
+		
          const auto& actual_entry = _db.get<resource_limits_object, by_owner>(boost::make_tuple(false, itr->owner));
          _db.modify(actual_entry, [&](resource_limits_object& rlo){
+		 
+		ilog( "ONBILLTRX:: process_account_limit_updates: actual ram = ${ram} cpu = ${cpu} net = ${net} ",("ram", rlo.ram_bytes)("net", rlo.net_weight)("cpu", rlo.cpu_weight));
+		ilog( "ONBILLTRX:: process_account_limit_updates: pending ram = ${ram} cpu = ${cpu} net = ${net} ",("ram", itr->ram_bytes)("net", itr->net_weight)("cpu", itr->cpu_weight));
+
             update_state_and_value(rso.total_ram_bytes,  rlo.ram_bytes,  itr->ram_bytes, "ram_bytes");
             update_state_and_value(rso.total_cpu_weight, rlo.cpu_weight, itr->cpu_weight, "cpu_weight");
             update_state_and_value(rso.total_net_weight, rlo.net_weight, itr->net_weight, "net_weight");
