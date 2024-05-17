@@ -28,10 +28,98 @@ curl http://127.0.0.1:8900/v1/wallet/unlock -X POST -d '["gf", "PW5KQ9jqpSvJFqCn
 	### TEST FEE
 cleos -u http://127.0.0.1:18881 push action eosio configfee '[14, 26]' -p eosio@active
 cleos -u http://127.0.0.1:18881 get table eosio eosio configfee -l 100
-cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpa1", "testtestbpa2", "1000.0000 GFT", "test fee" ]' -p testtestbpa1@active
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpa1", "testtestbpa2", "1.0000 GFT", "test fee" ]' -p testtestbpa1@active
 cleos -u http://127.0.0.1:18881 get account testtestbpa1 --json
 cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpa2", "testtestbpa1", "1.0000 GFT", "test fee" ]' -p testtestbpa2@active
 cleos -u http://127.0.0.1:18881 get account testtestbpa2 --json
+
+ "ram_quota": 46837,
+  "net_weight": 24,
+  "cpu_weight": 21207,
+  "net_limit": {
+    "used": 3352,
+    "available": "181193932796648",
+    "max": "181193932800000"
+  },
+  "cpu_limit": {
+    "used": 22120,
+    "available": "34559999977880",
+    "max": "34560000000000"
+  },  
+  "use_ram": 93444,
+  "use_cpu": 6435,
+  "use_net": 0
+
+transfer COST: ram 5980 cpu 0 FIND: ram 93444 cpu 6435
+transaction_usage: testtestbpa1 ram = 47067 cpu = 392 net = 136
+process_account_limit_updates: pending ram = 47067 cpu = 21207 net = 25
+
+  "ram_quota": 47067,
+  "net_weight": 25,
+  "cpu_weight": 21207,
+  "net_limit": {
+    "used": 3483,
+    "available": "181193932796517",
+    "max": "181193932800000"
+  },
+  "cpu_limit": {
+    "used": 22483,
+    "available": "34559999977517",
+    "max": "34560000000000"
+  },
+  "ram_usage": 3236,
+  "use_ram": 140511,             140511 - 93444 = 47067
+  "use_cpu": 6827,               6827   - 392   = 6435
+  "use_net": 0
+  
+  
+
+  *********************************
+  ram_fee = 26 cpu_fee = 14
+  *********************************
+  
+    "ram_quota": 43661,
+  "net_weight": 10,
+  "cpu_weight": 21207,
+  "net_limit": {
+    "used": 3352,
+    "available": "181193932796648",
+    "max": "181193932800000"
+  },
+  "cpu_limit": {
+    "used": 22120,
+    "available": "34559999977880",
+    "max": "34560000000000"
+  },
+  "ram_usage": 3236,
+  "use_ram": 87322,
+  "use_cpu": 6435,
+  "use_net": 0
+
+transfer COST: ram 5980 cpu 0 FIND: ram 87322 cpu 6435
+transaction_usage: testtestbpa1 ram = 43891 cpu = 702 net = 136
++++++transaction_usage: testtestbpa1 ram = 43661 cpu = 392 net = 136
+
+  "ram_quota": 43661,
+  "net_weight": 10,
+  "cpu_weight": 21207,
+  "net_limit": {
+    "used": 3483,
+    "available": "181193932796517",
+    "max": "181193932800000"
+  },
+  "cpu_limit": {
+    "used": 22483,
+    "available": "34559999977517",
+    "max": "34560000000000"
+  },
+  "ram_usage": 3236,
+  "use_ram": 130983,                 130983 - 87322 = 43661
+  "use_cpu": 6827,                   6827   - 392   = 6435
+  "use_net": 0
+
+  
+  
 
 cd /var/server/contracts && git pull origin testnet && ./build.sh
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
