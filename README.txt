@@ -33,133 +33,20 @@ cleos -u http://127.0.0.1:18881 get account testtestbpa1 --json
 cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpa2", "testtestbpa1", "1.0000 GFT", "test fee" ]' -p testtestbpa2@active
 cleos -u http://127.0.0.1:18881 get account testtestbpa2 --json
 
- "ram_quota": 46837,
-  "net_weight": 24,
-  "cpu_weight": 21207,
-  "net_limit": {
-    "used": 3352,
-    "available": "181193932796648",
-    "max": "181193932800000"
-  },
-  "cpu_limit": {
-    "used": 22120,
-    "available": "34559999977880",
-    "max": "34560000000000"
-  },  
-  "use_ram": 93444,
-  "use_cpu": 6435,
-  "use_net": 0
 
-transfer COST: ram 5980 cpu 0 FIND: ram 93444 cpu 6435
-transaction_usage: testtestbpa1 ram = 47067 cpu = 392 net = 136
-process_account_limit_updates: pending ram = 47067 cpu = 21207 net = 25
 
-  "ram_quota": 47067,
-  "net_weight": 25,
-  "cpu_weight": 21207,
-  "net_limit": {
-    "used": 3483,
-    "available": "181193932796517",
-    "max": "181193932800000"
-  },
-  "cpu_limit": {
-    "used": 22483,
-    "available": "34559999977517",
-    "max": "34560000000000"
-  },
-  "ram_usage": 3236,
-  "use_ram": 140511,             140511 - 93444 = 47067
-  "use_cpu": 6827,               6827   - 392   = 6435
-  "use_net": 0
-  
-esttestbpa1 transfer COST: ram 5980 cpu 0 FIND: ram 140511 cpu 6827
-transaction_usage: testtestbpa1 ram = 47297 cpu = 876 net = 136 LIMITS: ram 47297 cpu 21207 net 26
-process_account_limit_updates: pending ram = 47297 cpu = 21207 net = 26
 
-  "ram_quota": 47297,
-  "net_weight": 26,
-  "cpu_weight": 21207,
-  "net_limit": {
-    "used": 3384,
-    "available": "181193932796616",
-    "max": "181193932800000"
-  },
-  "cpu_limit": {
-    "used": 21842,
-    "available": "34559999978158",
-    "max": "34560000000000"
-  },
-  "ram_usage": 3236,
-    "use_ram": 187808,
-  "use_cpu": 7703,
-  "use_net": 0
 
-  
-  *********************************
-  ram_fee = 26 cpu_fee = 14
-  *********************************
-  
-    "ram_quota": 43661,
-  "net_weight": 10,
-  "cpu_weight": 21207,
-  "net_limit": {
-    "used": 3352,
-    "available": "181193932796648",
-    "max": "181193932800000"
-  },
-  "cpu_limit": {
-    "used": 22120,
-    "available": "34559999977880",
-    "max": "34560000000000"
-  },
-  "ram_usage": 3236,
-  "use_ram": 87322,
-  "use_cpu": 6435,
-  "use_net": 0
 
-transfer COST: ram 5980 cpu 0 FIND: ram 87322 cpu 6435
-transaction_usage: testtestbpa1 ram = 43891 cpu = 702 net = 136
-+++++transaction_usage: testtestbpa1 ram = 43661 cpu = 392 net = 136
 
-  "ram_quota": 43661,
-  "net_weight": 10,
-  "cpu_weight": 21207,
-  "net_limit": {
-    "used": 3483,
-    "available": "181193932796517",
-    "max": "181193932800000"
-  },
-  "cpu_limit": {
-    "used": 22483,
-    "available": "34559999977517",
-    "max": "34560000000000"
-  },
-  "ram_usage": 3236,
-  "use_ram": 130983,                 130983 - 87322 = 43661
-  "use_cpu": 6827,                   6827   - 392   = 6435
-  "use_net": 0
 
-transfer COST: ram 5980 cpu 0 FIND: ram 130983 cpu 6827
-transaction_usage: testtestbpa1 ram = 43891 cpu = 1342 net = 136 LIMITS: ram 43891 cpu 21207 net 11
-transaction_usage: testtestbpa1 ram = 43661 cpu = 876 net = 136 LIMITS: ram 43661 cpu 21207 net 10
 
-  "ram_quota": 43661,
-  "net_weight": 10,
-  "cpu_weight": 21207,
-  "net_limit": {
-    "used": 3384,
-    "available": "181193932796616",
-    "max": "181193932800000"
-  },
-  "cpu_limit": {
-    "used": 21842,
-    "available": "34559999978158",
-    "max": "34560000000000"
-  },
-  "ram_usage": 3236,
-  "use_ram": 174644,  174644 - 130983 = 43661
-  "use_cpu": 7703,    7703   - 6827   = 876
-  "use_net": 0
+
+
+
+
+
+
 
   
 cd /var/server/contracts && git pull origin testnet && ./build.sh
