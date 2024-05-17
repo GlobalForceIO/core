@@ -272,6 +272,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			t.cpu += cpu_usage;
 			t.ram = unused;
 		});
+		ilog( "ONBILLTRX:: add_transaction_usage: ${payer} ram = ${unused} cpu = ${cpu} net = ${net} ",("payer", a)("ram", unused)("cpu", cpu_usage)("net", net_usage));
 	}
 	
    //TODO leave total used resources bot block
