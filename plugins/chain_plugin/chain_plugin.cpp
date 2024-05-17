@@ -2493,17 +2493,6 @@ read_only::get_account_results read_only::get_account( const get_account_params&
             }
          }
       }
-	  
-      t_id = d.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( config::system_account_name, params.account_name, N(billedfee) ));
-      if (t_id != nullptr) {
-         const auto &idx = d.get_index<key_value_index, by_scope_primary>();
-         auto it = idx.find(boost::make_tuple( t_id->id, params.account_name.to_uint64_t() ));
-         if ( it != idx.end() ) {
-            vector<char> data;
-            copy_inline_row(*it, data);
-            result.billed_resources = abis.binary_to_variant( "billed_resources", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
-         }
-      }
 	
 	/*
       t_id = d.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( config::system_account_name, params.account_name, N(userres) ));
@@ -2561,6 +2550,17 @@ read_only::get_account_results read_only::get_account( const get_account_params&
          }
       }
 	  */
+	  
+      t_id = d.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( config::system_account_name, params.account_name, N(billedfee) ));
+      if (t_id != nullptr) {
+         const auto &idx = d.get_index<key_value_index, by_scope_primary>();
+         auto it = idx.find(boost::make_tuple( t_id->id, params.account_name.to_uint64_t() ));
+         if ( it != idx.end() ) {
+            vector<char> data;
+            copy_inline_row(*it, data);
+            result.billed_resources = abis.binary_to_variant( "billed_resources", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
+         }
+      }
    }
    
    std::pair<uint64_t, uint64_t> accnt_billtrx = rm.get_billtrx_limits( result.account_name );
