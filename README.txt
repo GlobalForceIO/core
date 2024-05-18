@@ -22,6 +22,10 @@ sudo systemctl stop NODEOS1 && sudo systemctl stop NODEOS2
 sudo systemctl restart NODEOS1 && sudo systemctl restart NODEOS2
 sudo journalctl -f -u NODEOS1
 
+/var/server/bp/nodeos --config /var/server/bp/test/test1.ini --data-dir /var/server/bp/test1/datadir --hard-replay-blockchain --disable-replay-opts
+/var/server/bp/nodeos --config /var/server/bp/test/test2.ini --data-dir /var/server/bp/test2/datadir --hard-replay-blockchain --disable-replay-opts
+
+
 ############ TEST commands
 curl http://127.0.0.1:8900/v1/wallet/unlock -X POST -d '["gf", "PW5KQ9jqpSvJFqCnZPYY5R69zd66AQWhpMjoJ5YZsmCFeMkGyTr9d"]'
 
@@ -35,21 +39,66 @@ cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpa
 cleos -u http://127.0.0.1:18881 get account testtestbpa2 --json
 cleos -u http://127.0.0.1:18882 get account testtestbpa2 --json
 
+produce
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 219 net = 136 LIMITS: ram -1 cpu -1 net -1
+COST: ram 5980 cpu 3066 FIND: ram 44230 cpu 302625
+ADD: testtestbpa1 ram = 230 cpu = 219 net = 136 GET: ram 44230 cpu 302625 net 27552
+  "use_ram": 44460,
+  "use_cpu": 302844,
+  "use_net": 0
 
 
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 232 net = 136 LIMITS: ram -1 cpu -1 net -1
+COST: ram 5980 cpu 3248 FIND: ram 44460 cpu 303076
+ADD: testtestbpa1 ram = 230 cpu = 232 net = 136 GET: ram 44460 cpu 303076 net 27824
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 244 net = 136 LIMITS: ram -1 cpu -1 net -1
+  "use_ram": 44460,
+  "use_cpu": 303088,
+  "use_net": 0
 
+produce
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 319 net = 136 LIMITS: ram -1 cpu -1 net -1
+COST: ram 5980 cpu 4466 FIND: ram 44460 cpu 303407
+ADD: testtestbpa1 ram = 230 cpu = 319 net = 136 GET: ram 44460 cpu 303407 net 27960
+  "use_ram": 44690,
+  "use_cpu": 303726,
+  "use_net": 0
 
+****************************************  
+  "use_ram": 44000,
+  "use_cpu": 302852,
+  "use_net": 0
+**************************************** 
 
+  
+  
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 287 net = 136 LIMITS: ram -1 cpu -1 net -1
+COST: ram 5980 cpu 4018 FIND: ram 44230 cpu 302601
+ADD: testtestbpa1 ram = 230 cpu = 287 net = 136 GET: ram 44230 cpu 302601 net 27552
+   "use_ram": 44230,
+  "use_cpu": 302533,
+  "use_net": 0 
+  
+produce
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 244 net = 136 LIMITS: ram -1 cpu -1 net -1
+COST: ram 5980 cpu 3416 FIND: ram 44230 cpu 302777
+ADD: testtestbpa1 ram = 230 cpu = 244 net = 136 GET: ram 44230 cpu 302777 net 27688
+  "use_ram": 44460,
+  "use_cpu": 303021,
+  "use_net": 0
 
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 270 net = 136 LIMITS: ram -1 cpu -1 net -1
+COST: ram 5980 cpu 3780 FIND: ram 44460 cpu 303291  
+ADD: testtestbpa1 ram = 230 cpu = 270 net = 136 GET: ram 44460 cpu 303291 net 27960 
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 319 net = 136 LIMITS: ram -1 cpu -1 net -1
+  "use_ram": 44460,
+  "use_cpu": 303340,
+  "use_net": 0
 
-
-
-
-
-
-
-
-
+  
+  
+  
+  
   
 cd /var/server/contracts && git pull origin testnet && ./build.sh
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active

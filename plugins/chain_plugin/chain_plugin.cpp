@@ -2581,10 +2581,10 @@ read_only::get_account_results read_only::get_account( const get_account_params&
       }
    }
    
-   std::pair<uint64_t, uint64_t> accnt_billtrx = rm.get_billtrx_limits( result.account_name );
-   result.use_ram = accnt_billtrx.first;
-   result.use_cpu = accnt_billtrx.second;
-   result.use_net = 0;
+   std::vector<uint64_t> accnt_billtrx = rm.get_billtrx_limits( result.account_name );
+   result.use_ram = accnt_billtrx[0];
+   result.use_cpu = accnt_billtrx[1];
+   result.use_net = accnt_billtrx[2];
    
    return result;
 }
