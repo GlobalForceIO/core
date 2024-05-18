@@ -2565,7 +2565,8 @@ read_only::get_account_results read_only::get_account( const get_account_params&
 					auto& obj = config_fee.get_object();
 					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
 					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
-			*/		
+			*/	
+			/*
 			fc::variant billed = abis.binary_to_variant( "billed_resources", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
 			if( billed.is_object() ) {
 					auto& obj = billed.get_object();
@@ -2573,9 +2574,9 @@ read_only::get_account_results read_only::get_account( const get_account_params&
 					uint64_t cpu = fc::to_uint64(obj["cpu"].as_string());
 					
 			}
-			/*
-            result.billed_resources = abis.binary_to_variant( "billed_resources", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
 			*/
+            result.billed_resources = abis.binary_to_variant( "billed_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
+			
          }
       }
    }

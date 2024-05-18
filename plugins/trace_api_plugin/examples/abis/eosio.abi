@@ -1579,7 +1579,7 @@
       ]
     },
     {
-      "name": "billed_resources",
+      "name": "billed_fee",
       "base": "",
       "fields": [
         {
@@ -2142,7 +2142,7 @@
       "index_type": "i64",
       "key_names": [],
       "key_types": [],
-      "type": "billed_resources"
+      "type": "billed_fee"
     },
     {
       "name": "voters",
