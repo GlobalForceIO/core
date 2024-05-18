@@ -1365,7 +1365,7 @@ struct controller_impl {
             cpu_time_to_bill_us = limited_cpu_time_to_bill_us;
          }
 
-         //resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0, block_timestamp_type(self.pending_block_time()).slot ); // Should never fail
+         //resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0, 0 ); // Should never fail
 												
          trace->receipt = push_receipt(gtrx.trx_id, transaction_receipt::hard_fail, cpu_time_to_bill_us, 0);
          trace->account_ram_delta = account_delta( gtrx.payer, trx_removal_ram_delta );
@@ -1489,7 +1489,10 @@ struct controller_impl {
 				//TODO use here verify_billtrx_pay
 				auto& rl = self.get_mutable_resource_limits_manager();
 				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
-				rl.set_account_limits(user_name, user_trx_ram, trace->net_usage, user_trx_cpu);
+				
+				//UPDATE ON PRODUCED NODE
+				//rl.set_account_limits(user_name, user_trx_ram, trace->net_usage, user_trx_cpu);
+				rl.set_account_limits(user_name, user_trx_ram, 0, 0);
 			}
 			
             fc::move_append(pending->_block_stage.get<building_block>()._actions, move(trx_context.executed));
