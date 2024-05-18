@@ -316,7 +316,7 @@ bool resource_limits_manager::set_account_limits( const account_name& account, i
 	};
 	auto& billtrx = find_or_create_billtrx();
 	
-	if(a != N(eosio)){
+	if(account != N(eosio)){
 	    ilog( "ONBILLTRX:: set_account_limits: ADD: ${payer} ram = ${ram} cpu = ${cpu} net = ${net} GET: ram ${lram} cpu ${lcpu} net ${lnet}",("payer", account)("ram", ram_bytes)("cpu", cpu_weight)("net", net_weight)("lram", billtrx.ram)("lcpu", billtrx.cpu)("lnet", billtrx.net));
     }
 	
