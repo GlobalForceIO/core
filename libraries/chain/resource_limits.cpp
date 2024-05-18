@@ -267,7 +267,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			//t.ram += unused;
 		});
 		if(a != N(eosio)){
-			ilog( "ONBILLTRX:: add_transaction_usage: ${payer} ram = ${ram} cpu = ${cpu} net = ${net}",("payer", a)("ram", unused)("cpu", cpu_usage)("net", net_usage));
+			ilog( "ONBILLTRX:: add_transaction_usage: ${payer} ADD cpu = ${cpu} net = ${net}",("payer", a)("cpu", cpu_usage)("net", net_usage));
 		}
 	}
 	
