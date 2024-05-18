@@ -40,7 +40,7 @@ cleos -u http://127.0.0.1:18881 get account testtestbpa2 --json
 cleos -u http://127.0.0.1:18882 get account testtestbpa2 --json
 
 produce
-add_transaction_usage: testtestbpa1 ram = -1 cpu = 219 net = 136 LIMITS: ram -1 cpu -1 net -1
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 219 net = 136
 COST: ram 5980 cpu 3066 FIND: ram 44230 cpu 302625
 ADD: testtestbpa1 ram = 230 cpu = 219 net = 136 GET: ram 44230 cpu 302625 net 27552
   "use_ram": 44460,
@@ -48,16 +48,16 @@ ADD: testtestbpa1 ram = 230 cpu = 219 net = 136 GET: ram 44230 cpu 302625 net 27
   "use_net": 0
 
 
-add_transaction_usage: testtestbpa1 ram = -1 cpu = 232 net = 136 LIMITS: ram -1 cpu -1 net -1
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 232 net = 136
 COST: ram 5980 cpu 3248 FIND: ram 44460 cpu 303076
 ADD: testtestbpa1 ram = 230 cpu = 232 net = 136 GET: ram 44460 cpu 303076 net 27824
-add_transaction_usage: testtestbpa1 ram = -1 cpu = 244 net = 136 LIMITS: ram -1 cpu -1 net -1
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 244 net = 136
   "use_ram": 44460,
   "use_cpu": 303088,
   "use_net": 0
 
 produce
-add_transaction_usage: testtestbpa1 ram = -1 cpu = 319 net = 136 LIMITS: ram -1 cpu -1 net -1
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 319 net = 136
 COST: ram 5980 cpu 4466 FIND: ram 44460 cpu 303407
 ADD: testtestbpa1 ram = 230 cpu = 319 net = 136 GET: ram 44460 cpu 303407 net 27960
   "use_ram": 44690,
@@ -72,7 +72,7 @@ ADD: testtestbpa1 ram = 230 cpu = 319 net = 136 GET: ram 44460 cpu 303407 net 27
 
   
   
-add_transaction_usage: testtestbpa1 ram = -1 cpu = 287 net = 136 LIMITS: ram -1 cpu -1 net -1
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 287 net = 136
 COST: ram 5980 cpu 4018 FIND: ram 44230 cpu 302601
 ADD: testtestbpa1 ram = 230 cpu = 287 net = 136 GET: ram 44230 cpu 302601 net 27552
    "use_ram": 44230,
@@ -80,23 +80,24 @@ ADD: testtestbpa1 ram = 230 cpu = 287 net = 136 GET: ram 44230 cpu 302601 net 27
   "use_net": 0 
   
 produce
-add_transaction_usage: testtestbpa1 ram = -1 cpu = 244 net = 136 LIMITS: ram -1 cpu -1 net -1
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 244 net = 136
 COST: ram 5980 cpu 3416 FIND: ram 44230 cpu 302777
 ADD: testtestbpa1 ram = 230 cpu = 244 net = 136 GET: ram 44230 cpu 302777 net 27688
   "use_ram": 44460,
   "use_cpu": 303021,
   "use_net": 0
 
-add_transaction_usage: testtestbpa1 ram = -1 cpu = 270 net = 136 LIMITS: ram -1 cpu -1 net -1
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 270 net = 136
 COST: ram 5980 cpu 3780 FIND: ram 44460 cpu 303291  
 ADD: testtestbpa1 ram = 230 cpu = 270 net = 136 GET: ram 44460 cpu 303291 net 27960 
-add_transaction_usage: testtestbpa1 ram = -1 cpu = 319 net = 136 LIMITS: ram -1 cpu -1 net -1
+add_transaction_usage: testtestbpa1 ram = -1 cpu = 319 net = 136
   "use_ram": 44460,
-  "use_cpu": 303340,
+  "use_cpu": 303340,  303340 - 319 = 303021
   "use_net": 0
-
-  
-  
+	
+  303021
+  303070
+  302751
   
   
   
