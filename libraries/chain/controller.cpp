@@ -1365,7 +1365,7 @@ struct controller_impl {
             cpu_time_to_bill_us = limited_cpu_time_to_bill_us;
          }
 
-         resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0,
+         //resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0,
                                                 block_timestamp_type(self.pending_block_time()).slot ); // Should never fail
 												
          trace->receipt = push_receipt(gtrx.trx_id, transaction_receipt::hard_fail, cpu_time_to_bill_us, 0);
@@ -1485,8 +1485,7 @@ struct controller_impl {
             }
 
 			if(user_check){
-				user_trx_cpu = trx_context.billed_cpu_time_us;
-				//user_trx_cpu = trx_context.update_billed_cpu_time( fc::time_point::now() );
+				user_trx_cpu = trace->receipt->cpu_usage_us;
 				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//TODO use here verify_billtrx_pay
 				auto& rl = self.get_mutable_resource_limits_manager();
