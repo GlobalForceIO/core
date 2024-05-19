@@ -1500,16 +1500,20 @@ struct controller_impl {
                emit( self.accepted_transaction, trx);
             }
 			
-            emit(self.applied_transaction, std::tie(trace, trn));
-			
 				if(user_check){
 					//UPDATE ON PRODUCED NODE
 					//rl.set_account_limits(user_name, user_trx_ram, trace->net_usage, user_trx_cpu);
 					auto& rl = self.get_mutable_resource_limits_manager();
+					rl.set_account_limits(user_name, user_trx_ram, 0, 0);
+					rl.add_transaction_usage( trx_context.bill_to_accounts, user_trx_cpu, trace->net_usage, 0 ); // Should never fail
+					
+					//UPDATE ON LISTEN NODE
 					resource_limits.set_account_limits(user_name, user_trx_ram, 0, 0);
 					resource_limits.add_transaction_usage( trx_context.bill_to_accounts, user_trx_cpu, trace->net_usage, 0 ); // Should never fail
 				}
 				
+            emit(self.applied_transaction, std::tie(trace, trn));
+			
             if ( read_mode != db_read_mode::SPECULATIVE && pending->_block_status == controller::block_status::incomplete ) {
                //this may happen automatically in destructor, but I prefere make it more explicit
                trx_context.undo();
