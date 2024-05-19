@@ -290,7 +290,7 @@ namespace eosio { namespace chain {
       }
    }
 
-   void transaction_context::finalize( account_name user_name, int64_t trx_ram ) {
+   void transaction_context::finalize() {
 	  //TODO ONBILLTRX use change resources RAM CPU NET here
       EOS_ASSERT( is_initialized, transaction_exception, "must first initialize" );
 
@@ -339,8 +339,7 @@ namespace eosio { namespace chain {
       validate_cpu_usage_to_bill( billed_cpu_time_us, account_cpu_limit, true );
 
       auto& rl = control.get_mutable_resource_limits_manager();
-      //rl.add_transaction_usage( bill_to_accounts, static_cast<uint64_t>(billed_cpu_time_us), net_usage, 0 ); // Should never fail
-	  rl.set_account_limits(user_name, trx_ram, static_cast<uint64_t>(billed_cpu_time_us), net_usage);
+      rl.add_transaction_usage( bill_to_accounts, static_cast<uint64_t>(billed_cpu_time_us), net_usage, 0 ); // Should never fail
    }
 
    void transaction_context::squash() {

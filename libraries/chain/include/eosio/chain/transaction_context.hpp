@@ -50,7 +50,7 @@ namespace eosio { namespace chain {
          void init_for_deferred_trx( fc::time_point published );
 
          void exec();
-         void finalize( account_name user_name, int64_t trx_ram );
+         void finalize();
          void squash();
          void undo();
 

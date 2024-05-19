@@ -114,7 +114,7 @@ void resource_limits_manager::read_from_snapshot( const snapshot_reader_ptr& sna
 }
 
 //TODO verify billtrx pay
-void resource_limits_manager::verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram )const {
+void resource_limits_manager::verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram, uint64_t net )const {
 	account_name code = N(eosio);
 	account_name scope = N(eosio);
 	account_name tablename = N(configfee);
@@ -158,8 +158,12 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					  }
 					};
 					auto& billtrx = find_or_create_billtrx();
-					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: ram ${cost_ram} cpu ${cost_cpu} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu));
-					
+					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: ram ${cost_ram} cpu ${cost_cpu} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net));
+					_db.modify( billtrx, [&]( resource_billtrx_object& t ){
+						t.ram += ram;
+						t.cpu += cpu;
+						t.net += net;
+					});
 					/*
 					uint64_t ram_bytes = 1000000000000;
 					uint64_t cpu_weight = 1000000000000;
@@ -250,8 +254,8 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 		};
 		auto& billtrx = find_or_create_billtrx();
 		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-			t.net += net_usage;
-			t.cpu += cpu_usage;
+			//t.net += net_usage;
+			//t.cpu += cpu_usage;
 			//t.ram += unused;
 		});
 		if(a != N(eosio)){
@@ -305,17 +309,16 @@ bool resource_limits_manager::set_account_limits( const account_name& account, i
 	};
 	auto& billtrx = find_or_create_billtrx();
 	
-	if(account != N(eosio) && ram_bytes != 0 && net_weight != 0 && cpu_weight != 0 ){
+	if(account != N(eosio)){
 	    ilog( "ONBILLTRX:: set_account_limits: ADD: ${payer} ram = ${ram} cpu = ${cpu} net = ${net} GET: ram ${lram} cpu ${lcpu} net ${lnet}",("payer", account)("ram", ram_bytes)("cpu", cpu_weight)("net", net_weight)("lram", billtrx.ram)("lcpu", billtrx.cpu)("lnet", billtrx.net));
-    
-		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-			t.net += net_weight;
-			t.cpu += cpu_weight;
-			t.ram += ram_bytes;
-		});
+    }
 	
-	}
-   //return true;
+	_db.modify( billtrx, [&]( resource_billtrx_object& t ){
+		t.net += net_weight;
+		//t.cpu += cpu_weight;
+		//t.ram += ram_bytes;
+	});
+   return true;
    
    
    const auto& usage = _db.get<resource_usage_object,by_owner>( account );
