@@ -1490,9 +1490,6 @@ struct controller_impl {
 				auto& rl = self.get_mutable_resource_limits_manager();
 				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
 				
-				//UPDATE ON PRODUCED NODE
-				//rl.set_account_limits(user_name, user_trx_ram, trace->net_usage, user_trx_cpu);
-				rl.set_account_limits(user_name, user_trx_ram, 0, 0);
 			}
 			
             fc::move_append(pending->_block_stage.get<building_block>()._actions, move(trx_context.executed));
@@ -1501,7 +1498,15 @@ struct controller_impl {
             if (!trx->accepted) {
                trx->accepted = true;
                emit( self.accepted_transaction, trx);
-            }
+				//UPDATE ON PRODUCED NODE
+				//rl.set_account_limits(user_name, user_trx_ram, trace->net_usage, user_trx_cpu);
+				rl.set_account_limits(user_name, user_trx_ram, 0, 0);
+				rl.add_transaction_usage( bill_to_accounts, user_trx_cpu, trace->receipt->net_usage_words, 0 ); // Should never fail
+            }else{
+				//UPDATE ON LISTENER NODE
+				resource_limits.set_account_limits(user_name, user_trx_ram, 0, 0);
+				resource_limits.add_transaction_usage( bill_to_accounts, user_trx_cpu, trace->receipt->net_usage_words, 0 ); // Should never fail
+			}
 			
             emit(self.applied_transaction, std::tie(trace, trn));
 			

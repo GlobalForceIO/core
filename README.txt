@@ -39,6 +39,22 @@ cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpa
 cleos -u http://127.0.0.1:18881 get account testtestbpa2 --json
 cleos -u http://127.0.0.1:18882 get account testtestbpa2 --json
 
+
+
+
+коммиты
+	обновление данных - двойная трата для цпу и нет
+03cd4c90a9a952536d3b368e5a774c1e073ed582
+
+	обновление данных только у продюсера
+8cc7fcefef1a8c23ac5cea3ac69206bcf08ba21f
+
+	ТЕСТ обновление данных РАМ и ЦПУ НЕТ в разных функциях
+cdf3e8af4988755ca8bd153fedcab7442dded909
+
+
+
+
 cd /var/server/contracts && git pull origin testnet && ./build.sh
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
 
