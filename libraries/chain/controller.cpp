@@ -1140,7 +1140,7 @@ struct controller_impl {
          trx_context.init_for_implicit_trx();
          trx_context.published = gtrx.published;
          trx_context.execute_action( trx_context.schedule_action( etrx.actions.back(), gtrx.sender, false, 0, 0 ), 0 );
-         trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
+         trx_context.finalize( user_name, user_trx_ram ); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 
          auto restore = make_block_restore_point();
          trace->receipt = push_receipt( gtrx.trx_id, transaction_receipt::soft_fail,
@@ -1283,7 +1283,7 @@ struct controller_impl {
          }
 
          trx_context.exec();
-         trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
+         trx_context.finalize( user_name, user_trx_ram ); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 
          auto restore = make_block_restore_point();
 
@@ -1464,7 +1464,17 @@ struct controller_impl {
                );
             }
             trx_context.exec();
-            trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
+			
+			if(user_check){
+				user_trx_cpu = trace->receipt->cpu_usage_us;
+				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
+				//TODO use here verify_billtrx_pay
+				auto& rl = self.get_mutable_resource_limits_manager();
+				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
+				//resource_limits.set_account_limits(user_name, user_trx_ram, user_trx_cpu, trace->net_usage);
+			}
+			
+            trx_context.finalize( user_name, user_trx_ram ); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 			
             auto restore = make_block_restore_point();
 
@@ -1483,16 +1493,6 @@ struct controller_impl {
                trace->receipt = r;
             }
 
-			if(user_check){
-				user_trx_cpu = trace->receipt->cpu_usage_us;
-				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
-				//TODO use here verify_billtrx_pay
-				auto& rl = self.get_mutable_resource_limits_manager();
-				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram );
-				resource_limits.set_account_limits(user_name, user_trx_ram, user_trx_cpu, trace->net_usage);
-				//rl.add_transaction_usage( trx_context.bill_to_accounts, user_trx_cpu, trace->net_usage, 0 ); // Should never fail
-			}
-			
             fc::move_append(pending->_block_stage.get<building_block>()._actions, move(trx_context.executed));
 
             // call the accept signal but only once for this transaction
