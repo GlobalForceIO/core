@@ -314,7 +314,7 @@ bool resource_limits_manager::set_account_limits( const account_name& account, i
 		t.cpu += cpu_weight;
 		t.ram += ram_bytes;
 	});
-   return true;
+   //return true;
    
    
    const auto& usage = _db.get<resource_usage_object,by_owner>( account );
