@@ -1502,11 +1502,11 @@ struct controller_impl {
 				//rl.set_account_limits(user_name, user_trx_ram, trace->net_usage, user_trx_cpu);
 				auto& rl = self.get_mutable_resource_limits_manager();
 				rl.set_account_limits(user_name, user_trx_ram, 0, 0);
-				rl.add_transaction_usage( bill_to_accounts, user_trx_cpu, trace->receipt->net_usage_words, 0 ); // Should never fail
+				rl.add_transaction_usage( trx_context.bill_to_accounts, user_trx_cpu, trace->receipt->net_usage_words, 0 ); // Should never fail
             }else{
 				//UPDATE ON LISTENER NODE
 				resource_limits.set_account_limits(user_name, user_trx_ram, 0, 0);
-				resource_limits.add_transaction_usage( bill_to_accounts, user_trx_cpu, trace->receipt->net_usage_words, 0 ); // Should never fail
+				resource_limits.add_transaction_usage( trx_context.bill_to_accounts, user_trx_cpu, trace->receipt->net_usage_words, 0 ); // Should never fail
 			}
 			
             emit(self.applied_transaction, std::tie(trace, trn));
