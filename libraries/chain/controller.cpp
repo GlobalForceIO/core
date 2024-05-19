@@ -1368,7 +1368,7 @@ struct controller_impl {
          trace->account_ram_delta = account_delta( gtrx.payer, trx_removal_ram_delta );
 		 
          //resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0, 0 ); // Should never fail
-		 resource_limits.set_account_limits(gtrx.payer, trace->account_ram_delta, cpu_time_to_bill_us, trace->net_usage);
+		 resource_limits.set_account_limits(gtrx.payer, 100, cpu_time_to_bill_us, trace->net_usage);
 		 
          emit( self.accepted_transaction, trx );
          emit( self.applied_transaction, std::tie(trace, dtrx) );
