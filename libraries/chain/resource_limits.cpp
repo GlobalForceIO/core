@@ -305,16 +305,17 @@ bool resource_limits_manager::set_account_limits( const account_name& account, i
 	};
 	auto& billtrx = find_or_create_billtrx();
 	
-	if(account != N(eosio)){
+	if(account != N(eosio) && ram_bytes != 0 && net_weight != 0 && cpu_weight != 0 ){
 	    ilog( "ONBILLTRX:: set_account_limits: ADD: ${payer} ram = ${ram} cpu = ${cpu} net = ${net} GET: ram ${lram} cpu ${lcpu} net ${lnet}",("payer", account)("ram", ram_bytes)("cpu", cpu_weight)("net", net_weight)("lram", billtrx.ram)("lcpu", billtrx.cpu)("lnet", billtrx.net));
-    }
+    
+		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
+			t.net += net_weight;
+			t.cpu += cpu_weight;
+			t.ram += ram_bytes;
+		});
 	
-	_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-		t.net += net_weight;
-		t.cpu += cpu_weight;
-		t.ram += ram_bytes;
-	});
-   return true;
+	}
+   //return true;
    
    
    const auto& usage = _db.get<resource_usage_object,by_owner>( account );
