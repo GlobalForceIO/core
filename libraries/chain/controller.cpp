@@ -1483,7 +1483,7 @@ struct controller_impl {
                trace->receipt = r;
             }
 
-			if(user_check && user_action != N(onblock)){
+			if(user_check){
 				user_trx_cpu = trace->receipt->cpu_usage_us;
 				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//TODO use here verify_billtrx_pay
@@ -1498,11 +1498,13 @@ struct controller_impl {
             if (!trx->accepted) {
                trx->accepted = true;
                emit( self.accepted_transaction, trx);
-				//UPDATE ON PRODUCED NODE
-				//rl.set_account_limits(user_name, user_trx_ram, trace->net_usage, user_trx_cpu);
-				auto& rl = self.get_mutable_resource_limits_manager();
-				rl.set_account_limits(user_name, user_trx_ram, 0, 0);
-				rl.add_transaction_usage( trx_context.bill_to_accounts, user_trx_cpu, trace->net_usage, 0 ); // Should never fail
+				if(user_check){
+					//UPDATE ON PRODUCED NODE
+					//rl.set_account_limits(user_name, user_trx_ram, trace->net_usage, user_trx_cpu);
+					auto& rl = self.get_mutable_resource_limits_manager();
+					rl.set_account_limits(user_name, user_trx_ram, 0, 0);
+					rl.add_transaction_usage( trx_context.bill_to_accounts, user_trx_cpu, trace->net_usage, 0 ); // Should never fail
+				}
             }/*else{
 				//UPDATE ON LISTENER NODE
 				resource_limits.set_account_limits(user_name, user_trx_ram, 0, 0);
