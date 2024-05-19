@@ -1464,6 +1464,7 @@ struct controller_impl {
                );
             }
             trx_context.exec();
+            trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 			
 			if(user_check){
 				user_trx_cpu = trace->receipt->cpu_usage_us;
@@ -1474,8 +1475,6 @@ struct controller_impl {
 				//resource_limits.set_account_limits(user_name, user_trx_ram, user_trx_cpu, trace->net_usage);
 				//rl.add_transaction_usage( trx_context.bill_to_accounts, user_trx_cpu, trace->net_usage, 0 ); // Should never fail
 			}
-			
-            trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 			
             auto restore = make_block_restore_point();
 
