@@ -76,7 +76,7 @@ namespace eosio { namespace chain { namespace resource_limits {
 		 void initialize_account( const account_name& account );
          void set_block_parameters( const elastic_limit_parameters& cpu_limit_parameters, const elastic_limit_parameters& net_limit_parameters );
 		 
-		 void verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram ) const;
+		 void verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram, uint64_t net ) const;
 		 
 		 //Get RAM CPU NET account
 		 std::vector<uint64_t> get_billtrx_limits( const account_name& name ) const;
