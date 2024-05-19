@@ -330,8 +330,6 @@ cleos -u http://127.0.0.1:18881 push action gf.price update '[ "eosio.token", "0
 cleos -u http://127.0.0.1:18881 push action gf.price update '[ "eosio.token", "0.0011 USDT"]' -p gf.price@active
 cleos -u http://127.0.0.1:18881 push action gf.price update '[ "eosio.token", "0.0012 USDT"]' -p gf.price@active
 
-cleos -u http://127.0.0.1:18881 push action gf.nft cncreate '[ "First NFT collection", 0, "gf", "Description."]' -p gf.nft@active
-
 #Create first BP
 cleos -u http://127.0.0.1:18881 create account gf testtestbpa1 EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3 EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3
 cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "gf", "testtestbpa1", "1000.0000 GFT", "init" ]' -p gf@active
