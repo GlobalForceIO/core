@@ -1500,6 +1500,7 @@ struct controller_impl {
                emit( self.accepted_transaction, trx);
 				//UPDATE ON PRODUCED NODE
 				//rl.set_account_limits(user_name, user_trx_ram, trace->net_usage, user_trx_cpu);
+				auto& rl = self.get_mutable_resource_limits_manager();
 				rl.set_account_limits(user_name, user_trx_ram, 0, 0);
 				rl.add_transaction_usage( bill_to_accounts, user_trx_cpu, trace->receipt->net_usage_words, 0 ); // Should never fail
             }else{
