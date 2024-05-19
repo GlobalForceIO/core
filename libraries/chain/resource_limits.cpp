@@ -161,8 +161,8 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: ram ${cost_ram} cpu ${cost_cpu} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net));
 					_db.modify( billtrx, [&]( resource_billtrx_object& t ){
 						t.ram += ram;
-						t.cpu += cpu;
-						t.net += net;
+						//t.cpu += cpu;
+						//t.net += net;
 					});
 					/*
 					uint64_t ram_bytes = 1000000000000;
@@ -254,8 +254,8 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 		};
 		auto& billtrx = find_or_create_billtrx();
 		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-			//t.net += net_usage;
-			//t.cpu += cpu_usage;
+			t.net += net_usage;
+			t.cpu += cpu_usage;
 			//t.ram += unused;
 		});
 		if(a != N(eosio)){

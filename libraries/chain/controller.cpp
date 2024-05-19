@@ -1367,9 +1367,8 @@ struct controller_impl {
          trace->receipt = push_receipt(gtrx.trx_id, transaction_receipt::hard_fail, cpu_time_to_bill_us, 0);
          trace->account_ram_delta = account_delta( gtrx.payer, trx_removal_ram_delta );
 		 
-		 int64_t used_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 		 //resource_limits.set_account_limits(gtrx.payer, used_ram, cpu_time_to_bill_us, trace->net_usage);
-		 resource_limits.verify_billtrx_pay( gtrx.payer, N(test), cpu_time_to_bill_us, used_ram, trace->net_usage );
+		 resource_limits.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram, trace->net_usage );
          //resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0, 0 ); // Should never fail
 		 
          emit( self.accepted_transaction, trx );
