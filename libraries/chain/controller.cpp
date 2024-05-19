@@ -1498,6 +1498,10 @@ struct controller_impl {
             if (!trx->accepted) {
                trx->accepted = true;
                emit( self.accepted_transaction, trx);
+            }
+			
+            emit(self.applied_transaction, std::tie(trace, trn));
+			
 				if(user_check){
 					//UPDATE ON PRODUCED NODE
 					//rl.set_account_limits(user_name, user_trx_ram, trace->net_usage, user_trx_cpu);
@@ -1505,14 +1509,7 @@ struct controller_impl {
 					rl.set_account_limits(user_name, user_trx_ram, 0, 0);
 					rl.add_transaction_usage( trx_context.bill_to_accounts, user_trx_cpu, trace->net_usage, 0 ); // Should never fail
 				}
-            }/*else{
-				//UPDATE ON LISTENER NODE
-				resource_limits.set_account_limits(user_name, user_trx_ram, 0, 0);
-				resource_limits.add_transaction_usage( trx_context.bill_to_accounts, user_trx_cpu, trace->receipt->net_usage_words, 0 ); // Should never fail
-			}*/
-			
-            emit(self.applied_transaction, std::tie(trace, trn));
-			
+				
             if ( read_mode != db_read_mode::SPECULATIVE && pending->_block_status == controller::block_status::incomplete ) {
                //this may happen automatically in destructor, but I prefere make it more explicit
                trx_context.undo();
