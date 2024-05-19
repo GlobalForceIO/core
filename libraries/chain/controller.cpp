@@ -1467,9 +1467,10 @@ struct controller_impl {
             trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 			
 			if(user_check){
-				user_trx_cpu = trace->receipt->cpu_usage_us;
+				user_trx_cpu = trx_context.billed_cpu_time_us;
 				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//TODO use here verify_billtrx_pay
+				//mutable - save only on PRODUCER
 				auto& rl = self.get_mutable_resource_limits_manager();
 				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram, trace->net_usage );
 				//resource_limits.set_account_limits(user_name, user_trx_ram, user_trx_cpu, trace->net_usage);
