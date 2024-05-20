@@ -146,12 +146,11 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 					  const auto* t = _db.find<resource_billtrx_object,by_owner>( payer );
 					  if (t == nullptr) {
-						 const auto& actual = _db.get<resource_billtrx_object, by_owner>( payer );
 						 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
-							t.owner = actual.owner;
-							t.net = actual.net;
-							t.ram = actual.ram;
-							t.cpu = actual.cpu;
+							t.owner = payer;
+							t.net = 0;
+							t.ram = 0;
+							t.cpu = 0;
 						 });
 					  } else {
 						 return *t;
@@ -159,12 +158,14 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					};
 					auto& billtrx = find_or_create_billtrx();
 					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: ram ${cost_ram} cpu ${cost_cpu} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net));
+					/*
 					const auto& usage  = _db.get<resource_usage_object,by_owner>( payer );
 					_db.modify( billtrx, [&]( resource_billtrx_object& t ){
 						t.ram = usage.ram_usage;
 						//t.cpu += cpu;
 						//t.net += net;
 					});
+					*/
 					/*
 					uint64_t ram_bytes = 1000000000000;
 					uint64_t cpu_weight = 1000000000000;
