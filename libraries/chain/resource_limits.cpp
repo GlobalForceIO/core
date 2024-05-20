@@ -165,7 +165,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 						//t.cpu += cpu;
 						//t.net += net;
 					});
-					
+					/*
 					uint64_t ram_bytes = 1000000000000;
 					uint64_t cpu_weight = 1000000000000;
 					
