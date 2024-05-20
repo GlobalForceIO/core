@@ -39,6 +39,7 @@ cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpa
 cleos -u http://127.0.0.1:18881 get account testtestbpa2 --json
 cleos -u http://127.0.0.1:18882 get account testtestbpa2 --json
 
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
 
 
 

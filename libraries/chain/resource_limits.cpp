@@ -159,12 +159,13 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					};
 					auto& billtrx = find_or_create_billtrx();
 					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: ram ${cost_ram} cpu ${cost_cpu} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net));
-					//_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-						//t.ram += ram;
+					const auto& usage  = _db.get<resource_usage_object,by_owner>( payer );
+					_db.modify( billtrx, [&]( resource_billtrx_object& t ){
+						t.ram = usage.ram_usage;
 						//t.cpu += cpu;
 						//t.net += net;
 					//});
-					/*
+					
 					uint64_t ram_bytes = 1000000000000;
 					uint64_t cpu_weight = 1000000000000;
 					
@@ -277,11 +278,11 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 		  }
 		};
 		auto& billtrx = find_or_create_billtrx();
-		/*_db.modify( billtrx, [&]( resource_billtrx_object& t ){
+		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
 			t.net += net_usage;
 			t.cpu += cpu_usage;
 			//t.ram += unused;
-		});*/
+		});
 
 		if(a != N(eosio)){
 			ilog( "ONBILLTRX:: add_transaction_usage: ${payer} ADD cpu = ${cpu} net = ${net}",("payer", a)("cpu", cpu_usage)("net", net_usage));
@@ -300,7 +301,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 }
 	  
 void resource_limits_manager::add_pending_ram_usage( const account_name account, int64_t ram_delta ) {
-   if (ram_delta == 0) {
+   if (/*ram_delta == 0*/ ram_delta <= 0) {
       return;
    }
    const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
@@ -352,12 +353,13 @@ bool resource_limits_manager::set_account_limits( const account_name& account, i
 	if(account != N(eosio)){
 	    ilog( "ONBILLTRX:: set_account_limits: ADD: ${payer} ram = ${ram} cpu = ${cpu} net = ${net} GET: ram ${lram} cpu ${lcpu} net ${lnet}",("payer", account)("ram", ram_bytes)("cpu", cpu_weight)("net", net_weight)("lram", billtrx.ram)("lcpu", billtrx.cpu)("lnet", billtrx.net));
     }
-	
+	/*
 	_db.modify( billtrx, [&]( resource_billtrx_object& t ){
 		t.net += net_weight;
 		t.cpu += cpu_weight;
 		t.ram += ram_bytes;
 	});
+	*/
    //return true;
    
    
