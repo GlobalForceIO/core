@@ -302,10 +302,9 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 }
 	  
 void resource_limits_manager::add_pending_ram_usage( const account_name account, int64_t ram_delta ) {
-	if (/*ram_delta == 0*/ ram_delta <= 0 && account != N(eosio)) {
+	if (/*ram_delta == 0*/ ram_delta <= 0) {
 		return;
 	}
-   	ilog( "ONBILLTRX:: add_pending_ram_usage: ${payer} ram_delta = ${ram_delta}",("payer", account)("ram_delta", ram_delta));
 	const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
 	EOS_ASSERT( ram_delta <= 0 || UINT64_MAX - usage.ram_usage >= (uint64_t)ram_delta, transaction_exception,
 			"Ram usage delta would overflow UINT64_MAX");
@@ -314,6 +313,8 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
 	_db.modify( usage, [&]( auto& u ) {
 		u.ram_usage += ram_delta;
 	});
+   
+   	ilog( "ONBILLTRX:: add_pending_ram_usage: ${payer} ram_delta = ${ram_delta}",("payer", account)("ram_delta", ram_delta));
 	const auto& actual  = _db.get<resource_usage_object,by_owner>( account );
 	auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 	  const auto* t = _db.find<resource_billtrx_object,by_owner>( account );
