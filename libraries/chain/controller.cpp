@@ -1028,6 +1028,7 @@ struct controller_impl {
       ram_delta += active_permission.auth.get_billable_size();
 
       resource_limits.add_pending_ram_usage(name, ram_delta);
+      resource_limits.verify_account_ram_usage(name);
    }
 
    void initialize_database(const genesis_state& genesis) {
@@ -1212,6 +1213,7 @@ struct controller_impl {
    transaction_trace_ptr push_scheduled_transaction( const generated_transaction_object& gto, fc::time_point deadline, uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time = false )
    { try {
       const bool validating = !self.is_producing_block();
+      EOS_ASSERT( !validating || explicit_billed_cpu_time, transaction_exception, "validating requires explicit billing" );
 
       maybe_session undo_session;
       if ( !self.skip_db_sessions() )
@@ -1352,7 +1354,7 @@ struct controller_impl {
 
          if( !validating ) {
             auto& rl = self.get_mutable_resource_limits_manager();
-            //rl.update_account_usage( trx_context.bill_to_accounts, block_timestamp_type(self.pending_block_time()).slot );
+            rl.update_account_usage( trx_context.bill_to_accounts, block_timestamp_type(self.pending_block_time()).slot );
             int64_t account_cpu_limit = 0;
             std::tie( std::ignore, account_cpu_limit, std::ignore, std::ignore ) = trx_context.max_bandwidth_billed_accounts_can_pay( true );
 
@@ -1364,12 +1366,10 @@ struct controller_impl {
             cpu_time_to_bill_us = limited_cpu_time_to_bill_us;
          }
 
+         resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0,
+                                                block_timestamp_type(self.pending_block_time()).slot ); // Should never fail
          trace->receipt = push_receipt(gtrx.trx_id, transaction_receipt::hard_fail, cpu_time_to_bill_us, 0);
          trace->account_ram_delta = account_delta( gtrx.payer, trx_removal_ram_delta );
-		 
-		 //resource_limits.set_account_limits(gtrx.payer, used_ram, cpu_time_to_bill_us, trace->net_usage);
-		 resource_limits.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram, trace->net_usage );
-         //resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0, 0 ); // Should never fail
 		 
          emit( self.accepted_transaction, trx );
          emit( self.applied_transaction, std::tie(trace, dtrx) );
@@ -1471,11 +1471,7 @@ struct controller_impl {
 				user_trx_cpu = trx_context.billed_cpu_time_us;
 				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
 				//TODO use here verify_billtrx_pay
-				//mutable - save only on PRODUCER
-				auto& rl = self.get_mutable_resource_limits_manager();
-				rl.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram, trace->net_usage );
-				//resource_limits.set_account_limits(user_name, user_trx_ram, user_trx_cpu, trace->net_usage);
-				//rl.add_transaction_usage( trx_context.bill_to_accounts, user_trx_cpu, trace->net_usage, 0 ); // Should never fail
+				resource_limits.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram, trace->net_usage );
 			}
 			
             auto restore = make_block_restore_point();
@@ -1875,7 +1871,7 @@ struct controller_impl {
          if( pub_keys_recovered || (skip_auth_checks && existing_trxs_metas) ) {
             use_bsp_cached = true;
          } else {
-            trx_metas.reserve( b->transactions.size());
+            trx_metas.reserve( b->transactions.size() );
             for( const auto& receipt : b->transactions ) {
                if( receipt.trx.contains<packed_transaction>()) {
                   const auto& pt = receipt.trx.get<packed_transaction>();
@@ -2370,6 +2366,18 @@ struct controller_impl {
       }
    }
 
+   bool should_check_tapos()const { return true; }
+
+   void validate_tapos( const transaction& trx )const {
+      if( !should_check_tapos() ) return;
+
+      const auto& tapos_block_summary = db.get<block_summary_object>((uint16_t)trx.ref_block_num);
+
+      //Verify TaPoS block summary has correct ID prefix, and that this block's time is not past the expiration
+      EOS_ASSERT(trx.verify_reference_block(tapos_block_summary.block_id), invalid_ref_block_exception,
+                 "Transaction's reference block did not match. Is this transaction from a different fork?",
+                 ("tapos_summary", tapos_block_summary));
+   }
    /**
     *  At the start of each block we notify the system contract with a transaction that passes in
     *  the block header of the prior block (which is currently our head block)

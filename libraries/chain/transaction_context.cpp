@@ -20,7 +20,6 @@
 #include <chrono>
 
 namespace eosio { namespace chain {
-
    transaction_checktime_timer::transaction_checktime_timer(platform_timer& timer)
          : expired(timer.expired), _timer(timer) {
       expired = 0;
@@ -137,7 +136,7 @@ namespace eosio { namespace chain {
       validate_ram_usage.reserve( bill_to_accounts.size() );
 
       // Update usage values of accounts to reflect new time
-      //rl.update_account_usage( bill_to_accounts, block_timestamp_type(control.pending_block_time()).slot );
+      rl.update_account_usage( bill_to_accounts, block_timestamp_type(control.pending_block_time()).slot );
 
       // Calculate the highest network usage and CPU time that all of the billed accounts can afford to be billed
       int64_t account_net_limit = 0;
@@ -303,7 +302,11 @@ namespace eosio { namespace chain {
          }
       }
 
-      
+	  
+      auto& rl = control.get_mutable_resource_limits_manager();
+      for( auto a : validate_ram_usage ) {
+         rl.verify_account_ram_usage( a );
+      }
       // Calculate the new highest network usage and CPU time that all of the billed accounts can afford to be billed
       int64_t account_net_limit = 0;
       int64_t account_cpu_limit = 0;
@@ -338,7 +341,7 @@ namespace eosio { namespace chain {
 
       validate_cpu_usage_to_bill( billed_cpu_time_us, account_cpu_limit, true );
 
-      auto& rl = control.get_mutable_resource_limits_manager();
+
       rl.add_transaction_usage( bill_to_accounts, static_cast<uint64_t>(billed_cpu_time_us), net_usage, 0 ); // Should never fail
    }
 
