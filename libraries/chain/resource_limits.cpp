@@ -332,7 +332,7 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
 	_db.modify( billtrx, [&]( resource_billtrx_object& t ){
 		//t.net += net_weight;
 		//t.cpu += cpu_weight;
-		t.ram += ram_delta;
+		t.ram = actual.ram_usage;
 	});
 }
 
