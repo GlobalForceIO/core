@@ -301,25 +301,47 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 }
 	  
 void resource_limits_manager::add_pending_ram_usage( const account_name account, int64_t ram_delta ) {
-   if (/*ram_delta == 0*/ ram_delta <= 0) {
-      return;
-   }
-   const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
-   EOS_ASSERT( ram_delta <= 0 || UINT64_MAX - usage.ram_usage >= (uint64_t)ram_delta, transaction_exception,
-              "Ram usage delta would overflow UINT64_MAX");
-   EOS_ASSERT(ram_delta >= 0 || usage.ram_usage >= (uint64_t)(-ram_delta), transaction_exception,
-              "Ram usage delta would underflow UINT64_MAX");
-   _db.modify( usage, [&]( auto& u ) {
-       u.ram_usage += ram_delta;
-   });
+	if (/*ram_delta == 0*/ ram_delta <= 0) {
+		return;
+	}
+	const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
+	EOS_ASSERT( ram_delta <= 0 || UINT64_MAX - usage.ram_usage >= (uint64_t)ram_delta, transaction_exception,
+			"Ram usage delta would overflow UINT64_MAX");
+	EOS_ASSERT(ram_delta >= 0 || usage.ram_usage >= (uint64_t)(-ram_delta), transaction_exception,
+			"Ram usage delta would underflow UINT64_MAX");
+	_db.modify( usage, [&]( auto& u ) {
+		u.ram_usage += ram_delta;
+	});
+   
    	ilog( "ONBILLTRX:: add_pending_ram_usage: ${payer} ram_delta = ${ram_delta}",("payer", account)("ram_delta", ram_delta));
+	const auto& actual  = _db.get<resource_usage_object,by_owner>( account );
+	auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+	  const auto* t = _db.find<resource_billtrx_object,by_owner>( account );
+	  if (t == nullptr) {
+		 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
+			t.owner = account;
+			t.net = 0;
+			t.ram = 0;
+			t.cpu = 0;
+		 });
+	  } else {
+		 return *t;
+	  }
+	};
+	auto& billtrx = find_or_create_billtrx();
+	_db.modify( billtrx, [&]( resource_billtrx_object& t ){
+		//t.net += net_weight;
+		//t.cpu += cpu_weight;
+		t.ram += ram_delta;
+	});
 }
 
 //TODO remove limit resources for account
 void resource_limits_manager::verify_account_ram_usage( const account_name account )const {
+	//TODO add check RAM
 	/*
-	int64_t ram_bytes; int64_t net_weight; int64_t cpu_weight;
-   get_account_limits( account, ram_bytes, net_weight, cpu_weight );
+		int64_t ram_bytes; int64_t net_weight; int64_t cpu_weight;
+	   get_account_limits( account, ram_bytes, net_weight, cpu_weight );
    const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
 
    if( ram_bytes >= 0 ) {
@@ -334,7 +356,9 @@ int64_t resource_limits_manager::get_account_ram_usage( const account_name& name
    return _db.get<resource_usage_object,by_owner>( name ).ram_usage;
 }
 
-bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {   
+bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {  
+	//TODO dont enable resource limits. read contract table if need check avialable resources
+	return true;
     auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 	  const auto* t = _db.find<resource_billtrx_object,by_owner>( account );
 	  if (t == nullptr) {
