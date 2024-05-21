@@ -198,7 +198,7 @@ std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_limits_account(
 		const auto* t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( code, scope, tablename ));
 		if (t_id != nullptr) {
 			const auto &idx = _db.get_index<key_value_index, by_scope_primary>();
-			auto it = idx.find(boost::make_tuple( t_id->id, account.value ));
+			auto it = idx.find(boost::make_tuple( t_id->id, account.to_uint64_t() ));
 			if( it != idx.end() ) {
 				vector<char> data;
 				data.resize( it->value.size() );
