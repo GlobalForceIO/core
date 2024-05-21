@@ -26,6 +26,10 @@ sudo journalctl -f -u NODEOS1
 /var/server/bp/nodeos --config /var/server/bp/test/test2.ini --data-dir /var/server/bp/test2/datadir --hard-replay-blockchain --disable-replay-opts
 
 
+/var/server/bp/nodeos --config /var/server/bp/test/test1.ini --data-dir /var/server/bp/test1/datadir --hard-replay-blockchain --disable-replay-opts --truncate-at-block 600
+/var/server/bp/nodeos --config /var/server/bp/test/test2.ini --data-dir /var/server/bp/test2/datadir --delete-all-blocks --disable-replay-opts
+
+
 ############ TEST commands
 curl http://127.0.0.1:8900/v1/wallet/unlock -X POST -d '["gf", "PW5KQ9jqpSvJFqCnZPYY5R69zd66AQWhpMjoJ5YZsmCFeMkGyTr9d"]'
 
@@ -39,6 +43,19 @@ cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpa
 cleos -u http://127.0.0.1:18881 get account testtestbpa2 --json
 cleos -u http://127.0.0.1:18882 get account testtestbpa2 --json
 
+cleos -u http://127.0.0.1:18881 create account gf testtestfees EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3 EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3
+cleos -u http://127.0.0.1:18881 get account testtestfees --json
+
+
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
 cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
 
 

@@ -253,7 +253,7 @@ void resource_limits_manager::update_account_usage(const flat_set<account_name>&
 void resource_limits_manager::add_transaction_usage(const flat_set<account_name>& accounts, uint64_t cpu_usage, uint64_t net_usage, uint32_t time_slot ) {
 	const auto& state = _db.get<resource_limits_state_object>();
 	const auto& config = _db.get<resource_limits_config_object>();
-	//обновление потраченных CPU и NET
+	//update used CPU & NET
 	for( const auto& a : accounts ) {
 		const auto& usage = _db.get<resource_usage_object,by_owner>( a );
         int64_t unused;
@@ -284,10 +284,6 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			t.cpu += cpu_usage;
 			//t.ram += unused;
 		});
-
-		if(a != N(eosio)){
-			ilog( "ONBILLTRX:: add_transaction_usage: ${payer} ADD cpu = ${cpu} net = ${net}",("payer", a)("cpu", cpu_usage)("net", net_usage));
-		}
 	}
 	
    //TODO leave total used resources bot block
@@ -300,12 +296,12 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
    EOS_ASSERT( state.pending_cpu_usage <= config.cpu_limit_parameters.max, block_resource_exhausted, "Block has insufficient cpu resources" );
    EOS_ASSERT( state.pending_net_usage <= config.net_limit_parameters.max, block_resource_exhausted, "Block has insufficient net resources" );
 }
-	  
+
 void resource_limits_manager::add_pending_ram_usage( const account_name account, int64_t ram_delta ) {
-	if (/*ram_delta == 0*/ ram_delta <= 0 && account != N(eosio)) {
+	if (ram_delta <= 0 /*&& account == N(eosio)*/) {
+		//Only increment
 		return;
 	}
-   	ilog( "ONBILLTRX:: add_pending_ram_usage: ${payer} ram_delta = ${ram_delta}",("payer", account)("ram_delta", ram_delta));
 	const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
 	EOS_ASSERT( ram_delta <= 0 || UINT64_MAX - usage.ram_usage >= (uint64_t)ram_delta, transaction_exception,
 			"Ram usage delta would overflow UINT64_MAX");
@@ -358,35 +354,9 @@ int64_t resource_limits_manager::get_account_ram_usage( const account_name& name
 
 bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {  
 	//TODO dont enable resource limits. read contract table if need check avialable resources
-	return true;
-    auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
-	  const auto* t = _db.find<resource_billtrx_object,by_owner>( account );
-	  if (t == nullptr) {
-		 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
-			t.owner = account;
-			t.net = 0;
-			t.ram = 0;
-			t.cpu = 0;
-		 });
-	  } else {
-		 return *t;
-	  }
-	};
-	auto& billtrx = find_or_create_billtrx();
 	
-	if(account != N(eosio)){
-	    ilog( "ONBILLTRX:: set_account_limits: ADD: ${payer} ram = ${ram} cpu = ${cpu} net = ${net} GET: ram ${lram} cpu ${lcpu} net ${lnet}",("payer", account)("ram", ram_bytes)("cpu", cpu_weight)("net", net_weight)("lram", billtrx.ram)("lcpu", billtrx.cpu)("lnet", billtrx.net));
-    }
-	/*
-	_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-		t.net += net_weight;
-		t.cpu += cpu_weight;
-		t.ram += ram_bytes;
-	});
-	*/
-   //return true;
-   
-   
+	return true;
+	
    const auto& usage = _db.get<resource_usage_object,by_owner>( account );
    /*
     * Since we need to delay these until the next resource limiting boundary, these are created in a "pending"
@@ -453,19 +423,16 @@ bool resource_limits_manager::is_unlimited_cpu( const account_name& account ) co
 void resource_limits_manager::process_account_limit_updates() {
    auto& multi_index = _db.get_mutable_index<resource_limits_index>();
    auto& by_owner_index = multi_index.indices().get<by_owner>();
-
    // convenience local lambda to reduce clutter
    auto update_state_and_value = [](uint64_t &total, int64_t &value, int64_t pending_value, const char* debug_which) -> void {
       if (value > 0) {
          EOS_ASSERT(total >= static_cast<uint64_t>(value), rate_limiting_state_inconsistent, "underflow when reverting old value to ${which}", ("which", debug_which));
          total -= value;
       }
-
       if (pending_value > 0) {
          EOS_ASSERT(UINT64_MAX - total >= static_cast<uint64_t>(pending_value), rate_limiting_state_inconsistent, "overflow when applying new value to ${which}", ("which", debug_which));
          total += pending_value;
       }
-
       value = pending_value;
    };
 
@@ -475,15 +442,9 @@ void resource_limits_manager::process_account_limit_updates() {
          const auto& itr = by_owner_index.lower_bound(boost::make_tuple(true));
          if (itr == by_owner_index.end() || itr->pending != true) {
             break;
-         }
-		 
-		ilog( "ONBILLTRX:: process_account_limit_updates: ${payer}",("payer", itr->owner));
-		
+         }		
          const auto& actual_entry = _db.get<resource_limits_object, by_owner>(boost::make_tuple(false, itr->owner));
          _db.modify(actual_entry, [&](resource_limits_object& rlo){
-		 
-		ilog( "ONBILLTRX:: process_account_limit_updates: pending ram = ${ram} cpu = ${cpu} net = ${net} ",("ram", itr->ram_bytes)("net", itr->net_weight)("cpu", itr->cpu_weight));
-
             update_state_and_value(rso.total_ram_bytes,  rlo.ram_bytes,  itr->ram_bytes, "ram_bytes");
             update_state_and_value(rso.total_cpu_weight, rlo.cpu_weight, itr->cpu_weight, "cpu_weight");
             update_state_and_value(rso.total_net_weight, rlo.net_weight, itr->net_weight, "net_weight");
@@ -499,7 +460,6 @@ void resource_limits_manager::process_block_usage(uint32_t block_num) {
    const auto& config = _db.get<resource_limits_config_object>();
    _db.modify(s, [&](resource_limits_state_object& state){
       // apply pending usage, update virtual limits and reset the pending
-
       state.average_block_cpu_usage.add(state.pending_cpu_usage, block_num, config.cpu_limit_parameters.periods);
       state.update_virtual_cpu_limit(config);
       state.pending_cpu_usage = 0;
@@ -507,7 +467,6 @@ void resource_limits_manager::process_block_usage(uint32_t block_num) {
       state.average_block_net_usage.add(state.pending_net_usage, block_num, config.net_limit_parameters.periods);
       state.update_virtual_net_limit(config);
       state.pending_net_usage = 0;
-
    });
 
 }
