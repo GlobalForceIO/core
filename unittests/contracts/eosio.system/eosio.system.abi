@@ -1394,24 +1394,6 @@
                 }
             ]
         },
-		{
-		  "name": "billed_fee",
-		  "base": "",
-		  "fields": [
-			{
-			  "name": "account",
-			  "type": "name"
-			},
-			{
-			  "name": "ram",
-			  "type": "uint64"
-			},
-			{
-			  "name": "cpu",
-			  "type": "uint64"
-			}
-		  ]
-		},
         {
             "name": "voteproducer",
             "base": "",
@@ -1492,6 +1474,24 @@
 			  "name": "cpu_fee",
 			  "type": "uint64"
 			},
+		  ]
+		},
+		{
+		  "name": "billed_fee",
+		  "base": "",
+		  "fields": [
+			{
+			  "name": "account",
+			  "type": "name"
+			},
+			{
+			  "name": "ram",
+			  "type": "uint64"
+			},
+			{
+			  "name": "cpu",
+			  "type": "uint64"
+			}
 		  ]
 		},
         {
@@ -1894,13 +1894,6 @@
             "key_types": []
         },
         {
-            "name": "billedfee",
-            "type": "billed_fee",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
             "name": "voters",
             "type": "voter_info",
             "index_type": "i64",
@@ -1913,7 +1906,14 @@
 		  "index_type": "i64",
 		  "key_names": [],
 		  "key_types": []
-		}
+		},
+        {
+            "name": "billedfee",
+            "type": "billed_fee",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
     ],
     "ricardian_clauses": [],
     "abi_extensions": []

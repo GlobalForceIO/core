@@ -209,9 +209,9 @@ std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_limits_account(
 				vector<char> data;
 				data.resize( it->value.size() );
 				memcpy( data.data(), it->value.data(), it->value.size() );
-				fc::variant config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
-				if( config_fee.is_object() ) {
-					auto& obj = config_fee.get_object();
+				fc::variant billed_fee = abis.binary_to_variant( "billed_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
+				if( billed_fee.is_object() ) {
+					auto& obj = billed_fee.get_object();
 					uint64_t ram = fc::to_uint64(obj["ram"].as_string());
 					uint64_t cpu = fc::to_uint64(obj["cpu"].as_string());
 					return {ram, cpu};

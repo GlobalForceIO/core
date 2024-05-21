@@ -1679,6 +1679,24 @@
       ]
     },
     {
+      "name": "billed_fee",
+      "base": "",
+      "fields": [
+        {
+          "name": "account",
+          "type": "name"
+        },
+        {
+          "name": "ram",
+          "type": "uint64"
+        },
+        {
+          "name": "cpu",
+          "type": "uint64"
+        }
+      ]
+    },
+    {
       "name": "wait_weight",
       "base": "",
       "fields": [
@@ -2138,13 +2156,6 @@
       "type": "user_resources"
     },
     {
-      "name": "billedfee",
-      "index_type": "i64",
-      "key_names": [],
-      "key_types": [],
-      "type": "billed_fee"
-    },
-    {
       "name": "voters",
       "index_type": "i64",
       "key_names": [],
@@ -2157,6 +2168,13 @@
       "key_names": [],
       "key_types": [],
       "type": "config_fee"
+    },
+    {
+      "name": "billedfee",
+      "index_type": "i64",
+      "key_names": [],
+      "key_types": [],
+      "type": "billed_fee"
     }
   ],
   "ricardian_clauses": [],
