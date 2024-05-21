@@ -119,7 +119,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	uint64_t ram_fee = config_fee.first;
 	uint64_t cpu_fee = config_fee.second;
 	if(ram_fee == 0 || cpu_fee == 0){
-		ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee));
+		wlog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee));
 		return;
 	}
 	
@@ -127,7 +127,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	uint64_t ram_limit = limits.first;
 	uint64_t cpu_limit = limits.second;
 	if(ram_limit == 0 || cpu_limit == 0){
-		ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee} LIMIT: ram ${ram_limit} cpu ${cpu_limit}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee)("ram_limit", ram_limit)("cpu_limit", cpu_limit));
+		wlog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee} LIMIT: ram ${ram_limit} cpu ${cpu_limit}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee)("ram_limit", ram_limit)("cpu_limit", cpu_limit));
 		return;
 	}
 	
@@ -192,7 +192,6 @@ std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_fee()const {
 
 std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_limits_account( const account_name& account )const {
 	account_name code = N(eosio);
-	account_name scope = N(account);
 	account_name tablename = N(billedfee);
 	
 	const fc::microseconds abi_serializer_max_time = fc::seconds(10);
@@ -201,7 +200,7 @@ std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_limits_account(
 	abi_def abi;
 	if( abi_serializer::to_abi(code_account.abi, abi) ) {
 		abi_serializer abis( abi, abi_serializer::create_yield_function( abi_serializer_max_time ) );
-		const auto* t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( code, scope, tablename ));
+		const auto* t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( code, account, tablename ));
 		if (t_id != nullptr) {
 			const auto &idx = _db.get_index<key_value_index, by_scope_primary>();
 			auto it = idx.find(boost::make_tuple( t_id->id, account.to_uint64_t() ));
