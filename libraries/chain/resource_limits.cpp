@@ -118,12 +118,18 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	std::pair<int64_t, int64_t> config_fee = get_billtrx_fee();
 	uint64_t ram_fee = config_fee.first;
 	uint64_t cpu_fee = config_fee.second;
-	if(ram_fee == 0 || cpu_fee == 0){ return; }
+	if(ram_fee == 0 || cpu_fee == 0){
+		ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee));
+		return;
+	}
 	
 	std::pair<int64_t, int64_t> limits = get_billtrx_limits_account( payer );
 	uint64_t ram_limit = limits.first;
 	uint64_t cpu_limit = limits.second;
-	if(ram_limit == 0 || cpu_limit == 0){ return; }
+	if(ram_limit == 0 || cpu_limit == 0){
+		ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee} LIMIT: ram ${ram_limit} cpu ${cpu_limit}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee)("ram_limit", ram_limit)("cpu_limit", cpu_limit));
+		return;
+	}
 	
 	uint64_t cost_ram = ram * ram_fee;
 	uint64_t cost_cpu = cpu * cpu_fee;
