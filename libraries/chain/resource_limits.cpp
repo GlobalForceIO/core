@@ -310,10 +310,11 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 		  }
 		};
 		auto& billtrx = find_or_create_billtrx();
+		const auto& actual  = _db.get<resource_usage_object,by_owner>( a );
 		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
 			t.net += net_usage;
 			t.cpu += cpu_usage;
-			//t.ram += unused;
+			t.ram = actual.ram_usage;
 		});
 	}
 	
