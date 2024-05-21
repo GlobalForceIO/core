@@ -119,7 +119,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	uint64_t ram_fee = config_fee.first;
 	uint64_t cpu_fee = config_fee.second;
 	if(ram_fee == 0 || cpu_fee == 0){
-		wlog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee));
+		wlog( "ONBILLTRX:: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee));
 		return;
 	}
 	
@@ -127,7 +127,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	uint64_t ram_limit = limits.first;
 	uint64_t cpu_limit = limits.second;
 	if(ram_limit == 0 || cpu_limit == 0){
-		wlog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee} LIMIT: ram ${ram_limit} cpu ${cpu_limit}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee)("ram_limit", ram_limit)("cpu_limit", cpu_limit));
+		wlog( "ONBILLTRX:: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee} LIMIT: ram ${ram_limit} cpu ${cpu_limit}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee)("ram_limit", ram_limit)("cpu_limit", cpu_limit));
 		return;
 	}
 	
@@ -148,7 +148,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	  }
 	};
 	auto& billtrx = find_or_create_billtrx();
-	ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee} COST: ram ${cost_ram} cpu ${cost_cpu} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net} LIMIT: ram ${ram_limit} cpu ${cpu_limit}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net)("ram_limit", ram_limit)("cpu_limit", cpu_limit));
+	ilog( "ONBILLTRX:: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee} COST: ram ${cost_ram} cpu ${cost_cpu} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net} LIMIT: ram ${ram_limit} cpu ${cpu_limit}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net)("ram_limit", ram_limit)("cpu_limit", cpu_limit));
 	/*
 	bool agree = true;
 	if(cost_ram > ram_bytes){ agree = false; }
@@ -290,7 +290,6 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
         int64_t net_weight;
         int64_t cpu_weight;
         get_account_limits( a, unused, net_weight, cpu_weight );
-
         _db.modify( usage, [&]( auto& bu ){
             bu.net_usage.add( net_usage, time_slot, config.account_net_usage_average_window );
             bu.cpu_usage.add( cpu_usage, time_slot, config.account_cpu_usage_average_window );
@@ -309,11 +308,9 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 		  }
 		};
 		auto& billtrx = find_or_create_billtrx();
-		const auto& actual  = _db.get<resource_usage_object,by_owner>( a );
 		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
 			t.net += net_usage;
 			t.cpu += cpu_usage;
-			t.ram = actual.ram_usage;
 		});
 	}
 	
@@ -331,6 +328,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 void resource_limits_manager::add_pending_ram_usage( const account_name account, int64_t ram_delta ) {
 	if (ram_delta <= 0 /*&& account == N(eosio)*/) {
 		//Only increment
+		wlog( "ONBILLTRX:: ${account} ram_delta ${ram_delta}",("account", account)("ram_delta", ram_delta));
 		return;
 	}
 	const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
@@ -341,7 +339,6 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
 	_db.modify( usage, [&]( auto& u ) {
 		u.ram_usage += ram_delta;
 	});
-	const auto& actual  = _db.get<resource_usage_object,by_owner>( account );
 	auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 	  const auto* t = _db.find<resource_billtrx_object,by_owner>( account );
 	  if (t == nullptr) {
@@ -359,7 +356,7 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
 	_db.modify( billtrx, [&]( resource_billtrx_object& t ){
 		//t.net += net_weight;
 		//t.cpu += cpu_weight;
-		t.ram = actual.ram_usage;
+		t.ram = usage.ram_usage + ram_delta;
 	});
 }
 

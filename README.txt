@@ -51,15 +51,6 @@ cleos -u http://127.0.0.1:18881 get account testtestfees --json
 
 
 cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
 
 
 
@@ -83,7 +74,14 @@ cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1
 cleos -u http://127.0.0.1:18881 get table eosio testtestbpa1 billedfee
 
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
-
+cleos -u http://127.0.0.1:18881 get table eosio eosio global2
+cleos -u http://127.0.0.1:18881 get table eosio eosio producers
+11900
+cleos -u http://127.0.0.1:18881 get table eosio eosio configbp 
+12400
+cleos -u http://127.0.0.1:18881 get table eosio eosio approvebp
+16700
+cleos -u http://127.0.0.1:18881 get table eosio eosio approvebp
 ############ END TEST commands
 
 ##### Install BP
