@@ -2713,21 +2713,13 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		  && _payer != N(gf.swap) && _payer != N(gf.address) && _payer != N(gf.fee) && _payer != N(gf.price)  
 		  && _payer != N(gf.types) && _payer != N(gf.dex) && _payer != N(gf.reg)
 		  ){
-			//GET balance
 			my->user_name = _payer;
 			my->user_action = _action;
 			user_check = true;
-			
-			ilog( "ONBILLTRX:: payer: ${user_name} action: ${user_action} check: ${user_check} ", ("user_name",my->user_name)("user_action",my->user_action)("user_check",user_check) );
 			break;
 		}
 	}
 	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
-	
-	if(user_check && !user_trace->error_code){
-		//TODO use agree_billtrx_pay here
-	}
-
 	return user_trace;
 }
 

@@ -115,6 +115,44 @@ void resource_limits_manager::read_from_snapshot( const snapshot_reader_ptr& sna
 
 //TODO verify billtrx pay
 void resource_limits_manager::verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram, uint64_t net )const {
+	std::pair<int64_t, int64_t> config_fee = get_billtrx_fee();
+	uint64_t ram_fee = config_fee.first;
+	uint64_t cpu_fee = config_fee.second;
+	if(ram_fee == 0 || cpu_fee == 0){ return; }
+	
+	std::pair<int64_t, int64_t> limits = get_billtrx_limits_account( payer );
+	uint64_t ram_limit = limits.first;
+	uint64_t cpu_limit = limits.second;
+	if(ram_limit == 0 || cpu_limit == 0){ return; }
+	
+	uint64_t cost_ram = ram * ram_fee;
+	uint64_t cost_cpu = cpu * cpu_fee;
+	
+	auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+	  const auto* t = _db.find<resource_billtrx_object,by_owner>( payer );
+	  if (t == nullptr) {
+		 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
+			t.owner = payer;
+			t.net = 0;
+			t.ram = 0;
+			t.cpu = 0;
+		 });
+	  } else {
+		 return *t;
+	  }
+	};
+	auto& billtrx = find_or_create_billtrx();
+	ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee} COST: ram ${cost_ram} cpu ${cost_cpu} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net} LIMIT: ram ${ram_limit} cpu ${cpu_limit}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net)("ram_limit", ram_limit)("cpu_limit", cpu_limit));
+	/*
+	bool agree = true;
+	if(cost_ram > ram_bytes){ agree = false; }
+	if(cost_cpu > cpu_weight){ agree = false; }
+	
+	EOS_ASSERT( agree, abort_called, "verify billtrx fail. ACTION: ${user_action} RAM: ${RAM} CPU: ${CPU} Cost RAM:${cost_ram} CPU:${cost_cpu}  Limit RAM:${ram_limit} CPU:${cpu_limit}", ("user_action",user_action)("RAM",ram)("CPU",cpu)("cost_ram",cost_ram)("cost_cpu",cost_cpu)("ram_limit",ram_limit)("cpu_limit",cpu_limit));
+	*/
+}
+
+std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_fee()const {
 	account_name code = N(eosio);
 	account_name scope = N(eosio);
 	account_name tablename = N(configfee);
@@ -138,63 +176,51 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 					auto& obj = config_fee.get_object();
 					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
 					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
-					ilog( "ONBILLTRX:: verify_billtrx_pay: READ CONFIG FEE: ram_fee = ${ram_fee} cpu_fee = ${cpu_fee}", ("ram_fee", ram_fee)("cpu_fee", cpu_fee));
-					
-					uint64_t cost_ram = ram * ram_fee;
-					uint64_t cost_cpu = cpu * cpu_fee;
-					
-					auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
-					  const auto* t = _db.find<resource_billtrx_object,by_owner>( payer );
-					  if (t == nullptr) {
-						 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
-							t.owner = payer;
-							t.net = 0;
-							t.ram = 0;
-							t.cpu = 0;
-						 });
-					  } else {
-						 return *t;
-					  }
-					};
-					auto& billtrx = find_or_create_billtrx();
-					ilog( "ONBILLTRX:: verify_billtrx_pay: ${payer} ${user_action} COST: ram ${cost_ram} cpu ${cost_cpu} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net}",("payer", payer)("user_action", user_action)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net));
-					/*
-					const auto& usage  = _db.get<resource_usage_object,by_owner>( payer );
-					_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-						t.ram = usage.ram_usage;
-						//t.cpu += cpu;
-						//t.net += net;
-					});
-					*/
-					/*
-					uint64_t ram_bytes = 1000000000000;
-					uint64_t cpu_weight = 1000000000000;
-					
-					bool agree = true;
-					if(cost_ram > ram_bytes){ agree = false; }
-					if(cost_cpu > cpu_weight){ agree = false; }
-					
-					EOS_ASSERT( agree, abort_called, "verify billtrx fail. ACTION: ${user_action} RAM: ${RAM} CPU: ${CPU} Cost RAM:${cost_ram} CPU:${cost_cpu}", ("user_action",user_action)("RAM",ram)("CPU",cpu)("cost_ram",cost_ram)("cost_cpu",cost_cpu));
-					*/
-				}else{
-					ilog( "ONBILLTRX:: verify_billtrx_pay: READ CONFIG FEE: FAIL READ config_fee object");
+					return {ram_fee, cpu_fee};
 				}
-			}else{
-				ilog( "ONBILLTRX:: verify_billtrx_pay: READ CONFIG FEE: EMPTY ROWS config_fee object by index 0");
 			}
-		}else{
-			ilog( "ONBILLTRX:: verify_billtrx_pay: READ CONFIG FEE: NULL config_fee");
 		}
-	}else{
-		ilog( "ONBILLTRX:: verify_billtrx_pay: READ CONFIG FEE: FAIL LOAD ABI from ${code}", ("code", code));
 	}
+	return {0, 0};
 }
 
-std::vector<uint64_t> resource_limits_manager::get_billtrx_limits( const account_name& payer )const {
+std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_limits_account( const account_name& account )const {
+	account_name code = N(eosio);
+	account_name scope = N(account);
+	account_name tablename = N(configfee);
+	
+	const fc::microseconds abi_serializer_max_time = fc::seconds(10);
+	bool  shorten_abi_errors = true;
+	const auto& code_account = _db.get<account_object,by_name>( code );
+	abi_def abi;
+	if( abi_serializer::to_abi(code_account.abi, abi) ) {
+		abi_serializer abis( abi, abi_serializer::create_yield_function( abi_serializer_max_time ) );
+		const auto* t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( code, scope, tablename ));
+		if (t_id != nullptr) {
+			const auto &idx = _db.get_index<key_value_index, by_scope_primary>();
+			auto it = idx.find(boost::make_tuple( t_id->id, account.value ));
+			if( it != idx.end() ) {
+				vector<char> data;
+				data.resize( it->value.size() );
+				memcpy( data.data(), it->value.data(), it->value.size() );
+				fc::variant config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
+				if( config_fee.is_object() ) {
+					auto& obj = config_fee.get_object();
+					uint64_t ram = fc::to_uint64(obj["ram"].as_string());
+					uint64_t cpu = fc::to_uint64(obj["cpu"].as_string());
+					return {ram, cpu};
+				}
+			}
+		}
+	}
+	return {0, 0};
+}
+
+std::vector<uint64_t> resource_limits_manager::get_billtrx_limits( const account_name& account )const {
 	auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
-	  const auto* t = _db.find<resource_billtrx_object,by_owner>( payer );
+	  const auto* t = _db.find<resource_billtrx_object,by_owner>( account );
 	  if (t == nullptr) {
-		 const auto& actual = _db.get<resource_billtrx_object, by_owner>( payer );
+		 const auto& actual = _db.get<resource_billtrx_object, by_owner>( account );
 		 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
 			t.owner = actual.owner;
 			t.net = actual.net;
@@ -206,7 +232,6 @@ std::vector<uint64_t> resource_limits_manager::get_billtrx_limits( const account
 	  }
 	};
 	auto& billtrx = find_or_create_billtrx();
-    //std::vector<uint64_t> data = {billtrx.ram, billtrx.cpu, billtrx.net};
 	return {billtrx.ram, billtrx.cpu, billtrx.net};
 }
 

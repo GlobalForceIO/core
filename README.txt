@@ -44,6 +44,9 @@ cleos -u http://127.0.0.1:18881 get account testtestbpa2 --json
 cleos -u http://127.0.0.1:18882 get account testtestbpa2 --json
 
 cleos -u http://127.0.0.1:18881 create account gf testtestfees EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3 EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpa1", "testtestfees", "100.0000 GFT", "test fee" ]' -p testtestbpa1@active
+cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestfees", "testtestbpa1", "1.0000 GFT", "test fee" ]' -p testtestfees@active
+
 cleos -u http://127.0.0.1:18881 get account testtestfees --json
 
 
