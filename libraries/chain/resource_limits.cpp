@@ -286,10 +286,6 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 	//update used CPU & NET
 	for( const auto& a : accounts ) {
 		const auto& usage = _db.get<resource_usage_object,by_owner>( a );
-        int64_t unused;
-        int64_t net_weight;
-        int64_t cpu_weight;
-        get_account_limits( a, unused, net_weight, cpu_weight );
         _db.modify( usage, [&]( auto& bu ){
             bu.net_usage.add( net_usage, time_slot, config.account_net_usage_average_window );
             bu.cpu_usage.add( cpu_usage, time_slot, config.account_cpu_usage_average_window );
@@ -311,6 +307,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
 			t.net += net_usage;
 			t.cpu += cpu_usage;
+			t.ram = usage.ram_usage;
 		});
 	}
 	

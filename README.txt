@@ -82,6 +82,24 @@ cleos -u http://127.0.0.1:18881 get table eosio eosio configbp
 cleos -u http://127.0.0.1:18881 get table eosio eosio approvebp
 16700
 cleos -u http://127.0.0.1:18881 get table eosio eosio approvebp
+19700
+cleos -u http://127.0.0.1:18881 push action eosio onshedulebp '[]' -p eosio@active
+cleos -u http://127.0.0.1:18881 get account eosio --json
+cleos -u http://127.0.0.1:18881 get table eosio eosio roundsbp
+21000
+
+/var/server/bp/nodeos --config /var/server/bp/test/test1.ini --data-dir /var/server/bp/test1/datadir --verbose-http-errors --hard-replay-blockchain --truncate-at-block 21000
+
+rm /var/server/bp/test2/traces/* -R
+rm /var/server/bp/test2/blocks/* -R
+rm /var/server/bp/test2/state-history/* -R
+rm /var/server/bp/test2/datadir/* -R
+
+cp -rf /var/server/bp/test1/blocks/* /var/server/bp/test2/blocks/
+cp -rf /var/server/bp/test1/datadir/* /var/server/bp/test2/datadir/
+
+/var/server/bp/nodeos --config /var/server/bp/test/test2.ini --data-dir /var/server/bp/test2/datadir --verbose-http-errors --disable-replay-opts --hard-replay-blockchain
+
 ############ END TEST commands
 
 ##### Install BP
