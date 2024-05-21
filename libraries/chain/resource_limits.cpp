@@ -187,7 +187,7 @@ std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_fee()const {
 std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_limits_account( const account_name& account )const {
 	account_name code = N(eosio);
 	account_name scope = N(account);
-	account_name tablename = N(configfee);
+	account_name tablename = N(billedfee);
 	
 	const fc::microseconds abi_serializer_max_time = fc::seconds(10);
 	bool  shorten_abi_errors = true;
