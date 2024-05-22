@@ -115,50 +115,45 @@ void resource_limits_manager::read_from_snapshot( const snapshot_reader_ptr& sna
 
 //TODO verify billtrx pay
 void resource_limits_manager::verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram, uint64_t net )const {
-	std::pair<int64_t, int64_t> config_fee = get_billtrx_fee();
-	uint64_t ram_fee = config_fee.first;
-	uint64_t cpu_fee = config_fee.second;
-	if(ram_fee == 0 || cpu_fee == 0){
-		wlog( "ONBILLTRX:: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee));
+	std::vector<uint64_t> limits = get_billtrx_limits_account( payer );
+	uint64_t ram_limit = limits[0];
+	uint64_t cpu_limit = limits[1];
+	uint64_t net_limit = limits[2];
+	if(ram_limit == 0 || cpu_limit == 0 || net_limit == 0){
+		wlog( "ONBILLTRX:: ${payer} ${user_action} LIMIT: ram ${ram_limit} cpu ${cpu_limit} net ${net_limit}",("payer", payer)("user_action", user_action)("ram_limit", ram_limit)("cpu_limit", cpu_limit)("net_limit", net_limit));
 		return;
 	}
-	
-	std::pair<int64_t, int64_t> limits = get_billtrx_limits_account( payer );
-	uint64_t ram_limit = limits.first;
-	uint64_t cpu_limit = limits.second;
-	if(ram_limit == 0 || cpu_limit == 0){
-		wlog( "ONBILLTRX:: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee} LIMIT: ram ${ram_limit} cpu ${cpu_limit}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee)("ram_limit", ram_limit)("cpu_limit", cpu_limit));
-		return;
-	}
-	
-	uint64_t cost_ram = ram * ram_fee;
-	uint64_t cost_cpu = cpu * cpu_fee;
-	
 	auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 	  const auto* t = _db.find<resource_billtrx_object,by_owner>( payer );
 	  if (t == nullptr) {
 		 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
 			t.owner = payer;
-			t.net = 0;
 			t.ram = 0;
 			t.cpu = 0;
+			t.net = 0;
 		 });
 	  } else {
 		 return *t;
 	  }
 	};
 	auto& billtrx = find_or_create_billtrx();
-	ilog( "ONBILLTRX:: ${payer} ${user_action} FEE: ram_fee ${ram_fee} cpu_fee ${cpu_fee} COST: ram ${cost_ram} cpu ${cost_cpu} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net} LIMIT: ram ${ram_limit} cpu ${cpu_limit}",("payer", payer)("user_action", user_action)("ram_fee", ram_fee)("cpu_fee", cpu_fee)("cost_ram", cost_ram)("cost_cpu", cost_cpu)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net)("ram_limit", ram_limit)("cpu_limit", cpu_limit));
-	/*
-	bool agree = true;
-	if(cost_ram > ram_bytes){ agree = false; }
-	if(cost_cpu > cpu_weight){ agree = false; }
 	
-	EOS_ASSERT( agree, abort_called, "verify billtrx fail. ACTION: ${user_action} RAM: ${RAM} CPU: ${CPU} Cost RAM:${cost_ram} CPU:${cost_cpu}  Limit RAM:${ram_limit} CPU:${cpu_limit}", ("user_action",user_action)("RAM",ram)("CPU",cpu)("cost_ram",cost_ram)("cost_cpu",cost_cpu)("ram_limit",ram_limit)("cpu_limit",cpu_limit));
-	*/
+	uint64_t ram_total = billtrx.ram + ram;
+	uint64_t cpu_total = billtrx.cpu + cpu;
+	uint64_t net_total = billtrx.net + net;
+	
+	int64_t ram_free = ram_limit - ram_total;
+	int64_t cpu_free = cpu_limit - cpu_total;
+	int64_t net_free = net_limit - net_total;
+	
+	ilog( "ONBILLTRX:: ${payer} ${user_action} COST: ram ${ram} cpu ${cpu} net ${net} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net} LIMIT: ram ${ram_limit} cpu ${cpu_limit} net ${net_limit}",("payer", payer)("user_action", user_action)("ram", ram)("cpu", cpu)("net", net)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net)("ram_limit", ram_limit)("cpu_limit", cpu_limit)("net_limit", net_limit));
+	
+	EOS_ASSERT( ram_total >= ram_limit, ram_usage_exceeded, "insufficient resources. Action: ${user_action} needs RAM: ${ram} available RAM: ${ram_free}", ("user_action",user_action)("ram",ram)("ram_free",ram_free));
+	EOS_ASSERT( cpu_total >= cpu_limit, tx_cpu_usage_exceeded, "insufficient resources. Action: ${user_action} needs CPU: ${cpu} available CPU: ${cpu_free}", ("user_action",user_action)("cpu",cpu)("cpu_free",cpu_free));
+	EOS_ASSERT( net_total >= net_limit, tx_net_usage_exceeded, "insufficient resources. Action: ${user_action} needs NET: ${net} available NET: ${net_free}", ("user_action",user_action)("net",net)("net_free",net_free));
 }
 
-std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_fee()const {
+std::vector<uint64_t> resource_limits_manager::get_billtrx_fee()const {
 	account_name code = N(eosio);
 	account_name scope = N(eosio);
 	account_name tablename = N(configfee);
@@ -182,15 +177,16 @@ std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_fee()const {
 					auto& obj = config_fee.get_object();
 					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
 					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
-					return {ram_fee, cpu_fee};
+					uint64_t net_fee = fc::to_uint64(obj["net_fee"].as_string());
+					return {ram_fee, cpu_fee, net_fee};
 				}
 			}
 		}
 	}
-	return {0, 0};
+	return {0, 0, 0};
 }
 
-std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_limits_account( const account_name& account )const {
+std::vector<uint64_t> resource_limits_manager::get_billtrx_limits_account( const account_name& account )const {
 	account_name code = N(eosio);
 	account_name tablename = N(billedfee);
 	
@@ -213,12 +209,13 @@ std::pair<int64_t, int64_t> resource_limits_manager::get_billtrx_limits_account(
 					auto& obj = billed_fee.get_object();
 					uint64_t ram = fc::to_uint64(obj["ram"].as_string());
 					uint64_t cpu = fc::to_uint64(obj["cpu"].as_string());
-					return {ram, cpu};
+					uint64_t net = fc::to_uint64(obj["net"].as_string());
+					return {ram, cpu, net};
 				}
 			}
 		}
 	}
-	return {0, 0};
+	return {0, 0, 0};
 }
 
 std::vector<uint64_t> resource_limits_manager::get_billtrx_limits( const account_name& account )const {

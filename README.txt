@@ -34,7 +34,7 @@ sudo journalctl -f -u NODEOS1
 curl http://127.0.0.1:8900/v1/wallet/unlock -X POST -d '["gf", "PW5KQ9jqpSvJFqCnZPYY5R69zd66AQWhpMjoJ5YZsmCFeMkGyTr9d"]'
 
 	### TEST FEE
-cleos -u http://127.0.0.1:18881 push action eosio configfee '[14, 26]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio configfee '[14, 26, 5]' -p eosio@active
 cleos -u http://127.0.0.1:18881 get table eosio eosio configfee -l 100
 cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestbpa1", "testtestbpa2", "1.0000 GFT", "test fee" ]' -p testtestbpa1@active
 cleos -u http://127.0.0.1:18881 get account testtestbpa1 --json
@@ -50,7 +50,7 @@ cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestfee
 cleos -u http://127.0.0.1:18881 get account testtestfees --json
 
 
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000, 1000 ]' -p eosio@active
 
 
 
@@ -70,7 +70,7 @@ cdf3e8af4988755ca8bd153fedcab7442dded909
 cd /var/server/contracts && git pull origin testnet && ./build.sh
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
 
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000, 1000 ]' -p eosio@active
 cleos -u http://127.0.0.1:18881 get table eosio testtestbpa1 billedfee
 
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
@@ -379,7 +379,7 @@ cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/c
 
 cleos -u http://127.0.0.1:18881 push action eosio configround '[120, 14, 12, 5]' -p eosio
 
-cleos -u http://127.0.0.1:18881 push action eosio configfee '[16, 26]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio configfee '[16, 26, 5]' -p eosio@active
 cleos -u http://127.0.0.1:18881 get table eosio eosio configfee -l 100
 
 cleos -u http://127.0.0.1:18881 push action eosio holdfeebp '[20]' -p eosio@active

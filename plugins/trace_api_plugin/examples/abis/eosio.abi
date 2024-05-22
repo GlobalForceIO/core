@@ -1579,24 +1579,6 @@
       ]
     },
     {
-      "name": "billed_fee",
-      "base": "",
-      "fields": [
-        {
-          "name": "account",
-          "type": "name"
-        },
-        {
-          "name": "ram",
-          "type": "uint64"
-        },
-        {
-          "name": "cpu",
-          "type": "uint64"
-        }
-      ]
-    },
-    {
       "name": "voteproducer",
       "base": "",
       "fields": [
@@ -1675,6 +1657,10 @@
         {
           "name": "cpu_fee",
           "type": "uint64"
+        },
+        {
+          "name": "net_fee",
+          "type": "uint64"
         }
       ]
     },
@@ -1692,6 +1678,10 @@
         },
         {
           "name": "cpu",
+          "type": "uint64"
+        },
+        {
+          "name": "net",
           "type": "uint64"
         }
       ]

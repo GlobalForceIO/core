@@ -1474,6 +1474,10 @@
 			  "name": "cpu_fee",
 			  "type": "uint64"
 			},
+			{
+			  "name": "net_fee",
+			  "type": "uint64"
+			}
 		  ]
 		},
 		{
@@ -1490,6 +1494,10 @@
 			},
 			{
 			  "name": "cpu",
+			  "type": "uint64"
+			},
+			{
+			  "name": "net",
 			  "type": "uint64"
 			}
 		  ]

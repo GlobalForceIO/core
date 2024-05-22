@@ -2558,23 +2558,6 @@ read_only::get_account_results read_only::get_account( const get_account_params&
          if ( it != idx.end() ) {
             vector<char> data;
             copy_inline_row(*it, data);
-			
-			/*
-			fc::variant config_fee = abis.binary_to_variant( "config_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
-				if( config_fee.is_object() ) {
-					auto& obj = config_fee.get_object();
-					uint64_t ram_fee = fc::to_uint64(obj["ram_fee"].as_string());
-					uint64_t cpu_fee = fc::to_uint64(obj["cpu_fee"].as_string());
-			*/	
-			/*
-			fc::variant billed = abis.binary_to_variant( "billed_resources", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
-			if( billed.is_object() ) {
-					auto& obj = billed.get_object();
-					uint64_t ram = fc::to_uint64(obj["ram"].as_string());
-					uint64_t cpu = fc::to_uint64(obj["cpu"].as_string());
-					
-			}
-			*/
             result.billed_resources = abis.binary_to_variant( "billed_fee", data, abi_serializer::create_yield_function( abi_serializer_max_time ), shorten_abi_errors );
 			
          }
