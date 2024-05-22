@@ -145,11 +145,11 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	}
 	if(billtrx.cpu > cpu_limit){
 		int64_t cpu_free = cpu_limit - billtrx.cpu;
-		EOS_ASSERT( cpu_total >= cpu_limit, tx_cpu_usage_exceeded, "insufficient resources. Action: ${user_action} needs CPU: ${cpu} Used: ${cpu_billtrx} Available CPU: ${cpu_free}", ("user_action",user_action)("cpu",cpu)("cpu_free",cpu_free)("cpu_billtrx",billtrx.cpu));
+		EOS_ASSERT( false, tx_cpu_usage_exceeded, "insufficient resources. Action: ${user_action} needs CPU: ${cpu} Used: ${cpu_billtrx} Available CPU: ${cpu_free}", ("user_action",user_action)("cpu",cpu)("cpu_free",cpu_free)("cpu_billtrx",billtrx.cpu));
 	}
 	if(billtrx.net > net_limit){
 		int64_t net_free = net_limit - billtrx.net;
-		EOS_ASSERT( net_total >= net_limit, tx_net_usage_exceeded, "insufficient resources. Action: ${user_action} needs NET: ${net} Used: ${net_billtrx} Available NET: ${net_free}", ("user_action",user_action)("net",net)("net_free",net_free)("net_billtrx",billtrx.net));
+		EOS_ASSERT( false, tx_net_usage_exceeded, "insufficient resources. Action: ${user_action} needs NET: ${net} Used: ${net_billtrx} Available NET: ${net_free}", ("user_action",user_action)("net",net)("net_free",net_free)("net_billtrx",billtrx.net));
 	}
 }
 
