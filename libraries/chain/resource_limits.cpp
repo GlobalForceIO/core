@@ -137,20 +137,20 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	  }
 	};
 	auto& billtrx = find_or_create_billtrx();
-	
-	uint64_t ram_total = billtrx.ram + ram;
-	uint64_t cpu_total = billtrx.cpu + cpu;
-	uint64_t net_total = billtrx.net + net;
-	
-	int64_t ram_free = ram_limit - ram_total;
-	int64_t cpu_free = cpu_limit - cpu_total;
-	int64_t net_free = net_limit - net_total;
-	
 	ilog( "ONBILLTRX:: ${payer} ${user_action} COST: ram ${ram} cpu ${cpu} net ${net} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net} LIMIT: ram ${ram_limit} cpu ${cpu_limit} net ${net_limit}",("payer", payer)("user_action", user_action)("ram", ram)("cpu", cpu)("net", net)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net)("ram_limit", ram_limit)("cpu_limit", cpu_limit)("net_limit", net_limit));
 	
-	EOS_ASSERT( ram_total >= ram_limit, ram_usage_exceeded, "insufficient resources. Action: ${user_action} needs RAM: ${ram} available RAM: ${ram_free} Used: ${ram_billtrx}", ("user_action",user_action)("ram",ram)("ram_free",ram_free)("ram_billtrx",billtrx.ram));
-	EOS_ASSERT( cpu_total >= cpu_limit, tx_cpu_usage_exceeded, "insufficient resources. Action: ${user_action} needs CPU: ${cpu} available CPU: ${cpu_free} Used: ${cpu_billtrx}", ("user_action",user_action)("cpu",cpu)("cpu_free",cpu_free)("cpu_billtrx",billtrx.cpu));
-	EOS_ASSERT( net_total >= net_limit, tx_net_usage_exceeded, "insufficient resources. Action: ${user_action} needs NET: ${net} available NET: ${net_free} Used: ${net_billtrx}", ("user_action",user_action)("net",net)("net_free",net_free)("net_billtrx",billtrx.net));
+	if(billtrx.ram > ram_limit){
+		int64_t ram_free = ram_limit - billtrx.ram;
+		EOS_ASSERT( false, ram_usage_exceeded, "insufficient resources. Action: ${user_action} needs RAM: ${ram} Used: ${ram_billtrx} Available RAM: ${ram_free}", ("user_action",user_action)("ram",ram)("ram_free",ram_free)("ram_billtrx",billtrx.ram));
+	}
+	if(billtrx.cpu > cpu_limit){
+		int64_t cpu_free = cpu_limit - billtrx.cpu;
+		EOS_ASSERT( cpu_total >= cpu_limit, tx_cpu_usage_exceeded, "insufficient resources. Action: ${user_action} needs CPU: ${cpu} Used: ${cpu_billtrx} Available CPU: ${cpu_free}", ("user_action",user_action)("cpu",cpu)("cpu_free",cpu_free)("cpu_billtrx",billtrx.cpu));
+	}
+	if(billtrx.net > net_limit){
+		int64_t net_free = net_limit - billtrx.net;
+		EOS_ASSERT( net_total >= net_limit, tx_net_usage_exceeded, "insufficient resources. Action: ${user_action} needs NET: ${net} Used: ${net_billtrx} Available NET: ${net_free}", ("user_action",user_action)("net",net)("net_free",net_free)("net_billtrx",billtrx.net));
+	}
 }
 
 std::vector<uint64_t> resource_limits_manager::get_billtrx_fee()const {
