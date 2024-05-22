@@ -2703,7 +2703,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	for(uint32_t i = 0; i< trn.actions.size(); i++){
 		name _payer = trn.actions[i].authorization[0].actor;
 		name _action = trn.actions[i].name;
-		if(_payer != N(eosio) && _payer != N(eosio.token) && _payer != N(eosio.bpay) 
+		if((_payer != N(eosio) && _action != N(onblock)) && _payer != N(eosio) && _payer != N(eosio.token) && _payer != N(eosio.bpay) 
 		  && _payer != N(eosio.vpay) && _payer != N(eosio.msig) && _payer != N(eosio.ram) 
 		  && _payer != N(eosio.ramfee) && _payer != N(eosio.stake) && _payer != N(eosio.wrap) 
 		  && _payer != N(eosio.bios) && _payer != N(eosio.rex) && _payer != N(eosio.saving) 
