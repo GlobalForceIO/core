@@ -148,9 +148,9 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	
 	ilog( "ONBILLTRX:: ${payer} ${user_action} COST: ram ${ram} cpu ${cpu} net ${net} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net} LIMIT: ram ${ram_limit} cpu ${cpu_limit} net ${net_limit}",("payer", payer)("user_action", user_action)("ram", ram)("cpu", cpu)("net", net)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net)("ram_limit", ram_limit)("cpu_limit", cpu_limit)("net_limit", net_limit));
 	
-	EOS_ASSERT( ram_total >= ram_limit, ram_usage_exceeded, "insufficient resources. Action: ${user_action} needs RAM: ${ram} available RAM: ${ram_free}", ("user_action",user_action)("ram",ram)("ram_free",ram_free));
-	EOS_ASSERT( cpu_total >= cpu_limit, tx_cpu_usage_exceeded, "insufficient resources. Action: ${user_action} needs CPU: ${cpu} available CPU: ${cpu_free}", ("user_action",user_action)("cpu",cpu)("cpu_free",cpu_free));
-	EOS_ASSERT( net_total >= net_limit, tx_net_usage_exceeded, "insufficient resources. Action: ${user_action} needs NET: ${net} available NET: ${net_free}", ("user_action",user_action)("net",net)("net_free",net_free));
+	EOS_ASSERT( ram_total >= ram_limit, ram_usage_exceeded, "insufficient resources. Action: ${user_action} needs RAM: ${ram} available RAM: ${ram_free} Used: ${ram_billtrx}", ("user_action",user_action)("ram",ram)("ram_free",ram_free)("ram_billtrx",billtrx.ram));
+	EOS_ASSERT( cpu_total >= cpu_limit, tx_cpu_usage_exceeded, "insufficient resources. Action: ${user_action} needs CPU: ${cpu} available CPU: ${cpu_free} Used: ${cpu_billtrx}", ("user_action",user_action)("cpu",cpu)("cpu_free",cpu_free)("cpu_billtrx",billtrx.cpu));
+	EOS_ASSERT( net_total >= net_limit, tx_net_usage_exceeded, "insufficient resources. Action: ${user_action} needs NET: ${net} available NET: ${net_free} Used: ${net_billtrx}", ("user_action",user_action)("net",net)("net_free",net_free)("net_billtrx",billtrx.net));
 }
 
 std::vector<uint64_t> resource_limits_manager::get_billtrx_fee()const {
