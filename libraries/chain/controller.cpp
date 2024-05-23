@@ -2721,8 +2721,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 			user_check = true;
 		}
 	}
-	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
-	return user_trace;
+	return my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
 }
 
 transaction_trace_ptr controller::push_scheduled_transaction( const transaction_id_type& trxid, fc::time_point deadline,
