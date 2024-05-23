@@ -119,7 +119,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	uint64_t ram_limit = limits[0];
 	uint64_t cpu_limit = limits[1];
 	uint64_t net_limit = limits[2];
-	if(ram_limit == 0 || cpu_limit == 0 || net_limit == 0){
+	if(ram_limit == 0 || cpu_limit == 0 /*|| net_limit == 0*/){
 		wlog( "ONBILLTRX:: ${payer} ${user_action} LIMIT: ram ${ram_limit} cpu ${cpu_limit} net ${net_limit}",("payer", payer)("user_action", user_action)("ram_limit", ram_limit)("cpu_limit", cpu_limit)("net_limit", net_limit));
 		return;
 	}

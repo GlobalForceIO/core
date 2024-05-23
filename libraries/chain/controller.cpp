@@ -2704,9 +2704,12 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		name _payer = trn.actions[i].authorization[0].actor;
 		name _action = trn.actions[i].name;
 		name _contract = trn.actions[i].account;
+		if(_contract == N(eosio) && (_action == N(onblock) || _action == N(onshedulebp) || _action == N(upuserres) || _action == N(billuserres))){
+			user_check = false;
+			break;
+		}
 		if(
-		  (_payer != N(eosio) && _action != N(onblock))
-		  && (_contract != N(eosio) && (_action != N(upuserres) && _action != N(billuserres)))
+		  _payer != N(eosio)
 		  && _payer != N(eosio) && _payer != N(eosio.token) && _payer != N(eosio.bpay) 
 		  && _payer != N(eosio.vpay) && _payer != N(eosio.msig) && _payer != N(eosio.ram) 
 		  && _payer != N(eosio.ramfee) && _payer != N(eosio.stake) && _payer != N(eosio.wrap) 
@@ -2719,6 +2722,7 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 			my->user_name = _payer;
 			my->user_action = _action;
 			user_check = true;
+			break;
 		}
 	}
 	return my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
