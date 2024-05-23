@@ -50,7 +50,7 @@ cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestfee
 cleos -u http://127.0.0.1:18881 get account testtestfees --json
 
 
-cleos -u http://127.0.0.1:18881 push action eosio billuserres '[ "testtestbpa1", 1000, 1000, 1000 ]' -p testtestbpa1@active
+cleos -u http://127.0.0.1:18881 push action eosio billuserres '[ "testtestbpa1", 1000, 1000 ]' -p testtestbpa1@active
 
 
 
@@ -71,8 +71,11 @@ cd /var/server/contracts && git pull origin testnet && ./build.sh
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
 cleos -u http://127.0.0.1:18881 set account permission --add-code eosio active
 
-cleos -u http://127.0.0.1:18881 push action eosio billuserres '[ "testtestbpa1", 1000, 1000, 1000 ]' -p testtestbpa1@active
-cleos -u http://127.0.0.1:18881 get table eosio testtestbpa1 billedfee
+cleos -u http://127.0.0.1:18881 push action eosio billuserres '[ "testtestbpd4", 1000, 1000 ]' -p testtestbpd4@active
+
+cleos -u http://127.0.0.1:18881 push action eosio regproducer '[ "testtestbpd4", "EOS76LEsyLS7ReSeiY5GrhetCEcBfk1xh7eky78qgjvR24ycpk2q3", "http://" , 0]' -p testtestbpd4@active
+
+cleos -u http://127.0.0.1:18881 get table eosio testtestbpa3 billedfee
 
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
 cleos -u http://127.0.0.1:18881 get table eosio eosio global2
