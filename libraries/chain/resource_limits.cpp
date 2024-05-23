@@ -149,7 +149,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	}
 	if(billtrx.net > net_limit){
 		int64_t net_free = billtrx.net - net_limit;
-		EOS_ASSERT( false, tx_net_usage_exceeded, "insufficient resources. Action: ${user_action} needs NET: ${net} Used: ${net_billtrx} Deficiency NET: ${net_free}", ("user_action",user_action)("net",net)("net_free",net_free)("net_billtrx",billtrx.net));
+		//EOS_ASSERT( false, tx_net_usage_exceeded, "insufficient resources. Action: ${user_action} needs NET: ${net} Used: ${net_billtrx} Deficiency NET: ${net_free}", ("user_action",user_action)("net",net)("net_free",net_free)("net_billtrx",billtrx.net));
 	}
 }
 
@@ -302,7 +302,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 		};
 		auto& billtrx = find_or_create_billtrx();
 		_db.modify( billtrx, [&]( resource_billtrx_object& t ){
-			t.net += net_usage;
+			//t.net += net_usage;
 			t.cpu += cpu_usage;
 			t.ram = usage.ram_usage;
 		});
