@@ -50,7 +50,7 @@ cleos -u http://127.0.0.1:18881 push action eosio.token transfer '[ "testtestfee
 cleos -u http://127.0.0.1:18881 get account testtestfees --json
 
 
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio billuserres '[ "testtestbpa1", 1000, 1000, 1000 ]' -p testtestbpa1@active
 
 
 
@@ -69,8 +69,9 @@ cdf3e8af4988755ca8bd153fedcab7442dded909
 
 cd /var/server/contracts && git pull origin testnet && ./build.sh
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
+cleos -u http://127.0.0.1:18881 set account permission --add-code eosio active
 
-cleos -u http://127.0.0.1:18881 push action eosio upuserres '[ "testtestbpa1", 1000, 1000, 1000 ]' -p eosio@active
+cleos -u http://127.0.0.1:18881 push action eosio billuserres '[ "testtestbpa1", 1000, 1000, 1000 ]' -p testtestbpa1@active
 cleos -u http://127.0.0.1:18881 get table eosio testtestbpa1 billedfee
 
 cleos -u http://127.0.0.1:18881 set contract eosio /var/server/contracts/build/contracts/eosio.system eosio.system.wasm eosio.system.abi -p eosio@active
