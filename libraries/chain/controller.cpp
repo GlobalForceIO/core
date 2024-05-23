@@ -2705,16 +2705,14 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		name _action = trn.actions[i].name;
 		name _contract = trn.actions[i].account;
 		if((_payer != N(eosio) && _action != N(onblock))
-		  && (_contract != N(eosio) && _action != N(upuserres))
-		  && (_contract != N(eosio) && _action != N(billuserres))
+		  && (_contract != N(eosio) && (_action != N(upuserres) && _action != N(billuserres)))
 		  && _payer != N(eosio) && _payer != N(eosio.token) && _payer != N(eosio.bpay) 
 		  && _payer != N(eosio.vpay) && _payer != N(eosio.msig) && _payer != N(eosio.ram) 
 		  && _payer != N(eosio.ramfee) && _payer != N(eosio.stake) && _payer != N(eosio.wrap) 
 		  && _payer != N(eosio.bios) && _payer != N(eosio.rex) && _payer != N(eosio.saving) 
-		  && _payer != N(eosio.names) && _payer != N(eosio.prods) 
-		   
+		  && _payer != N(eosio.names) && _payer != N(eosio.prods) && _payer != N(eosio.null)
 		  && _payer != N(gf) && _payer != N(gf.asset) && _payer != N(gf.hold) && _payer != N(gf.nft)  
-		  && _payer != N(gf.swap) && _payer != N(gf.address) && _payer != N(gf.fee) && _payer != N(gf.price)  
+		  && _payer != N(gf.address) && _payer != N(gf.fee) && _payer != N(gf.price)  
 		  && _payer != N(gf.types) && _payer != N(gf.dex) && _payer != N(gf.reg)
 		  ){
 			my->user_name = _payer;

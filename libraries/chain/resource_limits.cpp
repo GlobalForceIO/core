@@ -320,9 +320,8 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 }
 
 void resource_limits_manager::add_pending_ram_usage( const account_name account, int64_t ram_delta ) {
-	if (ram_delta <= 0 /*&& account == N(eosio)*/) {
+	if (ram_delta <= 0) {
 		//Only increment
-		wlog( "ONBILLTRX:: ${account} ram_delta ${ram_delta}",("account", account)("ram_delta", ram_delta));
 		return;
 	}
 	const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
