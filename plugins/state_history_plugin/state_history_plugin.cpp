@@ -70,9 +70,9 @@ bool include_delta(const eosio::chain::table_id_object& old, const eosio::chain:
 bool include_delta(const eosio::chain::resource_limits::resource_billtrx_object& old,
                    const eosio::chain::resource_limits::resource_billtrx_object& curr) {
    return                                   //
-       old.net != curr.net || //
        old.ram != curr.ram || //
-       old.cpu != curr.cpu;
+       old.cpu != curr.cpu || //
+       old.net != curr.net;
 }
 
 bool include_delta(const eosio::chain::resource_limits::resource_limits_object& old,

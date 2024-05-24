@@ -224,10 +224,10 @@ std::vector<uint64_t> resource_limits_manager::get_billtrx_limits( const account
 	  if (t == nullptr) {
 		 const auto& actual = _db.get<resource_billtrx_object, by_owner>( account );
 		 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
-			t.owner = actual.owner;
-			t.net = actual.net;
-			t.ram = actual.ram;
-			t.cpu = actual.cpu;
+			t.owner = account;
+			t.ram = 0;
+			t.cpu = 0;
+			t.net = 0;
 		 });
 	  } else {
 		 return *t;
@@ -248,6 +248,9 @@ void resource_limits_manager::initialize_account(const account_name& account) {
    
    _db.create<resource_billtrx_object>([&]( resource_billtrx_object& t ) {
       t.owner = account;
+	  t.ram = 0;
+	  t.cpu = 0;
+	  t.net = 0;
    });
 }
 
@@ -292,9 +295,9 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 		  if (t == nullptr) {
 			 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
 				t.owner = a;
-				t.net = 0;
-				t.ram = 0;
-				t.cpu = 0;
+			    t.ram = 0;
+			    t.cpu = 0;
+			    t.net = 0;
 			 });
 		  } else {
 			 return *t;
@@ -337,9 +340,9 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
 	  if (t == nullptr) {
 		 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
 			t.owner = account;
-			t.net = 0;
 			t.ram = 0;
 			t.cpu = 0;
+			t.net = 0;
 		 });
 	  } else {
 		 return *t;
