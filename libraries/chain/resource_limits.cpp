@@ -115,11 +115,12 @@ void resource_limits_manager::read_from_snapshot( const snapshot_reader_ptr& sna
 
 //TODO verify billtrx pay
 void resource_limits_manager::verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram, uint64_t net )const {
+	/*
 	std::vector<uint64_t> limits = get_billtrx_limits_account( payer );
 	uint64_t ram_limit = limits[0];
 	uint64_t cpu_limit = limits[1];
 	uint64_t net_limit = limits[2];
-	if(ram_limit == 0 || cpu_limit == 0 /*|| net_limit == 0*/){
+	if(ram_limit == 0 || cpu_limit == 0){
 		wlog( "ONBILLTRX:: ${payer} ${user_action} LIMIT: ram ${ram_limit} cpu ${cpu_limit} net ${net_limit}",("payer", payer)("user_action", user_action)("ram_limit", ram_limit)("cpu_limit", cpu_limit)("net_limit", net_limit));
 		return;
 	}
@@ -150,7 +151,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	if(billtrx.net > net_limit){
 		int64_t net_free = billtrx.net - net_limit;
 		//EOS_ASSERT( false, tx_net_usage_exceeded, "insufficient resources. Action: ${user_action} needs NET: ${net} Used: ${net_billtrx} Deficiency NET: ${net_free}", ("user_action",user_action)("net",net)("net_free",net_free)("net_billtrx",billtrx.net));
-	}
+	}*/
 }
 
 std::vector<uint64_t> resource_limits_manager::get_billtrx_fee()const {
@@ -219,7 +220,7 @@ std::vector<uint64_t> resource_limits_manager::get_billtrx_limits_account( const
 }
 
 std::vector<uint64_t> resource_limits_manager::get_billtrx_limits( const account_name& account )const {
-	auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+	/*auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 	  const auto* t = _db.find<resource_billtrx_object,by_owner>( account );
 	  if (t == nullptr) {
 		 const auto& actual = _db.get<resource_billtrx_object, by_owner>( account );
@@ -234,7 +235,8 @@ std::vector<uint64_t> resource_limits_manager::get_billtrx_limits( const account
 	  }
 	};
 	auto& billtrx = find_or_create_billtrx();
-	return {billtrx.ram, billtrx.cpu, billtrx.net};
+	return {billtrx.ram, billtrx.cpu, billtrx.net};*/
+	return {0, 0, 0};
 }
 
 void resource_limits_manager::initialize_account(const account_name& account) {
@@ -245,13 +247,13 @@ void resource_limits_manager::initialize_account(const account_name& account) {
    _db.create<resource_usage_object>([&]( resource_usage_object& bu ) {
       bu.owner = account;
    });
-   
+   /*
    _db.create<resource_billtrx_object>([&]( resource_billtrx_object& t ) {
       t.owner = account;
 	  t.ram = 0;
 	  t.cpu = 0;
 	  t.net = 0;
-   });
+   });*/
 }
 
 void resource_limits_manager::set_block_parameters(const elastic_limit_parameters& cpu_limit_parameters, const elastic_limit_parameters& net_limit_parameters ) {
@@ -290,7 +292,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
             bu.net_usage.add( net_usage, time_slot, config.account_net_usage_average_window );
             bu.cpu_usage.add( cpu_usage, time_slot, config.account_cpu_usage_average_window );
         });
-		auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+		/*auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 		  const auto* t = _db.find<resource_billtrx_object,by_owner>( a );
 		  if (t == nullptr) {
 			 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
@@ -308,7 +310,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			//t.net += net_usage;
 			t.cpu += cpu_usage;
 			t.ram = usage.ram_usage;
-		});
+		});*/
 	}
 	
    //TODO leave total used resources bot block
@@ -335,7 +337,7 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
 	_db.modify( usage, [&]( auto& u ) {
 		u.ram_usage += ram_delta;
 	});
-	auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+	/*auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 	  const auto* t = _db.find<resource_billtrx_object,by_owner>( account );
 	  if (t == nullptr) {
 		 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
@@ -353,7 +355,7 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
 		//t.net += net_weight;
 		//t.cpu += cpu_weight;
 		t.ram = usage.ram_usage + ram_delta;
-	});
+	});*/
 }
 
 //TODO remove limit resources for account
@@ -379,8 +381,6 @@ int64_t resource_limits_manager::get_account_ram_usage( const account_name& name
 bool resource_limits_manager::set_account_limits( const account_name& account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {  
 	//TODO dont enable resource limits. read contract table if need check avialable resources
 	
-	return true;
-	
    const auto& usage = _db.get<resource_usage_object,by_owner>( account );
    /*
     * Since we need to delay these until the next resource limiting boundary, these are created in a "pending"
@@ -404,6 +404,10 @@ bool resource_limits_manager::set_account_limits( const account_name& account, i
    };
    // update the users weights directly
    auto& limits = find_or_create_pending_limits();
+
+	//Only create if not exist
+	return true;
+	
    bool decreased_limit = false;
    if( ram_bytes >= 0 ) {
       decreased_limit = ( (limits.ram_bytes < 0) || (ram_bytes < limits.ram_bytes) );

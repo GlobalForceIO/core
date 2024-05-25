@@ -66,7 +66,7 @@ bool include_delta(const T& old, const T& curr) {
 bool include_delta(const eosio::chain::table_id_object& old, const eosio::chain::table_id_object& curr) {
    return old.payer != curr.payer;
 }
-
+/*
 bool include_delta(const eosio::chain::resource_limits::resource_billtrx_object& old,
                    const eosio::chain::resource_limits::resource_billtrx_object& curr) {
    return                                   //
@@ -74,7 +74,7 @@ bool include_delta(const eosio::chain::resource_limits::resource_billtrx_object&
        old.cpu != curr.cpu || //
        old.net != curr.net;
 }
-
+*/
 bool include_delta(const eosio::chain::resource_limits::resource_limits_object& old,
                    const eosio::chain::resource_limits::resource_limits_object& curr) {
    return                                   //
