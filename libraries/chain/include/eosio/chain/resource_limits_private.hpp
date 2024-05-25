@@ -222,10 +222,24 @@ namespace eosio { namespace chain { namespace resource_limits {
       >
    >;
 
+   class resource_billtrx_config_object : public chainbase::object<resource_billtrx_config_object_type, resource_billtrx_config_object> {
+      OBJECT_CTOR(resource_billtrx_config_object);
+      id_type id;
+	  uint64_t ram_fee = 0ULL;
+	  uint64_t cpu_fee = 0ULL;
+   };
+
+   using resource_billtrx_config_index = chainbase::shared_multi_index_container<
+      resource_billtrx_config_object,
+      indexed_by<
+         ordered_unique<tag<by_id>, member<resource_billtrx_config_object, resource_billtrx_config_object::id_type, &resource_billtrx_config_object::id>>
+      >
+   >;
+   
    /**
     * Every account that authorizes a transaction saved writed size of used RAM CPU NET.
     */
-   /*struct resource_billtrx_object : public chainbase::object<resource_billtrx_object_type, resource_billtrx_object> {
+   struct resource_billtrx_object : public chainbase::object<resource_billtrx_object_type, resource_billtrx_object> {
       OBJECT_CTOR(resource_billtrx_object)
 
       id_type id;
@@ -242,7 +256,7 @@ namespace eosio { namespace chain { namespace resource_limits {
          ordered_unique<tag<by_id>, member<resource_billtrx_object, resource_billtrx_object::id_type, &resource_billtrx_object::id>>,
          ordered_unique<tag<by_owner>, member<resource_billtrx_object, account_name, &resource_billtrx_object::owner> >
       >
-   >;*/
+   >;
 
    struct resource_usage_object : public chainbase::object<resource_usage_object_type, resource_usage_object> {
       OBJECT_CTOR(resource_usage_object)
@@ -345,8 +359,8 @@ namespace eosio { namespace chain { namespace resource_limits {
    >;
 
 } } } /// eosio::chain::resource_limits
-
-//CHAINBASE_SET_INDEX_TYPE(eosio::chain::resource_limits::resource_billtrx_object,       eosio::chain::resource_limits::resource_billtrx_index)
+CHAINBASE_SET_INDEX_TYPE(eosio::chain::resource_limits::resource_billtrx_config_object, eosio::chain::resource_limits::resource_billtrx_config_index)
+CHAINBASE_SET_INDEX_TYPE(eosio::chain::resource_limits::resource_billtrx_object,       eosio::chain::resource_limits::resource_billtrx_index)
 CHAINBASE_SET_INDEX_TYPE(eosio::chain::resource_limits::resource_limits_object,        eosio::chain::resource_limits::resource_limits_index)
 CHAINBASE_SET_INDEX_TYPE(eosio::chain::resource_limits::resource_usage_object,         eosio::chain::resource_limits::resource_usage_index)
 CHAINBASE_SET_INDEX_TYPE(eosio::chain::resource_limits::resource_limits_config_object, eosio::chain::resource_limits::resource_limits_config_index)
@@ -356,7 +370,8 @@ FC_REFLECT(eosio::chain::resource_limits::usage_accumulator, (last_ordinal)(valu
 
 // @ignore pending
 
-//FC_REFLECT(eosio::chain::resource_limits::resource_billtrx_object, (owner)(net)(ram)(cpu))
+FC_REFLECT(eosio::chain::resource_limits::resource_billtrx_config_object, (ram_fee)(cpu_fee))
+FC_REFLECT(eosio::chain::resource_limits::resource_billtrx_object, (owner)(net)(ram)(cpu))
 FC_REFLECT(eosio::chain::resource_limits::resource_limits_object, (owner)(net_weight)(cpu_weight)(ram_bytes))
 FC_REFLECT(eosio::chain::resource_limits::resource_usage_object,  (owner)(net_usage)(cpu_usage)(ram_usage))
 FC_REFLECT(eosio::chain::resource_limits::resource_limits_config_object, (cpu_limit_parameters)(net_limit_parameters)(account_cpu_usage_average_window)(account_net_usage_average_window))

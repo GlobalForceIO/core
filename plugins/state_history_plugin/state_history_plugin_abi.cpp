@@ -493,6 +493,13 @@ extern const char* const state_history_plugin_abi = R"({
             ]
         },
         {
+            "name": "resource_billtrx_config_v0", "fields": [
+                { "type": "uint8", "name": "version" },
+                { "type": "uint64", "name": "cpu_fee" },
+                { "type": "uint64", "name": "ram_fee" }
+            ]
+        },
+        {
             "name": "resource_billtrx_v0", "fields": [
                 { "type": "name", "name": "owner" },
                 { "type": "uint64", "name": "ram" }
@@ -540,6 +547,7 @@ extern const char* const state_history_plugin_abi = R"({
         { "name": "elastic_limit_parameters", "types": ["elastic_limit_parameters_v0"] },
         { "name": "resource_limits_config", "types": ["resource_limits_config_v0"] },
         { "name": "block_signing_authority", "types": ["block_signing_authority_v0"] },
+        { "name": "resource_billtrx_config", "types": ["resource_billtrx_config_v0"] },
         { "name": "resource_billtrx", "types": ["resource_billtrx_v0"] }
     ],
     "tables": [
@@ -562,6 +570,7 @@ extern const char* const state_history_plugin_abi = R"({
         { "name": "resource_usage", "type": "resource_usage", "key_names": ["owner"] },
         { "name": "resource_limits_state", "type": "resource_limits_state", "key_names": [] },
         { "name": "resource_limits_config", "type": "resource_limits_config", "key_names": [] },
+		{ "name": "resource_billtrx_config", "type": "resource_billtrx_config", "key_names": [] },
         { "name": "resource_billtrx", "type": "resource_billtrx", "key_names": ["owner"] }
     ]
 })";

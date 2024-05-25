@@ -34,7 +34,8 @@ namespace eosio { namespace chain { namespace resource_limits {
    abi_serializer token_abi_ser;
    
 using resource_index_set = index_set<
-   //resource_billtrx_index,
+   resource_billtrx_config_index,
+   resource_billtrx_index,
    resource_limits_index,
    resource_usage_index,
    resource_limits_state_index,
@@ -220,7 +221,7 @@ std::vector<uint64_t> resource_limits_manager::get_billtrx_limits_account( const
 }
 
 std::vector<uint64_t> resource_limits_manager::get_billtrx_limits( const account_name& account )const {
-	/*auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+	auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 	  const auto* t = _db.find<resource_billtrx_object,by_owner>( account );
 	  if (t == nullptr) {
 		 const auto& actual = _db.get<resource_billtrx_object, by_owner>( account );
@@ -235,8 +236,8 @@ std::vector<uint64_t> resource_limits_manager::get_billtrx_limits( const account
 	  }
 	};
 	auto& billtrx = find_or_create_billtrx();
-	return {billtrx.ram, billtrx.cpu, billtrx.net};*/
-	return {0, 0, 0};
+	return {billtrx.ram, billtrx.cpu, billtrx.net};
+	//return {0, 0, 0};
 }
 
 void resource_limits_manager::initialize_account(const account_name& account) {
@@ -247,13 +248,13 @@ void resource_limits_manager::initialize_account(const account_name& account) {
    _db.create<resource_usage_object>([&]( resource_usage_object& bu ) {
       bu.owner = account;
    });
-   /*
+   
    _db.create<resource_billtrx_object>([&]( resource_billtrx_object& t ) {
       t.owner = account;
 	  t.ram = 0;
 	  t.cpu = 0;
 	  t.net = 0;
-   });*/
+   });
 }
 
 void resource_limits_manager::set_block_parameters(const elastic_limit_parameters& cpu_limit_parameters, const elastic_limit_parameters& net_limit_parameters ) {
@@ -292,7 +293,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
             bu.net_usage.add( net_usage, time_slot, config.account_net_usage_average_window );
             bu.cpu_usage.add( cpu_usage, time_slot, config.account_cpu_usage_average_window );
         });
-		/*auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+		auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 		  const auto* t = _db.find<resource_billtrx_object,by_owner>( a );
 		  if (t == nullptr) {
 			 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
@@ -310,7 +311,7 @@ void resource_limits_manager::add_transaction_usage(const flat_set<account_name>
 			//t.net += net_usage;
 			t.cpu += cpu_usage;
 			t.ram = usage.ram_usage;
-		});*/
+		});
 	}
 	
    //TODO leave total used resources bot block
@@ -337,7 +338,7 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
 	_db.modify( usage, [&]( auto& u ) {
 		u.ram_usage += ram_delta;
 	});
-	/*auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
+	auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 	  const auto* t = _db.find<resource_billtrx_object,by_owner>( account );
 	  if (t == nullptr) {
 		 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
@@ -355,7 +356,7 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
 		//t.net += net_weight;
 		//t.cpu += cpu_weight;
 		t.ram = usage.ram_usage + ram_delta;
-	});*/
+	});
 }
 
 //TODO remove limit resources for account

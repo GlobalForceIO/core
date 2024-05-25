@@ -426,7 +426,7 @@ datastream<ST>& operator<<(datastream<ST>&                                      
    fc::raw::pack(ds, as_type<uint64_t>(obj.obj.required_permission.to_uint64_t()));
    return ds;
 }
-/*
+
 template <typename ST>
 datastream<ST>& operator<<(datastream<ST>&                                                                      ds,
                            const history_serial_wrapper<eosio::chain::resource_limits::resource_billtrx_object>& obj) {
@@ -437,7 +437,16 @@ datastream<ST>& operator<<(datastream<ST>&                                      
    fc::raw::pack(ds, as_type<uint64_t>(obj.obj.net));
    return ds;
 }
-*/
+
+template <typename ST>
+datastream<ST>& operator<<(datastream<ST>&                                                                             ds,
+           const history_serial_wrapper<eosio::chain::resource_limits::resource_billtrx_config_object>& obj) {
+   fc::raw::pack(ds, fc::unsigned_int(0));
+   fc::raw::pack(ds, as_type<uint64_t>(obj.obj.ram_fee));
+   fc::raw::pack(ds, as_type<uint64_t>(obj.obj.cpu_fee));
+   return ds;
+};
+
 template <typename ST>
 datastream<ST>& operator<<(datastream<ST>&                                                                      ds,
                            const history_serial_wrapper<eosio::chain::resource_limits::resource_limits_object>& obj) {

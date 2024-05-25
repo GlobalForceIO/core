@@ -66,15 +66,15 @@ bool include_delta(const T& old, const T& curr) {
 bool include_delta(const eosio::chain::table_id_object& old, const eosio::chain::table_id_object& curr) {
    return old.payer != curr.payer;
 }
-/*
+
 bool include_delta(const eosio::chain::resource_limits::resource_billtrx_object& old,
                    const eosio::chain::resource_limits::resource_billtrx_object& curr) {
-   return                                   //
+   return                     //
        old.ram != curr.ram || //
        old.cpu != curr.cpu || //
        old.net != curr.net;
 }
-*/
+
 bool include_delta(const eosio::chain::resource_limits::resource_limits_object& old,
                    const eosio::chain::resource_limits::resource_limits_object& curr) {
    return                                   //
@@ -571,7 +571,8 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
       process_table("permission", db.get_index<permission_index>(), pack_row);
       process_table("permission_link", db.get_index<permission_link_index>(), pack_row);
 
-      //process_table("resource_billtrx", db.get_index<resource_limits::resource_billtrx_index>(), pack_row);
+	  process_table("resource_billtrx_config", db.get_index<resource_limits::resource_billtrx_config_index>(), pack_row);
+      process_table("resource_billtrx", db.get_index<resource_limits::resource_billtrx_index>(), pack_row);
       process_table("resource_limits", db.get_index<resource_limits::resource_limits_index>(), pack_row);
       process_table("resource_usage", db.get_index<resource_limits::resource_usage_index>(), pack_row);
       process_table("resource_limits_state", db.get_index<resource_limits::resource_limits_state_index>(), pack_row);
