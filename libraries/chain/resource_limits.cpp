@@ -34,7 +34,7 @@ namespace eosio { namespace chain { namespace resource_limits {
    abi_serializer token_abi_ser;
    
 using resource_index_set = index_set<
-   resource_billtrx_index,
+   //resource_billtrx_index,
    resource_limits_index,
    resource_usage_index,
    resource_limits_state_index,
