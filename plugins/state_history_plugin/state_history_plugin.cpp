@@ -67,6 +67,13 @@ bool include_delta(const eosio::chain::table_id_object& old, const eosio::chain:
    return old.payer != curr.payer;
 }
 
+bool include_delta(const eosio::chain::resource_limits::resource_billtrx_config_object& old,
+                   const eosio::chain::resource_limits::resource_billtrx_config_object& curr) {
+   return                     //
+       old.ram_fee != curr.ram_fee || //
+       old.cpu_fee != curr.cpu_fee;
+}
+
 bool include_delta(const eosio::chain::resource_limits::resource_billtrx_object& old,
                    const eosio::chain::resource_limits::resource_billtrx_object& curr) {
    return                     //

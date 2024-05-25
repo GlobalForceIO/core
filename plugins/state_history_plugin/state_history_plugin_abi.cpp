@@ -494,7 +494,6 @@ extern const char* const state_history_plugin_abi = R"({
         },
         {
             "name": "resource_billtrx_config_v0", "fields": [
-                { "type": "uint8", "name": "version" },
                 { "type": "uint64", "name": "cpu_fee" },
                 { "type": "uint64", "name": "ram_fee" }
             ]
