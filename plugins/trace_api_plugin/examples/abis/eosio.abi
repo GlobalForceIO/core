@@ -739,28 +739,6 @@
       ]
     },
     {
-      "name": "onbilltrx",
-      "base": "",
-      "fields": [
-        {
-          "name": "account",
-          "type": "account_name"
-        },
-        {
-          "name": "trx_id",
-          "type": "string"
-        },
-        {
-          "name": "cpu_us",
-          "type": "uint64"
-        },
-        {
-          "name": "ram_bytes",
-          "type": "uint64"
-        }
-      ]
-    },
-    {
       "name": "onerror",
       "base": "",
       "fields": [
@@ -1834,11 +1812,6 @@
     {
       "name": "onblock",
       "type": "onblock",
-      "ricardian_contract": ""
-    },
-    {
-      "name": "onbilltrx",
-      "type": "onbilltrx",
       "ricardian_contract": ""
     },
     {

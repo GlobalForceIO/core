@@ -179,7 +179,6 @@ namespace eosio { namespace chain {
       UNUSED_proxy_vote_object_type,
       UNUSED_scope_sequence_object_type,
       table_id_object_type,
-	  resource_billtrx_config_object_type, //UNUSED OLD
       resource_billtrx_object_type,
       resource_limits_object_type,
       resource_usage_object_type,

@@ -55,12 +55,6 @@ namespace eosio { namespace chain { namespace resource_limits {
       int64_t max = 0; ///< max per window under current congestion
    };
 
-   struct account_billtrx_limit {
-      int64_t ram = 0;
-      int64_t net = 0;
-      int64_t cpu = 0;
-   };
-
    class resource_limits_manager {
       public:
          explicit resource_limits_manager(chainbase::database& db)
@@ -123,7 +117,6 @@ namespace eosio { namespace chain { namespace resource_limits {
    };
 } } } /// eosio::chain
 
-FC_REFLECT( eosio::chain::resource_limits::account_billtrx_limit, (ram)(net)(cpu) )
 FC_REFLECT( eosio::chain::resource_limits::account_resource_limit, (used)(available)(max) )
 FC_REFLECT( eosio::chain::resource_limits::ratio, (numerator)(denominator))
 FC_REFLECT( eosio::chain::resource_limits::elastic_limit_parameters, (target)(max)(periods)(max_multiplier)(contract_rate)(expand_rate))

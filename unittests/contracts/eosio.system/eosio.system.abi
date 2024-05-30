@@ -84,28 +84,6 @@
                 }
             ]
         },
-		{
-			"name": "pay_fee_trx",
-			"base": "",
-			"fields": [
-				{
-				  "name": "account",
-				  "type": "name"
-				},
-				{
-				  "name": "trx_id",
-				  "type": "string"
-				},
-				{
-				  "name": "cpu_us",
-				  "type": "uint64"
-				},
-				{
-				  "name": "ram_bytes",
-				  "type": "uint64"
-				}
-			]
-		},
         {
             "name": "block_header",
             "base": "",
@@ -701,16 +679,6 @@
                 {
                     "name": "header",
                     "type": "block_header"
-                }
-            ]
-        },
-        {
-            "name": "onbilltrx",
-            "base": "",
-            "fields": [
-                {
-                    "name": "fee_trxs",
-                    "type": "pay_fee_trx[]"
                 }
             ]
         },
@@ -1636,11 +1604,6 @@
         {
             "name": "onblock",
             "type": "onblock",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "onbilltrx",
-            "type": "onbilltrx",
             "ricardian_contract": ""
         },
         {

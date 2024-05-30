@@ -34,7 +34,6 @@ namespace eosio { namespace chain { namespace resource_limits {
    abi_serializer token_abi_ser;
    
 using resource_index_set = index_set<
-   resource_billtrx_config_index,
    resource_billtrx_index,
    resource_limits_index,
    resource_usage_index,
@@ -116,7 +115,6 @@ void resource_limits_manager::read_from_snapshot( const snapshot_reader_ptr& sna
 
 //TODO verify billtrx pay
 void resource_limits_manager::verify_billtrx_pay( const account_name& payer, const account_name& user_action, uint64_t cpu, uint64_t ram, uint64_t net )const {
-	/*
 	std::vector<uint64_t> limits = get_billtrx_limits_account( payer );
 	uint64_t ram_limit = limits[0];
 	uint64_t cpu_limit = limits[1];
@@ -140,7 +138,7 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	};
 	auto& billtrx = find_or_create_billtrx();
 	ilog( "ONBILLTRX:: ${payer} ${user_action} COST: ram ${ram} cpu ${cpu} net ${net} FIND: ram ${billtrx_ram} cpu ${billtrx_cpu} net ${billtrx_net} LIMIT: ram ${ram_limit} cpu ${cpu_limit} net ${net_limit}",("payer", payer)("user_action", user_action)("ram", ram)("cpu", cpu)("net", net)("billtrx_ram", billtrx.ram)("billtrx_cpu", billtrx.cpu)("billtrx_net", billtrx.net)("ram_limit", ram_limit)("cpu_limit", cpu_limit)("net_limit", net_limit));
-	
+	/*
 	if(billtrx.ram > ram_limit){
 		int64_t ram_free = billtrx.ram - ram_limit;
 		EOS_ASSERT( false, ram_usage_exceeded, "insufficient resources. Action: ${user_action} needs RAM: ${ram} Used: ${ram_billtrx} Deficiency RAM: ${ram_free}", ("user_action",user_action)("ram",ram)("ram_free",ram_free)("ram_billtrx",billtrx.ram));
@@ -152,7 +150,8 @@ void resource_limits_manager::verify_billtrx_pay( const account_name& payer, con
 	if(billtrx.net > net_limit){
 		int64_t net_free = billtrx.net - net_limit;
 		//EOS_ASSERT( false, tx_net_usage_exceeded, "insufficient resources. Action: ${user_action} needs NET: ${net} Used: ${net_billtrx} Deficiency NET: ${net_free}", ("user_action",user_action)("net",net)("net_free",net_free)("net_billtrx",billtrx.net));
-	}*/
+	}
+	*/
 }
 
 std::vector<uint64_t> resource_limits_manager::get_billtrx_fee()const {
@@ -224,7 +223,6 @@ std::vector<uint64_t> resource_limits_manager::get_billtrx_limits( const account
 	auto find_or_create_billtrx = [&]() -> const resource_billtrx_object& {
 	  const auto* t = _db.find<resource_billtrx_object,by_owner>( account );
 	  if (t == nullptr) {
-		 const auto& actual = _db.get<resource_billtrx_object, by_owner>( account );
 		 return _db.create<resource_billtrx_object>([&](resource_billtrx_object& t){
 			t.owner = account;
 			t.ram = 0;
@@ -363,16 +361,16 @@ void resource_limits_manager::add_pending_ram_usage( const account_name account,
 void resource_limits_manager::verify_account_ram_usage( const account_name account )const {
 	//TODO add check RAM
 	/*
-		int64_t ram_bytes; int64_t net_weight; int64_t cpu_weight;
-	   get_account_limits( account, ram_bytes, net_weight, cpu_weight );
-   const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
+	int64_t ram_bytes; int64_t net_weight; int64_t cpu_weight;
+	get_account_limits( account, ram_bytes, net_weight, cpu_weight );
+	const auto& usage  = _db.get<resource_usage_object,by_owner>( account );
 
-   if( ram_bytes >= 0 ) {
-      EOS_ASSERT( usage.ram_usage <= static_cast<uint64_t>(ram_bytes), ram_usage_exceeded,
+	if( ram_bytes >= 0 ) {
+		EOS_ASSERT( usage.ram_usage <= static_cast<uint64_t>(ram_bytes), ram_usage_exceeded,
                   "account ${account} has insufficient ram; needs ${needs} bytes has ${available} bytes!",
                   ("account", account)("needs",usage.ram_usage)("available",ram_bytes)              );
-   }
-   */
+	}
+	*/
 }
 
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {

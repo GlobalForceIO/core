@@ -302,7 +302,6 @@ namespace eosio { namespace chain {
          }
       }
 
-	  
       auto& rl = control.get_mutable_resource_limits_manager();
       for( auto a : validate_ram_usage ) {
          rl.verify_account_ram_usage( a );
@@ -340,7 +339,6 @@ namespace eosio { namespace chain {
       update_billed_cpu_time( now );
 
       validate_cpu_usage_to_bill( billed_cpu_time_us, account_cpu_limit, true );
-
 
       rl.add_transaction_usage( bill_to_accounts, static_cast<uint64_t>(billed_cpu_time_us), net_usage, 0 ); // Should never fail
    }
