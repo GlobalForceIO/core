@@ -79,6 +79,10 @@ build.tar.gz
 build/*
 build-debug/*
 
+!build/programs/cleos/cleos
+!build/programs/nodeos/nodeos
+!build/programs/keosd/keosd
+
 etc/eosio/node_*
 var/lib/node_*
 .vscode
