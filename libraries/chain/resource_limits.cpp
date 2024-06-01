@@ -254,18 +254,6 @@ void resource_limits_manager::verify_account_ram_usage( const account_name accou
    //EOS_ASSERT( false, ram_usage_exceeded, "RAM ${ramb} bytes", ("ramb",usage.ram_usage));
 }
 
-//TODO remove get balance for account
-uint64_t resource_limits_manager::check_payment_balance( const account_name account, chain::symbol token )const {
-	share_type balance = 0;
-    const eosio::chain::table_id_object tbl = _db.get<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), account, N(accounts)));
-	const auto *obj = _db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl.id, token.to_symbol_code().value));
-	if (obj) {
-		fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
-		fc::raw::unpack(ds, balance);
-	}
-	return balance;
-}
-
 int64_t resource_limits_manager::get_account_ram_usage( const account_name& name )const {
    return _db.get<resource_usage_object,by_owner>( name ).ram_usage;
 }

@@ -2714,7 +2714,6 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 			//GET balance
 			my->user_name = _payer;
 			my->user_action = _action;
-			my->user_balance = my->resource_limits.check_payment_balance( _payer, token );
 			user_check = true;
 			
 			break;
