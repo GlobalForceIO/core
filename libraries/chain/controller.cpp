@@ -1199,26 +1199,11 @@ struct controller_impl {
 
    /* store loaded user balance before push transaction */
    bool      user_check;
-   uint64_t  user_balance;
    uint64_t  user_trx_cpu;
    uint64_t  user_trx_ram;
    name      user_name;
    name      user_action;
    
-   struct pay_fee_trx {
-      name account;
-	  std::string trx_id;
-	  uint64_t cpu_us;
-	  uint64_t ram_bytes;
-   };
-   pay_fee_trx pay_fee_trx_;
-   /*struct pay_fee_trxs {
-      const std::vector<pay_fee_trx> trxs;
-      EOSLIB_SERIALIZE( pay_fee_trxs, (trxs) )
-   };
-   pay_fee_trxs fee_trxs;*/
-   vector<pay_fee_trx> fee_trxs;
-
    transaction_trace_ptr push_scheduled_transaction( const transaction_id_type& trxid, fc::time_point deadline, uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time = false ) {
       const auto& idx = db.get_index<generated_transaction_multi_index,by_trx_id>();
       auto itr = idx.find( trxid );
@@ -1482,19 +1467,6 @@ struct controller_impl {
             }
             trx_context.exec();
             trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
-						
-			if(user_check){
-				user_trx_cpu = trx_context.billed_cpu_time_us;
-				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
-				//Increase mul
-				uint64_t user_payment = (user_trx_cpu + user_trx_ram) * 10;
-				
-				if(user_balance < user_payment){
-					elog( "ONBILLTRX:: LOW BALANCE ${user_name} user_action: ${user_action} user_payment: ${user_payment} user_balance:  ${user_balance}",("user_name",user_name)("user_action",user_action)("user_payment",user_payment)("user_balance",user_balance) );
-					
-					EOS_ASSERT( false, abort_called, "low balance for pay fee. balance: ${user_balance}, payment: ${user_payment} action: ${user_action} RAM: ${RAM} CPU: ${CPU}", ("user_balance", user_balance)("user_payment", user_payment)("user_action",user_action)("RAM",user_trx_ram)("CPU",user_trx_cpu));
-				}
-			}
 			
             auto restore = make_block_restore_point();
 
@@ -2425,60 +2397,6 @@ struct controller_impl {
       }
       return trx;
    }
-   
-   
-   signed_transaction get_on_billtrx_transaction( transaction_id_type trx_id, name payer, uint32_t billed_cpu, uint64_t trx_size )
-   {
-	  fc::microseconds abi_serializer_max_time = fc::microseconds(999'999);
-	  fc::variants trxs_;//array trxs
-	  fc::mutable_variant_object trx_;
-	  trx_( "account", payer );
-	  trx_( "trx_id", trx_id );
-	  trx_( "cpu_us", billed_cpu );
-	  trx_( "ram_bytes", trx_size );
-	  trxs_.emplace_back( std::move(trx_) );
-	  
-      signed_transaction trx;
-	  variant pretty_trx = fc::mutable_variant_object()
-         ("actions", fc::variants({
-            fc::mutable_variant_object()
-               ("account", config::system_account_name)
-               ("name", "onbilltrx")
-               ("authorization", fc::variants({
-                  fc::mutable_variant_object()
-                     ("actor", config::system_account_name )
-                     ("permission", name(config::active_name))
-               }))
-               ("data", fc::mutable_variant_object()
-                  ("fee_trxs", std::move(trxs_) )
-				)
-	  }));
-
-	  auto resolver = [&,this]( const account_name& name ) -> optional<abi_serializer> {
-      try {
-         const auto& accnt  = db.get<account_object,by_name>( name );
-         abi_def abi;
-         if (abi_serializer::to_abi(accnt.abi, abi)) {
-            return abi_serializer(abi, abi_serializer::create_yield_function( abi_serializer_max_time ));
-         }
-         return optional<abi_serializer>();
-      } FC_RETHROW_EXCEPTIONS(error, "Failed to find or parse ABI for ${name}", ("name", name))
-     };
-   
-      abi_serializer::from_variant(pretty_trx, trx, resolver, abi_serializer::create_yield_function( abi_serializer_max_time ));
-	  
-	  ilog( "v1.1 ONBILLTRX TRX:: ${pretty_trx}", ("pretty_trx", pretty_trx) );
-	
-      if( self.is_builtin_activated( builtin_protocol_feature_t::no_duplicate_deferred_id ) ) {
-         trx.expiration = time_point_sec();
-         trx.ref_block_num = 0;
-         trx.ref_block_prefix = 0;
-      } else {
-         trx.expiration = self.pending_block_time() + fc::microseconds(999'999); // Round up to nearest second to avoid appearing expired
-         trx.set_reference_block( self.head_block_id() );
-      }
-      return trx;
-   }
 }; /// controller_impl
 
 const resource_limits_manager&   controller::get_resource_limits_manager()const
@@ -2770,7 +2688,6 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
    
 	transaction_trace_ptr user_trace;
 	
-	my->user_balance = 0;
 	my->user_trx_cpu = 0;
 	my->user_trx_ram = 0;
 	my->user_name = N(1);
@@ -2778,7 +2695,6 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 			
 	bool user_check;
 	user_check = false;
-	chain::symbol token = chain::symbol::from_string("4,GFL");
 	//GET payer & action name
 	const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	for(uint32_t i = 0; i< trn.actions.size(); i++){
@@ -2794,32 +2710,17 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 		  && _payer != N(gf.swap) && _payer != N(gf.address) && _payer != N(gf.fee) && _payer != N(gf.price)  
 		  && _payer != N(gf.types) && _payer != N(gf.dex) && _payer != N(gf.reg)
 		  
-		  && _action != N(fee) && _action != N(onbilltrx) && _action != N(onblock)){
+		  && _action != N(fee) && _action != N(onblock)){
 			//GET balance
 			my->user_name = _payer;
 			my->user_action = _action;
 			my->user_balance = my->resource_limits.check_payment_balance( _payer, token );
 			user_check = true;
 			
-			ilog( "ONBILLTRX:: user_name: ${user_name} user_action: ${user_action} user_balance: ${user_balance} user_check: ${user_check} ", ("user_name",my->user_name)("user_action",my->user_action)("user_balance",my->user_balance)("user_check",user_check) );
 			break;
 		}
 	}
-	user_trace = my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
-		
-	//send payment trx for each transaction
-	if(user_check && !user_trace->error_code){
-		my->pay_fee_trx_.account = my->user_name;
-		my->pay_fee_trx_.trx_id = trx->id();
-		my->pay_fee_trx_.cpu_us = my->user_trx_cpu;
-		my->pay_fee_trx_.ram_bytes = my->user_trx_ram;
-		my->fee_trxs.emplace_back(my->pay_fee_trx_);
-		
-		//transaction_metadata_ptr onbtrx = transaction_metadata::create_no_recover_keys( packed_transaction( my->get_on_billtrx_transaction( trx->id(), my->user_name, my->user_trx_cpu, my->user_trx_ram ) ), transaction_metadata::trx_type::implicit );
-		//my->push_transaction( onbtrx, deadline, 100, true, 0, false );
-	}
-	
-	return user_trace;
+	return my->push_transaction(trx, deadline, billed_cpu_time_us, explicit_billed_cpu_time, subjective_cpu_bill_us, user_check );
 }
 
 transaction_trace_ptr controller::push_scheduled_transaction( const transaction_id_type& trxid, fc::time_point deadline,
