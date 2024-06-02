@@ -1166,7 +1166,6 @@ struct controller_impl {
    int64_t remove_scheduled_transaction( const generated_transaction_object& gto ) {
       int64_t ram_delta = -(config::billable_size_v<generated_transaction_object> + gto.packed_trx.size());
       resource_limits.add_pending_ram_usage( gto.payer, ram_delta );
-      // No need to verify_account_ram_usage since we are only reducing memory
 
       db.remove( gto );
       return ram_delta;
@@ -1214,6 +1213,7 @@ struct controller_impl {
    transaction_trace_ptr push_scheduled_transaction( const generated_transaction_object& gto, fc::time_point deadline, uint32_t billed_cpu_time_us, bool explicit_billed_cpu_time = false )
    { try {
       const bool validating = !self.is_producing_block();
+      EOS_ASSERT( !validating || explicit_billed_cpu_time, transaction_exception, "validating requires explicit billing" );
 
       maybe_session undo_session;
       if ( !self.skip_db_sessions() )
@@ -1468,6 +1468,13 @@ struct controller_impl {
             trx_context.exec();
             trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
 			
+			if(user_check){
+				user_trx_cpu = trx_context.billed_cpu_time_us;
+				user_trx_ram = trx->packed_trx()->get_unprunable_size() + trx->packed_trx()->get_prunable_size() + sizeof( *trx );
+				//TODO use here verify_billtrx_pay
+				resource_limits.verify_billtrx_pay( user_name, user_action, user_trx_cpu, user_trx_ram, trace->net_usage );
+			}
+			
             auto restore = make_block_restore_point();
 
             if (!trx->implicit) {
@@ -1711,20 +1718,6 @@ struct controller_impl {
 
       // Update TaPoS table:
       create_block_summary( id );
-
-      /*
-      ilog( "finalized block ${n} (${id}) at ${t} by ${p} (${signing_key}); schedule_version: ${v} lib: ${lib} #dtrxs: ${ndtrxs} ${np}",
-            ("n",pbhs.block_num)
-            ("id",id)
-            ("t",pbhs.timestamp)
-            ("p",pbhs.producer)
-            ("signing_key", pbhs.block_signing_key)
-            ("v",pbhs.active_schedule_version)
-            ("lib",pbhs.dpos_irreversible_blocknum)
-            ("ndtrxs",db.get_index<generated_transaction_multi_index,by_trx_id>().size())
-            ("np",block_ptr->new_producers)
-      );
-      */
 
       pending->_block_stage = assembled_block{
                                  id,
@@ -2373,7 +2366,19 @@ struct controller_impl {
                    );
       }
    }
+   
+   bool should_check_tapos()const { return true; }
 
+   void validate_tapos( const transaction& trx )const {
+      if( !should_check_tapos() ) return;
+
+      const auto& tapos_block_summary = db.get<block_summary_object>((uint16_t)trx.ref_block_num);
+
+      //Verify TaPoS block summary has correct ID prefix, and that this block's time is not past the expiration
+      EOS_ASSERT(trx.verify_reference_block(tapos_block_summary.block_id), invalid_ref_block_exception,
+                 "Transaction's reference block did not match. Is this transaction from a different fork?",
+                 ("tapos_summary", tapos_block_summary));
+   }
    /**
     *  At the start of each block we notify the system contract with a transaction that passes in
     *  the block header of the prior block (which is currently our head block)
@@ -2693,29 +2698,31 @@ transaction_trace_ptr controller::push_transaction( const transaction_metadata_p
 	my->user_name = N(1);
 	my->user_action = N(1);
 			
-	bool user_check;
-	user_check = false;
+	bool user_check = false;
 	//GET payer & action name
 	const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
 	for(uint32_t i = 0; i< trn.actions.size(); i++){
 		name _payer = trn.actions[i].authorization[0].actor;
 		name _action = trn.actions[i].name;
-		if(_payer != N(eosio) && _payer != N(eosio.token) && _payer != N(eosio.bpay) 
+		name _contract = trn.actions[i].account;
+		if(_contract == N(eosio) && (_action == N(onblock) || _action == N(onshedulebp) || _action == N(upuserres) || _action == N(billuserres))){
+			user_check = false;
+			break;
+		}
+		if(
+		  _payer != N(eosio)
+		  && _payer != N(eosio) && _payer != N(eosio.token) && _payer != N(eosio.bpay) 
 		  && _payer != N(eosio.vpay) && _payer != N(eosio.msig) && _payer != N(eosio.ram) 
 		  && _payer != N(eosio.ramfee) && _payer != N(eosio.stake) && _payer != N(eosio.wrap) 
 		  && _payer != N(eosio.bios) && _payer != N(eosio.rex) && _payer != N(eosio.saving) 
-		  && _payer != N(eosio.names) && _payer != N(eosio.prods) 
-		   
+		  && _payer != N(eosio.names) && _payer != N(eosio.prods) && _payer != N(eosio.null)
 		  && _payer != N(gf) && _payer != N(gf.asset) && _payer != N(gf.hold) && _payer != N(gf.nft)  
-		  && _payer != N(gf.swap) && _payer != N(gf.address) && _payer != N(gf.fee) && _payer != N(gf.price)  
+		  && _payer != N(gf.address) && _payer != N(gf.fee) && _payer != N(gf.price)  
 		  && _payer != N(gf.types) && _payer != N(gf.dex) && _payer != N(gf.reg)
-		  
-		  && _action != N(fee) && _action != N(onblock)){
-			//GET balance
+		  ){
 			my->user_name = _payer;
 			my->user_action = _action;
 			user_check = true;
-			
 			break;
 		}
 	}

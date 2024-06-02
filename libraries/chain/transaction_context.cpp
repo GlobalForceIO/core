@@ -20,7 +20,6 @@
 #include <chrono>
 
 namespace eosio { namespace chain {
-
    transaction_checktime_timer::transaction_checktime_timer(platform_timer& timer)
          : expired(timer.expired), _timer(timer) {
       expired = 0;
@@ -306,7 +305,6 @@ namespace eosio { namespace chain {
       for( auto a : validate_ram_usage ) {
          rl.verify_account_ram_usage( a );
       }
-
       // Calculate the new highest network usage and CPU time that all of the billed accounts can afford to be billed
       int64_t account_net_limit = 0;
       int64_t account_cpu_limit = 0;
@@ -341,8 +339,7 @@ namespace eosio { namespace chain {
 
       validate_cpu_usage_to_bill( billed_cpu_time_us, account_cpu_limit, true );
 
-      rl.add_transaction_usage( bill_to_accounts, static_cast<uint64_t>(billed_cpu_time_us), net_usage,
-                                block_timestamp_type(control.pending_block_time()).slot ); // Should never fail
+      rl.add_transaction_usage( bill_to_accounts, static_cast<uint64_t>(billed_cpu_time_us), net_usage, 0 ); // Should never fail
    }
 
    void transaction_context::squash() {
@@ -455,19 +452,19 @@ namespace eosio { namespace chain {
             );
          } else {
             if( cpu_limit_due_to_greylist && cpu_limited_by_account ) {
-               EOS_ASSERT( billed_us <= account_cpu_limit,
+               /*EOS_ASSERT( billed_us <= account_cpu_limit,
                            greylist_cpu_usage_exceeded,
                            "billed CPU time (${billed} us) is greater than the maximum greylisted billable CPU time for the transaction (${billable} us)",
                            ("billed", billed_us)( "billable", account_cpu_limit )
-               );
+               );*/
             } else {
                // exceeds trx.max_cpu_usage_ms or cfg.max_transaction_cpu_usage if objective_duration_limit is greater
                const int64_t cpu_limit = (cpu_limited_by_account ? account_cpu_limit : objective_duration_limit.count());
-               EOS_ASSERT( billed_us <= cpu_limit,
+               /*EOS_ASSERT( billed_us <= cpu_limit,
                            tx_cpu_usage_exceeded,
                            "billed CPU time (${billed} us) is greater than the maximum billable CPU time for the transaction (${billable} us)",
                            ("billed", billed_us)( "billable", cpu_limit )
-               );
+               );*/
             }
          }
       }
@@ -522,8 +519,7 @@ namespace eosio { namespace chain {
    }
 
    std::tuple<int64_t, int64_t, bool, bool> transaction_context::max_bandwidth_billed_accounts_can_pay( bool force_elastic_limits ) const{
-      // Assumes rl.update_account_usage( bill_to_accounts, block_timestamp_type(control.pending_block_time()).slot ) was already called prior
-
+   
       // Calculate the new highest network usage and CPU time that all of the billed accounts can afford to be billed
       auto& rl = control.get_mutable_resource_limits_manager();
       const static int64_t large_number_no_overflow = std::numeric_limits<int64_t>::max()/2;

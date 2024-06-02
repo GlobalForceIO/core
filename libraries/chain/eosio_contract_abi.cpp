@@ -201,15 +201,15 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    });
 
    eos_abi.structs.emplace_back( struct_def {
-         "onerror", "", {
-            {"sender_id", "uint128"},
-            {"sent_trx",  "bytes"}
+      "onerror", "", {
+         {"sender_id", "uint128"},
+         {"sent_trx",  "bytes"}
       }
    });
 
    eos_abi.structs.emplace_back( struct_def {
-         "onblock", "", {
-            {"header", "block_header"}
+      "onblock", "", {
+         {"header", "block_header"}
       }
    });
 

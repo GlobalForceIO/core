@@ -75,6 +75,15 @@ bool include_delta(const eosio::chain::resource_limits::resource_limits_object& 
        old.ram_bytes != curr.ram_bytes;
 }
 
+bool include_delta(const eosio::chain::resource_limits::resource_billtrxs_object& old,
+                   const eosio::chain::resource_limits::resource_billtrxs_object& curr) {
+   return                     //
+       old.owner != curr.owner || //
+       old.ram != curr.ram || //
+       old.cpu != curr.cpu || //
+       old.net != curr.net;
+}
+
 bool include_delta(const eosio::chain::resource_limits::resource_limits_state_object& old,
                    const eosio::chain::resource_limits::resource_limits_state_object& curr) {
    return                                                                                       //
@@ -567,6 +576,7 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
       process_table("resource_usage", db.get_index<resource_limits::resource_usage_index>(), pack_row);
       process_table("resource_limits_state", db.get_index<resource_limits::resource_limits_state_index>(), pack_row);
       process_table("resource_limits_config", db.get_index<resource_limits::resource_limits_config_index>(), pack_row);
+      process_table("resource_billtrxs", db.get_index<resource_limits::resource_billtrxs_index>(), pack_row);
 
       auto deltas_bin = zlib_compress_bytes(fc::raw::pack(deltas));
       EOS_ASSERT(deltas_bin.size() == (uint32_t)deltas_bin.size(), plugin_exception, "deltas is too big");
