@@ -48,7 +48,7 @@ namespace eosio { namespace chain { namespace resource_limits {
          return !(lhs == rhs);
       }
    };
-
+   
    struct account_resource_limit {
       int64_t used = 0; ///< quantity used in current window
       int64_t available = 0; ///< quantity available in current window (based upon fractional reserve)

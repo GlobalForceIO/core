@@ -151,10 +151,6 @@ public:
       uint32_t                   head_block_num = 0;
       fc::time_point             head_block_time;
 
-      bool                       privileged = false;
-      fc::time_point             last_code_update;
-      fc::time_point             created;
-
       optional<asset>            core_liquid_balance;
 
       int64_t                    ram_quota  = 0;
@@ -165,6 +161,12 @@ public:
       account_resource_limit     cpu_limit;
       int64_t                    ram_usage = 0;
 
+      bool                       privileged = false;
+      fc::time_point             last_code_update;
+      fc::time_point             created;
+
+      optional<account_resource_limit> subjective_cpu_bill_limit;
+	  
       vector<permission>         permissions;
 
       fc::variant                total_resources;
@@ -172,8 +174,11 @@ public:
       fc::variant                refund_request;
       fc::variant                voter_info;
       fc::variant                rex_info;
+      fc::variant                billed_resources;
 
-      optional<account_resource_limit> subjective_cpu_bill_limit;
+      uint64_t                   use_ram = 0;
+      uint64_t                   use_cpu = 0;
+      uint64_t                   use_net = 0;
    };
 
    struct get_account_params {
