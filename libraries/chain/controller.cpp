@@ -1242,7 +1242,7 @@ struct controller_impl {
 	  ilog( "TRACE LOG: ${trx_id} ${head_block_num}", ("trx_id", gtrx.trx_id )("head_block_num", self.head_block_num() ) );
 	  transaction_id_type trx_id_exclude;
 	  if(string(gtrx.trx_id) == string("f47bb50a5f2e031a10f3d374ad963c7675aa8fefe32dc7a759d6ca6fa7faea76")){
-		EOS_ASSERT( false, transaction_exception, "TRACE LOG: hard_fail trx skipped");
+		//EOS_ASSERT( false, transaction_exception, "TRACE LOG: hard_fail trx skipped");
 	  }
 	  
       transaction_trace_ptr trace;
@@ -1258,6 +1258,7 @@ struct controller_impl {
          emit( self.accepted_transaction, trx );
          emit( self.applied_transaction, std::tie(trace, dtrx) );
          undo_session.squash();
+	ilog( "TRACE LOG: 0.1");
          return trace;
       }
 
@@ -1286,18 +1287,23 @@ struct controller_impl {
             }
             check_actor_list( actors );
          }
+	ilog( "TRACE LOG: 0.2");
          trx_context.exec();
 	  ilog( "TRACE LOG: 1");
          trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
+	ilog( "TRACE LOG: 0.3");
          auto restore = make_block_restore_point();
 
          trace->receipt = push_receipt( gtrx.trx_id,
                                         transaction_receipt::executed,
                                         trx_context.billed_cpu_time_us,
                                         trace->net_usage );
+	ilog( "TRACE LOG: 0.4");
          fc::move_append( pending->_block_stage.get<building_block>()._actions, move(trx_context.executed) );
          trace->account_ram_delta = account_delta( gtrx.payer, trx_removal_ram_delta );
+	ilog( "TRACE LOG: 0.5");
          emit( self.accepted_transaction, trx );
+	ilog( "TRACE LOG: 0.6");
          emit( self.applied_transaction, std::tie(trace, dtrx) );
 	  ilog( "TRACE LOG: 2");
          trx_context.squash();
@@ -1384,8 +1390,6 @@ struct controller_impl {
          emit( self.accepted_transaction, trx );
          emit( self.applied_transaction, std::tie(trace, dtrx) );
       }
-
-	  ilog( "TRACE LOG: OK");
       return trace;
    } FC_CAPTURE_AND_RETHROW() } /// push_scheduled_transaction
 
