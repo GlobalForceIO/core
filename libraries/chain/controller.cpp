@@ -1334,16 +1334,16 @@ struct controller_impl {
       // subjectivity changes based on producing vs validating
       bool subjective  = false;
       if (validating) {
-	  ilog( "TRACE LOG: validating");
+	  wlog( "TRACE LOG: validating");
          subjective = failure_is_subjective(*trace->except);
       } else {
          subjective = scheduled_failure_is_subjective(*trace->except);
       }
       if ( !subjective ) {
-	  ilog( "TRACE LOG: !subjective");
+	  wlog( "TRACE LOG: !subjective");
          // hard failure logic
          if( !validating ) {
-	  ilog( "TRACE LOG: update_account_usage");
+	  wlog( "TRACE LOG: update_account_usage");
             auto& rl = self.get_mutable_resource_limits_manager();
             rl.update_account_usage( trx_context.bill_to_accounts, block_timestamp_type(self.pending_block_time()).slot );
             int64_t account_cpu_limit = 0;
@@ -1356,12 +1356,12 @@ struct controller_impl {
                         transaction_exception, "cpu to bill ${cpu} != limited ${limit}", ("cpu", cpu_time_to_bill_us)("limit", limited_cpu_time_to_bill_us) );
             cpu_time_to_bill_us = limited_cpu_time_to_bill_us;
          }
-	  ilog( "TRACE LOG: add_transaction_usage");
+	  wlog( "TRACE LOG: add_transaction_usage");
          //resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0,
          //                                       block_timestamp_type(self.pending_block_time()).slot ); // Should never fail						
          trace->receipt = push_receipt(gtrx.trx_id, transaction_receipt::hard_fail, cpu_time_to_bill_us, 0);
          trace->account_ram_delta = account_delta( gtrx.payer, trx_removal_ram_delta );
-	  ilog( "TRACE LOG: applied_transaction 6");
+	  wlog( "TRACE LOG: applied_transaction 6");
          emit( self.accepted_transaction, trx );
          emit( self.applied_transaction, std::tie(trace, dtrx) );
          undo_session.squash();
