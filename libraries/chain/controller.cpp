@@ -1240,9 +1240,9 @@ struct controller_impl {
       trx->accepted = true;
 	  
 	  ilog( "TRACE LOG: ${trx_id} ${head_block_num}", ("trx_id", gtrx.trx_id )("head_block_num", self.head_block_num() ) );
-	  transaction_id_type             trx_id_exclude;
-	  if(string(gtrx.trx_id) == string("f47bb50a5f2e031a10f3d374ad963c7675aa8fefe32dc7a759d6ca6fa7faea76"){
-		
+	  transaction_id_type trx_id_exclude;
+	  if(string(gtrx.trx_id) == string("f47bb50a5f2e031a10f3d374ad963c7675aa8fefe32dc7a759d6ca6fa7faea76")){
+		EOS_ASSERT( false, transaction_exception, "TRACE LOG: hard_fail trx skipped");
 	  }
 	  
       transaction_trace_ptr trace;

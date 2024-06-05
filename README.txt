@@ -12,7 +12,7 @@ git pull origin testnet --recurse-submodules
 git checkout testnet && git submodule update --init --recursive
 
 
-cd /var/server/eosio.core && git pull origin testnet && ./scripts/eosio_build.sh
+cd /var/server/eosio.core && git pull origin 2.0.14b && ./scripts/eosio_build.sh
 
 ###### Build done. Install
 ### Copy files
