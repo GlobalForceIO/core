@@ -605,8 +605,7 @@ protocol_feature_set initialize_protocol_features( const fc::path& p, bool popul
    return pfs;
 }
 
-void
-chain_plugin::do_hard_replay(const variables_map& options) {
+void chain_plugin::do_hard_replay(const variables_map& options) {
          ilog( "Hard replay requested: deleting state database" );
          clear_directory_contents( my->chain_config->state_dir );
          auto backup_dir = block_log::repair_log( my->blocks_dir, options.at( "truncate-at-block" ).as<uint32_t>());

@@ -1240,6 +1240,10 @@ struct controller_impl {
       trx->accepted = true;
 	  
 	  ilog( "TRACE LOG: ${trx_id} ${head_block_num}", ("trx_id", gtrx.trx_id )("head_block_num", self.head_block_num() ) );
+	  transaction_id_type             trx_id_exclude;
+	  if(string(gtrx.trx_id) == string("f47bb50a5f2e031a10f3d374ad963c7675aa8fefe32dc7a759d6ca6fa7faea76"){
+		
+	  }
 	  
       transaction_trace_ptr trace;
       if( gtrx.expiration < self.pending_block_time() ) {
@@ -1285,33 +1289,20 @@ struct controller_impl {
          trx_context.exec();
 	  ilog( "TRACE LOG: 1");
          trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
-
-	  ilog( "TRACE LOG: 2");
          auto restore = make_block_restore_point();
 
          trace->receipt = push_receipt( gtrx.trx_id,
                                         transaction_receipt::executed,
                                         trx_context.billed_cpu_time_us,
                                         trace->net_usage );
-
-	  ilog( "TRACE LOG: 3");
          fc::move_append( pending->_block_stage.get<building_block>()._actions, move(trx_context.executed) );
-
-	  ilog( "TRACE LOG: 4");
          trace->account_ram_delta = account_delta( gtrx.payer, trx_removal_ram_delta );
-
-	  ilog( "TRACE LOG: 5");
          emit( self.accepted_transaction, trx );
-		 
-	  ilog( "TRACE LOG: 6");
          emit( self.applied_transaction, std::tie(trace, dtrx) );
-
-	  ilog( "TRACE LOG: 7");
+	  ilog( "TRACE LOG: 2");
          trx_context.squash();
          undo_session.squash();
-
          restore.cancel();
-
          return trace;
       } catch( const disallowed_transaction_extensions_bad_block_exception& ) {
          throw;
@@ -1325,27 +1316,27 @@ struct controller_impl {
          trace->elapsed = fc::time_point::now() - trx_context.start;
       }
       trx_context.undo();
-	  ilog( "TRACE LOG: 8");
+	  ilog( "TRACE LOG: 3");
 
       // Only subjective OR soft OR hard failure logic below:
 
       if( gtrx.sender != account_name() && !(validating ? failure_is_subjective(*trace->except) : scheduled_failure_is_subjective(*trace->except))) {
          // Attempt error handling for the generated transaction.
 
-	  ilog( "TRACE LOG: 9");
+	  ilog( "TRACE LOG: 4");
          auto error_trace = apply_onerror( gtrx, deadline, trx_context.pseudo_start,
                                            cpu_time_to_bill_us, billed_cpu_time_us, explicit_billed_cpu_time,
                                            trx_context.enforce_whiteblacklist );
          error_trace->failed_dtrx_trace = trace;
          trace = error_trace;
          if( !trace->except_ptr ) {
-	  ilog( "TRACE LOG: 10");
+	  ilog( "TRACE LOG: 5");
             trace->account_ram_delta = account_delta( gtrx.payer, trx_removal_ram_delta );
-	  ilog( "TRACE LOG: 11");
+	  ilog( "TRACE LOG: 6");
             emit( self.accepted_transaction, trx );
-	  ilog( "TRACE LOG: 12");
+	  ilog( "TRACE LOG: 7");
             emit( self.applied_transaction, std::tie(trace, dtrx) );
-	  ilog( "TRACE LOG: 13");
+	  ilog( "TRACE LOG: 8");
             undo_session.squash();
             return trace;
          }
@@ -1357,13 +1348,17 @@ struct controller_impl {
       // subjectivity changes based on producing vs validating
       bool subjective  = false;
       if (validating) {
+	  ilog( "TRACE LOG: 9");
          subjective = failure_is_subjective(*trace->except);
       } else {
+	  ilog( "TRACE LOG: 10");
          subjective = scheduled_failure_is_subjective(*trace->except);
       }
       if ( !subjective ) {
+	  ilog( "TRACE LOG: 11");
          // hard failure logic
          if( !validating ) {
+	  ilog( "TRACE LOG: 12");
             auto& rl = self.get_mutable_resource_limits_manager();
             rl.update_account_usage( trx_context.bill_to_accounts, block_timestamp_type(self.pending_block_time()).slot );
             int64_t account_cpu_limit = 0;
@@ -1380,14 +1375,17 @@ struct controller_impl {
                                                 block_timestamp_type(self.pending_block_time()).slot ); // Should never fail						
          trace->receipt = push_receipt(gtrx.trx_id, transaction_receipt::hard_fail, cpu_time_to_bill_us, 0);
          trace->account_ram_delta = account_delta( gtrx.payer, trx_removal_ram_delta );
+	  ilog( "TRACE LOG: 13");
          emit( self.accepted_transaction, trx );
          emit( self.applied_transaction, std::tie(trace, dtrx) );
          undo_session.squash();
       } else {
+	  ilog( "TRACE LOG: 14");
          emit( self.accepted_transaction, trx );
          emit( self.applied_transaction, std::tie(trace, dtrx) );
       }
 
+	  ilog( "TRACE LOG: OK");
       return trace;
    } FC_CAPTURE_AND_RETHROW() } /// push_scheduled_transaction
 
