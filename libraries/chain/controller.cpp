@@ -1313,7 +1313,7 @@ struct controller_impl {
       } catch( const protocol_feature_bad_block_exception& ) {
          throw;
       } catch( const fc::exception& e ) {
-	  ilog( "TRACE LOG: catch ${e}", ("e", except->to_detail_string());
+	  ilog( "TRACE LOG: catch ${e}", ("e", except->to_detail_string()));
          cpu_time_to_bill_us = trx_context.update_billed_cpu_time( fc::time_point::now() );
          trace->error_code = controller::convert_exception_to_error_code( e );
          trace->except = e;
