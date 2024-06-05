@@ -1239,11 +1239,6 @@ struct controller_impl {
       transaction_metadata_ptr trx = transaction_metadata::create_no_recover_keys( packed_transaction( dtrx ), transaction_metadata::trx_type::scheduled );
       trx->accepted = true;
 	  
-	  ilog( "TRACE LOG: ${trx_id} ${head_block_num}", ("trx_id", gtrx.trx_id )("head_block_num", self.head_block_num() ) );
-	  if(string(gtrx.trx_id) == string("f47bb50a5f2e031a10f3d374ad963c7675aa8fefe32dc7a759d6ca6fa7faea76")){
-		//EOS_ASSERT( false, transaction_exception, "TRACE LOG: hard_fail trx skipped");
-	  }
-	  
       transaction_trace_ptr trace;
       if( gtrx.expiration < self.pending_block_time() ) {
          trace = std::make_shared<transaction_trace>();
@@ -1305,6 +1300,7 @@ struct controller_impl {
       } catch( const protocol_feature_bad_block_exception& ) {
          throw;
       } catch( const fc::exception& e ) {
+	  ilog( "TRACE LOG: ${trx_id} ${head_block_num}", ("trx_id", gtrx.trx_id )("head_block_num", self.head_block_num() ) );
 	  ilog( "TRACE LOG: catch ${e}", ("e", e.to_detail_string()));
          cpu_time_to_bill_us = trx_context.update_billed_cpu_time( fc::time_point::now() );
          trace->error_code = controller::convert_exception_to_error_code( e );
@@ -1318,8 +1314,6 @@ struct controller_impl {
 
       if( gtrx.sender != account_name() && !(validating ? failure_is_subjective(*trace->except) : scheduled_failure_is_subjective(*trace->except))) {
          // Attempt error handling for the generated transaction.
-
-	  ilog( "TRACE LOG: failure 1");
          auto error_trace = apply_onerror( gtrx, deadline, trx_context.pseudo_start,
                                            cpu_time_to_bill_us, billed_cpu_time_us, explicit_billed_cpu_time,
                                            trx_context.enforce_whiteblacklist );
@@ -1340,16 +1334,16 @@ struct controller_impl {
       // subjectivity changes based on producing vs validating
       bool subjective  = false;
       if (validating) {
-	  ilog( "TRACE LOG: validating 2");
+	  ilog( "TRACE LOG: validating");
          subjective = failure_is_subjective(*trace->except);
       } else {
          subjective = scheduled_failure_is_subjective(*trace->except);
       }
       if ( !subjective ) {
-	  ilog( "TRACE LOG: !subjective 3");
+	  ilog( "TRACE LOG: !subjective");
          // hard failure logic
          if( !validating ) {
-	  ilog( "TRACE LOG: update_account_usage 4");
+	  ilog( "TRACE LOG: update_account_usage");
             auto& rl = self.get_mutable_resource_limits_manager();
             rl.update_account_usage( trx_context.bill_to_accounts, block_timestamp_type(self.pending_block_time()).slot );
             int64_t account_cpu_limit = 0;
@@ -1362,7 +1356,7 @@ struct controller_impl {
                         transaction_exception, "cpu to bill ${cpu} != limited ${limit}", ("cpu", cpu_time_to_bill_us)("limit", limited_cpu_time_to_bill_us) );
             cpu_time_to_bill_us = limited_cpu_time_to_bill_us;
          }
-	  ilog( "TRACE LOG: add_transaction_usage 5");
+	  ilog( "TRACE LOG: add_transaction_usage");
          //resource_limits.add_transaction_usage( trx_context.bill_to_accounts, cpu_time_to_bill_us, 0,
          //                                       block_timestamp_type(self.pending_block_time()).slot ); // Should never fail						
          trace->receipt = push_receipt(gtrx.trx_id, transaction_receipt::hard_fail, cpu_time_to_bill_us, 0);
