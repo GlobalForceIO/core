@@ -495,8 +495,8 @@ extern const char* const state_history_plugin_abi = R"({
         {
             "name": "resource_billtrxs_v0", "fields": [
                 { "type": "name", "name": "owner" },
-                { "type": "uint64", "name": "ram" }
-                { "type": "uint64", "name": "cpu" }
+                { "type": "uint64", "name": "ram" },
+                { "type": "uint64", "name": "cpu" },
                 { "type": "uint64", "name": "net" }
             ]
         }
