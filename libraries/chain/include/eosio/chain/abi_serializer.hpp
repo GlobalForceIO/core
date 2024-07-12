@@ -519,7 +519,7 @@ namespace impl {
          mvo("transaction_mroot", block.transaction_mroot);
          mvo("action_mroot", block.action_mroot);
          mvo("schedule_version", block.schedule_version);
-         mvo("new_producers", block.new_producers);
+         //mvo("new_producers", block.new_producers);
 
          // process contents of block.header_extensions
          flat_multimap<uint16_t, block_header_extension> header_exts = block.validate_and_extract_header_extensions();
@@ -536,7 +536,22 @@ namespace impl {
          }
          if ( header_exts.count(producer_schedule_change_extension::extension_id())) {
             const auto& new_producer_schedule = header_exts.lower_bound(producer_schedule_change_extension::extension_id())->second.get<producer_schedule_change_extension>();
-            mvo("new_producer_schedule", new_producer_schedule);
+            
+			/*
+			mutable_variant_object new_producers;
+			vector<fc::variant> producers;
+			producers.reserve(new_producer_schedule.producers.size());
+			for (auto producer : new_producer_schedule.producers) {
+				mutable_variant_object bp;
+				bp( "producer_name", producer.producer_name.to_string());
+				bp( "block_signing_key", producer.authority[0].keys[0].key);
+				producers.push_back( std::move(producer) );
+			}
+			new_producers("version", new_producer_schedule.version);
+			new_producers("producers", new_producer_schedule.producers);
+			mvo("new_producers", new_producers);
+			*/
+		mvo("new_producer_schedule", new_producer_schedule);
          }
 
          mvo("producer_signature", block.producer_signature);

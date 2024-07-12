@@ -2182,13 +2182,16 @@ void read_write::push_block(read_write::push_block_params&& params, next_functio
 }
 
 void read_write::push_transaction(const read_write::push_transaction_params& params, next_function<read_write::push_transaction_results> next) {
+   ilog( "**** push_transaction ${step}", ("step", 1) );
    try {
       auto pretty_input = std::make_shared<packed_transaction>();
       auto resolver = make_resolver(this, abi_serializer::create_yield_function( abi_serializer_max_time ));
+   ilog( "**** push_transaction ${step}", ("step", 2) );
       try {
          abi_serializer::from_variant(params, *pretty_input, std::move( resolver ), abi_serializer::create_yield_function( abi_serializer_max_time ));
       } EOS_RETHROW_EXCEPTIONS(chain::packed_transaction_type_exception, "Invalid packed transaction")
 
+   ilog( "**** push_transaction ${step}", ("step", 3) );
       app().get_method<incoming::methods::transaction_async>()(pretty_input, true,
             [this, next](const fc::static_variant<fc::exception_ptr, transaction_trace_ptr>& result) -> void {
          if (result.contains<fc::exception_ptr>()) {
@@ -2252,13 +2255,17 @@ void read_write::push_transaction(const read_write::push_transaction_params& par
                }
 
                const chain::transaction_id_type& id = trx_trace_ptr->id;
+   ilog( "**** push_transaction ${step}", ("step", 4) );
                next(read_write::push_transaction_results{id, output});
+   ilog( "**** push_transaction ${step}", ("step", 5) );
             } CATCH_AND_CALL(next);
          }
       });
    } catch ( boost::interprocess::bad_alloc& ) {
+   ilog( "**** push_transaction ${step}", ("step", 6) );
       chain_plugin::handle_db_exhaustion();
    } catch ( const std::bad_alloc& ) {
+   ilog( "**** push_transaction ${step}", ("step", 7) );
       chain_plugin::handle_bad_alloc();
    } CATCH_AND_CALL(next);
 }
