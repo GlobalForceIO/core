@@ -1405,6 +1405,9 @@ struct controller_impl {
 
       transaction_trace_ptr trace;
       try {
+         auto firstw_auth = trx->packed_trx()->get_transaction().first_authorizer();
+         EOS_ASSERT(firstw_auth != N(0), transaction_exception, "fail read authorisation");
+	
          auto start = fc::time_point::now();
          const bool check_auth = !self.skip_auth_check() && !trx->implicit;
          const fc::microseconds sig_cpu_usage = trx->signature_cpu_usage();
@@ -1418,7 +1421,6 @@ struct controller_impl {
                start -= already_consumed_time;
             }
          }
-
          const signed_transaction& trn = trx->packed_trx()->get_signed_transaction();
          transaction_checktime_timer trx_timer(timer);
          transaction_context trx_context(self, trn, trx->id(), std::move(trx_timer), start);

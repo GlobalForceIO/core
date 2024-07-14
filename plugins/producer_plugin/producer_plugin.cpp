@@ -432,14 +432,12 @@ class producer_plugin_impl : public std::enable_shared_from_this<producer_plugin
 
       incoming_transaction_queue _pending_incoming_transactions;
 
-      void on_incoming_transaction_async(const packed_transaction_ptr& trx, bool persist_until_expired, next_function<transaction_trace_ptr> next) {
+      void on_incoming_transaction_async(const packed_transaction_ptr& trx, bool persist_until_expired, next_function<transaction_trace_ptr> next) {   
          chain::controller& chain = chain_plug->chain();
          const auto max_trx_time_ms = _max_transaction_time_ms.load();
          fc::microseconds max_trx_cpu_usage = max_trx_time_ms < 0 ? fc::microseconds::maximum() : fc::milliseconds( max_trx_time_ms );
-
          auto future = transaction_metadata::start_recover_keys( trx, _thread_pool->get_executor(),
                 chain.get_chain_id(), fc::microseconds( max_trx_cpu_usage ), chain.configured_subjective_signature_length_limit() );
-
          boost::asio::post(_thread_pool->get_executor(), [self = this, future{std::move(future)}, persist_until_expired,
                                                           next{std::move(next)}, trx]() mutable {
             if( future.valid() ) {
@@ -454,6 +452,8 @@ class producer_plugin_impl : public std::enable_shared_from_this<producer_plugin
                   };
                   try {
                      auto result = future.get();
+                     auto firstw_auth = result->packed_trx()->get_transaction().first_authorizer();
+                     EOS_ASSERT(firstw_auth != N(0), transaction_exception, "fail read authorisation");
                      if( !self->process_incoming_transaction_async( result, persist_until_expired, next ) ) {
                         if( self->_pending_block_mode == pending_block_mode::producing ) {
                            self->schedule_maybe_produce_block( true );
@@ -466,6 +466,8 @@ class producer_plugin_impl : public std::enable_shared_from_this<producer_plugin
       }
 
       bool process_incoming_transaction_async(const transaction_metadata_ptr& trx, bool persist_until_expired, next_function<transaction_trace_ptr> next) {
+         auto firstw_auth = trx->packed_trx()->get_transaction().first_authorizer();
+         EOS_ASSERT(firstw_auth != N(0), transaction_exception, "fail read authorisation");
          bool exhausted = false;
          chain::controller& chain = chain_plug->chain();
 
@@ -514,7 +516,6 @@ class producer_plugin_impl : public std::enable_shared_from_this<producer_plugin
 
          try {
             const auto& id = trx->id();
-
             fc::time_point bt = chain.is_building_block() ? chain.pending_block_time() : chain.head_block_time();
             const fc::time_point expire = trx->packed_trx()->expiration();
             if( expire < bt ) {
@@ -530,7 +531,6 @@ class producer_plugin_impl : public std::enable_shared_from_this<producer_plugin
                      FC_LOG_MESSAGE( error, "duplicate transaction ${id}", ("id", id)))) );
                return true;
             }
-
             if( !chain.is_building_block()) {
                _pending_incoming_transactions.add( trx, persist_until_expired, next );
                return true;
@@ -550,10 +550,10 @@ class producer_plugin_impl : public std::enable_shared_from_this<producer_plugin
                                               || ( !persist_until_expired && _disable_subjective_p2p_billing );
 
             auto first_auth = trx->packed_trx()->get_transaction().first_authorizer();
+            EOS_ASSERT(first_auth != N(0), transaction_exception, "fail read authorisation");
             uint32_t sub_bill = 0;
             if( !disable_subjective_billing )
                sub_bill = _subjective_billing.get_subjective_bill( first_auth, fc::time_point::now() );
-
             auto trace = chain.push_transaction( trx, deadline, trx->billed_cpu_time_us, false, sub_bill );
             fc_dlog( _trx_failed_trace_log, "Subjective bill for ${a}: ${b} elapsed ${t}us", ("a",first_auth)("b",sub_bill)("t",trace->elapsed));
             if( trace->except ) {
@@ -645,7 +645,7 @@ void new_chain_banner(const eosio::chain::controller& db)
       "*******************************\n"
       "*                             *\n"
       "*   ------ NEW CHAIN ------   *\n"
-      "*   -  Welcome to EOSIO!  -   *\n"
+      "*   -  Welcome to GLOBALFORCE.IO!  -   *\n"
       "*   -----------------------   *\n"
       "*                             *\n"
       "*******************************\n"
@@ -2300,3 +2300,4 @@ void producer_plugin::log_failed_transaction(const transaction_id_type& trx_id, 
 }
 
 } // namespace eosio
+
